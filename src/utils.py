@@ -4,7 +4,7 @@ from pygame.locals import *
 from pygame.sprite import Sprite
 import numpy as np
 from enum import Enum
-
+from abc import ABC
 
 class Turn(Enum):
     NONE = 0
@@ -34,6 +34,14 @@ def rot_center(image, rect, angle):
     return rot_image, rot_rect
 
 
+def scale(image, rect, factor):
+    """rotate an image while keeping its center"""
+    size = image.get_size()
+    scale_image = pygame.transform.scale(image, (round(size[0] * factor), round(size[1] * factor)))
+    scale_rect = scale_image.get_rect(center=rect.center)
+    return scale_image, scale_rect
+
+
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
     try:
@@ -49,7 +57,7 @@ def load_image(name, colorkey=None):
     return image, image.get_rect()
 
 
-class Rotatable:
+class Rotatable(ABC):
     def __init__(self, bearing):
         self.bearing = bearing
         self._max_rotation = None
@@ -78,12 +86,17 @@ class LogicalObject(Rotatable):
         rads = np.pi * self.bearing / 180
         return np.stack([np.sin(rads), np.cos(rads)], axis=-1)
 
+    def delta(self):
+        raise NotImplementedError
+
 
 class GameObject(Sprite, LogicalObject):
-    def __init__(self, center: tuple, bearing: float, image):
+    def __init__(self, center: tuple, bearing: float, image, scale_factor=None):
         Sprite.__init__(self)
         LogicalObject.__init__(self, center, bearing)
         self.image, self.rect = load_image(image, -1)
+        if scale_factor:
+            self.image, self.rect = scale(self.image, self.rect, scale_factor)
 
         # colorImage = pygame.Surface(self.image.get_size()).convert_alpha()
         # colorImage.fill((0, 0, 255))
@@ -92,7 +105,10 @@ class GameObject(Sprite, LogicalObject):
         self.orig_image = self.image
 
     def draw_rect(self, surface):
-        pygame.draw.rect(surface, (255, 0, 0), self.rect)
+        r = pygame.Surface((self.rect.w, self.rect.h))
+        r.set_alpha(128)
+        r.fill((255, 0, 0))
+        surface.blit(r, (self.rect.left, self.rect.top))
 
     def update(self, *args):
         self.image, self.rect = rot_center(self.orig_image, self.rect, self.bearing)

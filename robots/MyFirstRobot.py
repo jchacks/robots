@@ -1,15 +1,13 @@
 from robot import Robot
-import pygame as pg
 
 
-class InputRobot(Robot):
+class MyFirstRobot(Robot):
     def do(self):
-        pass
-    #     pg.mouse.get_pos()
-    #     if pg.KEYDOWN
+        self.move_forward(400)
+        self.turn_left(180)
 
     def on_scanned(self, scanned):
-        pass
+        self.fire(1)
 
     def on_hit_robot(self, event):
         pass

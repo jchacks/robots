@@ -1,8 +1,18 @@
-import pygame
-from robot import Robot, Bullet
-import threading as th
+import os
 import time
 
+import pygame
+
+from robot import Bullet
+from robots import RandomRobot, MyFirstRobot
+
+# robots = []
+# for path in os.listdir('robots'):
+#     name = path.split('.')[0]
+#     robot_class = __import__('robots.' + name, fromlist=[''])
+#     robots.append(getattr(robot_class, name))
+#
+# robots = robots[1:]
 
 class Battle(object):
     def __init__(self, size, robots):
@@ -14,7 +24,8 @@ class Battle(object):
 class App(object):
     def __init__(self):
         self._running = True
-        self._display_surf = None
+        self.screen = None
+        self.rect = None
         self.size = self.width, self.height = 1080, 800
         self.robots = None
         self.last_render = 0
@@ -30,7 +41,7 @@ class App(object):
         pygame.init()
         pygame.font.init()
         self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF)
-
+        self.rect = self.screen.get_rect()
         self.bg = background = pygame.Surface(self.screen.get_size())
         background = background.convert()
         if pygame.font:
@@ -43,7 +54,7 @@ class App(object):
 
         background.fill((250, 250, 250))
         self._running = True
-        self.robots = [Robot(self, (200.0, 200.0), 0.0), Robot(self, (200.0, 600.0), 180.0)]
+        self.robots = [RandomRobot.RandomRobot(self, (200.0, 200.0), 0.0), MyFirstRobot.MyFirstRobot(self, (200.0, 600.0), 180.0)]
 
     def on_event(self, event):
         if event.type == pygame.QUIT:
@@ -74,16 +85,19 @@ class App(object):
             for robot in self.robots:
                 robot.update_logic()
             for robot in self.robots:
+                robot.collide_wall()
+            for robot in self.robots:
                 robot.collide_robots()
             for robot in self.robots:
                 robot.collide_scan(self.robots)
+            Bullet.collide_bullets()
 
     def on_render(self):
         if (time.time() - self.last_render >= self.render_interval):
             self.last_render = time.time()
             self.screen.blit(self.bg, (0, 0))
             for robot in self.robots:
-                robot.draw(self.screen)
+                robot._draw(self.screen)
             Bullet.draw(self.screen)
             pygame.display.flip()
 
