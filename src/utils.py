@@ -35,12 +35,34 @@ def rot_center(image, rect, angle):
     return rot_image, rot_rect
 
 
-def scale(image, rect, factor):
+def scale_image(image, rect, factor):
     """rotate an image while keeping its center"""
     size = image.get_size()
     scale_image = pygame.transform.scale(image, (round(size[0] * factor), round(size[1] * factor)))
     scale_rect = scale_image.get_rect(center=rect.center)
     return scale_image, scale_rect
+
+
+def test_segment_circle(start, stop, center, radius):
+    ax, ay = start
+    bx, by = stop
+    cx, cy = center
+    ax -= cx
+    ay -= cy
+    bx -= cx
+    by -= cy
+    a = (bx - ax) ** 2 + (by - ay) ** 2
+    b = 2 * (ax * (bx - ax) + ay * (by - ay))
+    c = ax ** 2 + ay ** 2 - radius ** 2
+    disc = b ** 2 - 4 * a * c
+    if disc <= 0:
+        return False
+    sqrtdisc = np.sqrt(disc)
+    t1 = (-b + sqrtdisc) / (2 * a)
+    t2 = (-b - sqrtdisc) / (2 * a)
+    if ((0 < t1) and (t1 < 1)) or ((0 < t2) and (t2 < 1)):
+        return True
+    return False
 
 
 def load_image(name, colorkey=None):
@@ -105,7 +127,7 @@ class GameObject(Sprite, LogicalObject):
     def on_init(self):
         self.image, self.rect = load_image(self.filename, -1)
         if self.scale_factor:
-            self.image, self.rect = scale(self.image, self.rect, self.scale_factor)
+            self.image, self.rect = scale_image(self.image, self.rect, self.scale_factor)
         self.rect.center = self.center
         self.orig_image = self.image
 

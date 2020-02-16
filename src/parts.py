@@ -1,40 +1,41 @@
 from abc import ABC
 
-from utils import GameObject, Turn
-import numpy as np
 import numpy as np
 import pygame
 from pygame.sprite import RenderUpdates, Group
 
-from utils import GameObject, Turn
+from utils import LogicalObject, GameObject, Turn, load_image, scale_image
 
 
-class Bullet(GameObject, ABC):
-    class_group = RenderUpdates()
+class Bullet(LogicalObject):
+    bullets = set()
+    _image, _rect = None,None
 
     def __init__(self, robot, power):
+        LogicalObject.__init__(self, robot.gun.tip_location, robot.gun.bearing)
         self.robot = robot
-        GameObject.__init__(self, self.robot.gun.tip_location, 0.0, 'blast.png', scale_factor=power / 3)
         self.power = power
-        self.bearing = self.robot.gun.bearing
+        self.image, self.rect = scale_image(self._image, self._rect, self.power / 3)
+        self.rect.center = self.center
         self.speed = 20 - (3 * self.power)
         self.damage = 4 * self.power
         if self.power > 1:
             self.damage += 2 * (self.power - 1)
-
-        self.on_init()
-        self.class_group.add(self)
+        self.bullets.add(self)
 
     @classmethod
-    def draw(cls, surface):
-        cls.class_group.update()
-        cls.class_group.draw(surface)
+    def on_init(cls):
+        cls._image, cls._rect = load_image('blast.png', -1)
+
+    def draw(self, surface):
+        surface.blit(self.image, self.rect.topleft)
 
     def delta(self):
-        self.center = self.center + self.velocity
+        self.center += self.velocity
+        self.rect.center = self.center
         if (self.center[0] < 0) or (self.center[1] < 0) or \
-                (self.center[0] > self.robot.app.size[0]) or \
-                (self.center[1] > self.robot.app.size[1]):
+                (self.center[0] > self.robot.battle.size[0]) or \
+                (self.center[1] > self.robot.battle.size[1]):
             self.clean_up()
 
     @property
@@ -42,17 +43,17 @@ class Bullet(GameObject, ABC):
         return self.direction * self.speed
 
     def clean_up(self):
-        self.class_group.remove(self)
+        self.bullets.remove(self)
 
     @classmethod
     def collide_bullets(cls):
-        group = cls.class_group.copy()
-        for bullet in group:
+        for bullet in cls.bullets:
+            group = cls.bullets.copy()
             group.remove(bullet)
             other_bullet = pygame.sprite.spritecollideany(bullet, group)
             if other_bullet is not None:
-                cls.class_group.remove(bullet)
-                cls.class_group.remove(other_bullet)
+                cls.bullets.remove(bullet)
+                cls.bullets.remove(other_bullet)
 
 
 class Gun(GameObject):
@@ -103,9 +104,9 @@ class Radar(GameObject):
         return self.center + (self.direction * 1200)
 
     def intersect_scan(self, rect):
-        p = self.center.copy()
-        for i in range(1200):
-            p += self.direction
+        c = self.center.copy()
+        for i in range(10, 1200, 3):
+            p = c + (i * self.direction)
             if rect.collidepoint(p):
                 return True
         else:
@@ -131,10 +132,7 @@ class Base(GameObject):
 
     def on_init(self):
         super(Base, self).on_init()
-        self.coll = self.rect.copy()
-        self.coll.inflate_ip(-2, -2)
         self.class_group.add(self)
-
 
     def clean_up(self):
         self.class_group.remove(self)
@@ -142,7 +140,6 @@ class Base(GameObject):
     def delta(self):
         super(Base, self).delta()
         self.center = self.robot.center  # TODO propagate these changes down instead of fetching them
-        self.coll.center = self.center
         self.bearing = self.robot.bearing
 
     def draw_rect(self, surface):
@@ -150,9 +147,3 @@ class Base(GameObject):
         r.set_alpha(128)  # alpha level
         r.fill((255, 0, 0))  # this fills the entire surface
         surface.blit(r, (self.rect.left, self.rect.top))
-
-    def draw_coll(self, surface):
-        r = pygame.Surface((self.coll.w, self.coll.h))  # the size of your coll
-        r.set_alpha(128)  # alpha level
-        r.fill((255, 0, 0))  # this fills the entire surface
-        surface.blit(r, (self.coll.left, self.coll.top))

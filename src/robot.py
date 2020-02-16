@@ -4,15 +4,19 @@ from pygame.sprite import OrderedUpdates
 
 from events import *
 from parts import *
-from utils import Move, LogicalObject
+from utils import Move, LogicalObject, test_segment_circle
 
 
 class Robot(LogicalObject, ABC):
-    def __init__(self, app, center, bearing=0.0):
+    def __init__(self, battle, center, bearing=0.0):
         LogicalObject.__init__(self, center, bearing)
-        self.app = app
+        self.battle = battle
         self.center = np.array(center, np.float64)
         self.bearing = bearing
+        self.radius = 36 // 2
+        self.rect = pygame.Rect(0, 0, 36, 36)  # named rect for colliders
+        self.rect.center = self.center
+        print("rect", self.rect)
         self.dead = False
         self._speed = 0.0
 
@@ -55,6 +59,10 @@ class Robot(LogicalObject, ABC):
     def on_hit_by_bullet(self, event):
         pass
 
+    @abstractmethod
+    def on_hit_wall(self, event):
+        pass
+
     @property
     def moving(self):
         if self.left_to_move > 0:
@@ -83,15 +91,14 @@ class Robot(LogicalObject, ABC):
                 self._speed = np.clip(self._speed + self.acceleration, -8.0, 8.0)
                 self.left_to_move = max(0, self.left_to_move - self._speed)
 
-                self.center = np.clip(self.center + self.velocity, [0, 0], self.app.size)
-
+                self.center = self.center + self.velocity
+                self.rect.center = self.center
                 self.bearing = self.get_delta_bearing(self.turning.value)
                 self.left_to_turn = max(0, self.left_to_turn - self.rotation_speed)
 
                 self.base.delta()
                 self.gun.delta()
                 self.radar.delta()
-                # print(self._speed, self.center, self.rotation, self.gun.rotation, self.radar.rotation)
                 if self.should_fire:
                     self._fire(self.fire_power)
 
@@ -113,6 +120,7 @@ class Robot(LogicalObject, ABC):
 
     def _fire(self, firepower):
         if self.gun.heat == 0:
+            print("Firing")
             Bullet(self, firepower)
             self.gun.heat = 1 + firepower / 5
             self.energy -= firepower
@@ -151,9 +159,15 @@ class Robot(LogicalObject, ABC):
             self._group.draw(surface)
             self.radar.draw(surface)
             if self.draw_bbs:
-                self.base.draw_coll(surface)
+                self.draw_rect(surface)
                 self.draw_debug(surface)
         self.draw()
+
+    def draw_rect(self, surface):
+        r = pygame.Surface((self.rect.w, self.rect.h))  # the size of your rect
+        r.set_alpha(128)  # alpha level
+        r.fill((255, 0, 0))  # this fills the entire surface
+        surface.blit(r, (self.rect.left, self.rect.top))
 
     def draw_debug(self, surface):
         pygame.draw.circle(surface, (255, 0, 255), self.center.astype(int), 2)
@@ -166,8 +180,8 @@ class Robot(LogicalObject, ABC):
     def collide_bullets(self):
         events = []
         if not self.dead:
-            bases_colls = {bullet: bullet.rect for bullet in Bullet.class_group}
-            hits = self.base.coll.collidedictall(bases_colls)
+            bases_colls = {bullet: bullet.rect for bullet in Bullet.bullets}
+            hits = self.rect.collidedictall(bases_colls)
             for bullet, coll in hits:
                 if not bullet.robot is self:
                     self.energy -= bullet.damage
@@ -177,35 +191,42 @@ class Robot(LogicalObject, ABC):
         if events:
             self.on_hit_by_bullet(events)
 
-    # TODO test this removing clipping from
     def collide_wall(self):
         if not self.dead:
-            if not self.app.rect.contains(self.base.coll):
+            if not self.battle.rect.contains(self.rect):
                 self.center += -self.velocity
-                offset = max(self.base.coll.w, self.base.coll.h)
-                bounds = (offset, offset), (self.app.size[0] - offset, self.app.size[1] - offset)
+                offset = max(self.rect.w // 2, self.rect.h // 2) + 4
+                bounds = (offset, offset), (self.battle.size[0] - offset, self.battle.size[1] - offset)
                 self.center = np.clip(self.center + self.velocity, *bounds)
                 self.energy -= max(abs(self._speed) * 0.5 - 1, 0)
                 self._speed = 0
+                self.on_hit_wall(self.velocity)
 
-    def collide_robots(self):
+    def collide_robots(self, robots):
         if not self.dead:
-            bases_colls = {base: base.coll for base in Base.class_group}
-            base, coll = self.base.coll.collidedict(bases_colls)
-            if not base is self.base:
-                self.energy -= 0.6
-                base.robot.energy -= 0.6
-                norm = (self.center - base.robot.center)
-                norm = (norm / np.sum(norm ** 2)) * 10
-                self.center = self.center + norm
-                base.robot.center = base.robot.center - norm
+            for robot in robots:
+                if robot is not self:
+                    res = pygame.sprite.collide_circle(self, robot)
+                    if res:
+                        self.energy -= 0.6
+                        robot.energy -= 0.6
+                        norm = (self.center - robot.center)
+                        norm = (norm / np.sum(norm ** 2)) * 10
+                        self.center = self.center + norm
+                        robot.center = robot.center - norm
+                        break
+            # robot_colls = {robot: robot.rect for robot in robots}
+            # robot, coll = self.rect.collidedict(robot_colls)
+            # if not robot is self:
 
     def collide_scan(self, robots):
         scanned = []
         if not self.dead:
             for robot in robots:
                 if robot is not self and not robot.dead:
-                    if self.radar.intersect_scan(robot.base.coll):
+                    if test_segment_circle(self.center, self.radar.scan_endpoint, robot.center, robot.radius):
                         scanned.append(ScannedRobotEvent(robot))
         if scanned:
             self.on_scanned(scanned)
+
+
