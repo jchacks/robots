@@ -11,7 +11,7 @@ class Robot(LogicalObject, ABC):
     def __init__(self, app, center, bearing=0.0):
         LogicalObject.__init__(self, center, bearing)
         self.app = app
-        self.center = center
+        self.center = np.array(center, np.float64)
         self.bearing = bearing
         self.dead = False
         self._speed = 0.0
@@ -24,18 +24,18 @@ class Robot(LogicalObject, ABC):
         self.should_fire = False
         self.fire_power = 3
 
-        self.init()
-
-    def init(self):
+    def on_init(self):
         self.energy = 100
         self._group = OrderedUpdates(self.base, self.gun, self.radar)
         self.commands = False
         self.left_to_move = 0.0
         self.left_to_turn = 0.0
+        self.radar.on_init()
+        self.gun.on_init()
+        self.base.on_init()
 
     def _do(self):
         if not self.commands:
-            print("DO-----------")
             self.do()
             self.commands = True
 
@@ -113,7 +113,6 @@ class Robot(LogicalObject, ABC):
 
     def _fire(self, firepower):
         if self.gun.heat == 0:
-            print("Firing")
             Bullet(self, firepower)
             self.gun.heat = 1 + firepower / 5
             self.energy -= firepower
@@ -152,8 +151,14 @@ class Robot(LogicalObject, ABC):
             self._group.draw(surface)
             self.radar.draw(surface)
             if self.draw_bbs:
-                self.base.draw_rect(surface)
+                self.base.draw_coll(surface)
+                self.draw_debug(surface)
         self.draw()
+
+    def draw_debug(self, surface):
+        pygame.draw.circle(surface, (255, 0, 255), self.center.astype(int), 2)
+        pygame.draw.line(surface, (255, 0, 255), self.center.astype(int),
+                         (self.center + (self.direction * 10)).astype(int), 1)
 
     def draw(self):
         pass
@@ -163,7 +168,6 @@ class Robot(LogicalObject, ABC):
         if not self.dead:
             bases_colls = {bullet: bullet.rect for bullet in Bullet.class_group}
             hits = self.base.coll.collidedictall(bases_colls)
-            print(hits)
             for bullet, coll in hits:
                 if not bullet.robot is self:
                     self.energy -= bullet.damage

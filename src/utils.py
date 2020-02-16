@@ -6,6 +6,7 @@ import numpy as np
 from enum import Enum
 from abc import ABC
 
+
 class Turn(Enum):
     NONE = 0
     LEFT = 1
@@ -91,17 +92,21 @@ class LogicalObject(Rotatable):
 
 
 class GameObject(Sprite, LogicalObject):
-    def __init__(self, center: tuple, bearing: float, image, scale_factor=None):
+    def __init__(self, center: tuple, bearing: float, filename, scale_factor=None):
         Sprite.__init__(self)
         LogicalObject.__init__(self, center, bearing)
-        self.image, self.rect = load_image(image, -1)
-        if scale_factor:
-            self.image, self.rect = scale(self.image, self.rect, scale_factor)
+        self.scale_factor = scale_factor
+        self.filename = filename
 
         # colorImage = pygame.Surface(self.image.get_size()).convert_alpha()
         # colorImage.fill((0, 0, 255))
         # self.image.blit(colorImage, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
 
+    def on_init(self):
+        self.image, self.rect = load_image(self.filename, -1)
+        if self.scale_factor:
+            self.image, self.rect = scale(self.image, self.rect, self.scale_factor)
+        self.rect.center = self.center
         self.orig_image = self.image
 
     def draw_rect(self, surface):
@@ -112,7 +117,10 @@ class GameObject(Sprite, LogicalObject):
 
     def update(self, *args):
         self.image, self.rect = rot_center(self.orig_image, self.rect, self.bearing)
-        self.rect.center = self.center
+        self.rect.center = self.center  # visual update rect
+
+    def delta(self):
+        pass
 
     def draw(self, surface):
         pass

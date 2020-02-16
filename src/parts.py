@@ -21,6 +21,8 @@ class Bullet(GameObject, ABC):
         self.damage = 4 * self.power
         if self.power > 1:
             self.damage += 2 * (self.power - 1)
+
+        self.on_init()
         self.class_group.add(self)
 
     @classmethod
@@ -40,7 +42,6 @@ class Bullet(GameObject, ABC):
         return self.direction * self.speed
 
     def clean_up(self):
-        print("Cleaning")
         self.class_group.remove(self)
 
     @classmethod
@@ -126,21 +127,32 @@ class Base(GameObject):
 
     def __init__(self, robot):
         GameObject.__init__(self, robot.center, robot.bearing, 'baseGrey.png')
+        self.robot = robot
+
+    def on_init(self):
+        super(Base, self).on_init()
         self.coll = self.rect.copy()
         self.coll.inflate_ip(-2, -2)
-        self.robot = robot
         self.class_group.add(self)
+
 
     def clean_up(self):
         self.class_group.remove(self)
 
     def delta(self):
-        self.coll.center = self.robot.center
-        self.center = self.robot.center
+        super(Base, self).delta()
+        self.center = self.robot.center  # TODO propagate these changes down instead of fetching them
+        self.coll.center = self.center
         self.bearing = self.robot.bearing
 
     def draw_rect(self, surface):
-        r = pygame.Surface((self.coll.w, self.coll.h))  # the size of your rect
+        r = pygame.Surface((self.rect.w, self.rect.h))  # the size of your rect
+        r.set_alpha(128)  # alpha level
+        r.fill((255, 0, 0))  # this fills the entire surface
+        surface.blit(r, (self.rect.left, self.rect.top))
+
+    def draw_coll(self, surface):
+        r = pygame.Surface((self.coll.w, self.coll.h))  # the size of your coll
         r.set_alpha(128)  # alpha level
         r.fill((255, 0, 0))  # this fills the entire surface
         surface.blit(r, (self.coll.left, self.coll.top))
