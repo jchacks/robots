@@ -1,11 +1,12 @@
 import os
 import time
-
+from ui import Overlay
 import pygame
 
 from robot import Bullet
 from robots import RandomRobot, MyFirstRobot
 from random import randint
+from collections import deque
 
 
 # robots = []
@@ -16,41 +17,12 @@ from random import randint
 #
 # robots = robots[1:]
 
-class Overlay(object):
-    def __init__(self, robots):
-        self._robots = robots
-
-    def on_render(self, screen):
-        offset = 0
-        for robot in self._robots:
-            offset = self.draw(screen, robot, offset)
-
-    def draw(self,screen, robot, offset):
-        if pygame.font:
-            font = pygame.font.Font(None, 36)
-            text = font.render(str(robot.__class__.__name__), 1, (255, 255, 255))
-            textpos = text.get_rect(left=0, top=offset)
-            screen.blit(text, textpos)
-
-            backgr = pygame.Surface((100, 4))
-            backgr.fill((255, 0, 0))
-
-            energy = pygame.Surface((robot.energy, 2))
-            energy.fill((0, 255, 0))
-            backgr.blit(energy,(0,1))
-
-            backgrpos = backgr.get_rect(left=0, top=textpos.bottom + 2)
-            screen.blit(backgr, backgrpos)
-            return backgrpos.bottom + 5
-
 
 class Battle(object):
     def __init__(self, size, robots):
         self.size = size
         self.ratio = size[0] / size[1]
         self.robots_classes = robots
-        self.robots = []
-        self.overlay = None
         self.iterations = 10
         # display stuff
         self.scale_size = None
@@ -58,12 +30,13 @@ class Battle(object):
         self.rect = None
 
         # Iteration stuff
-        self.last_sim = 0
-        self.sim_rate = 60
+        self.sim_rate = 1000
         self.sim_interval = 1.0 / self.sim_rate
         self.simulate = False
+        self.sim_times = deque(maxlen=100)
 
     def on_init(self):
+        # Draw stuff
         self.surface = pygame.Surface(self.size)
         self.rect = self.surface.get_rect()
         self.surface = self.surface.convert()
@@ -71,11 +44,22 @@ class Battle(object):
         self.bg = pygame.Surface(size)
         self.bg = self.bg.convert()
         self.surface.blit(self.bg, (0, 0))
+
+        # Simulation stuff
+        self.ticks = 0
+        self.last_sim = 0
+
+        # Add robots
+        self.robots = []
         for Robot in self.robots_classes:
             robot = Robot(self, (randint(20, w - 20), randint(20, h - 20)), randint(0, 360))
             robot.on_init()
             self.robots.append(robot)
         self.overlay = Overlay(self.robots)
+
+    def on_clean_up(self):
+        for robot in self.robots:
+            robot.destroy()
 
     def on_resize(self, size):
         nw, nh = size
@@ -89,16 +73,29 @@ class Battle(object):
         self.surface.blit(self.bg, (0, 0))
         for robot in self.robots:
             robot._draw(self.surface)
-        Bullet.draw(self.surface)
+        for bullet in Bullet.bullets:
+            bullet.draw(self.surface)
 
         resized = pygame.transform.smoothscale(self.surface, self.scale_size)
         resizedpos = resized.get_rect(centerx=screen.get_width() / 2, centery=screen.get_height() / 2)
         screen.blit(resized, resizedpos)
         self.overlay.on_render(screen)
 
+    def check_round_over(self):
+        alive = sum(not robot.dead for robot in self.robots)
+        if alive > 1:
+            return False
+        return True
+
+    def get_sim_times(self):
+        if len(self.sim_times) > 0:
+            return sum(self.sim_times) / len(self.sim_times)
+        else:
+            return -1
+
     def step(self):
         self.last_sim = time.time()
-        for bullet in Bullet.class_group:
+        for bullet in Bullet.bullets.copy():
             bullet.delta()
         for robot in self.robots:
             robot.collide_bullets()
@@ -107,14 +104,21 @@ class Battle(object):
         for robot in self.robots:
             robot.collide_wall()
         for robot in self.robots:
-            robot.collide_robots()
+            robot.collide_robots(self.robots)
         for robot in self.robots:
             robot.collide_scan(self.robots)
         Bullet.collide_bullets()
+        if self.check_round_over():
+            self.on_clean_up()
+            self.on_init()
 
     def on_loop(self):
         if (time.time() - self.last_sim >= self.sim_interval) and self.simulate:
+            s = time.time()
             self.step()
+            self.sim_times.append(time.time() - s)
+            self.ticks += 1
+        # print(round(self.get_sim_times(),5), 1/max(self.get_sim_times(), 0.0000000001), self.ticks, [r.energy for r in self.robots])
 
     def on_event(self, event):
         if event.key == pygame.K_w:
@@ -147,9 +151,10 @@ class App(object):
         pygame.init()
         pygame.font.init()
         self._running = True
-        self.battle = Battle((600, 400), [RandomRobot.RandomRobot, MyFirstRobot.MyFirstRobot])
+        self.battle = Battle((1080, 800), [RandomRobot.RandomRobot, MyFirstRobot.MyFirstRobot])
         self.init_screen()
         self.battle.on_init()
+        Bullet.on_init()
 
     def init_screen(self):
         self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
@@ -175,6 +180,8 @@ class App(object):
         elif event.type == pygame.VIDEORESIZE:
             self.on_resize(event.dict['size'])
         elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                self.render = not self.render
             self.battle.on_event(event)
 
     def on_render(self):
@@ -196,7 +203,6 @@ class App(object):
         if self.on_init() == False:
             self._running = False
         while self._running:
-            s = time.time()
             for event in pygame.event.get():
                 self.on_event(event)
             self.on_loop()
@@ -204,7 +210,6 @@ class App(object):
                 self.on_render()
             if not self.render and not self.battle.simulate:
                 time.sleep(0.1)
-            # print(time.time()-s)
 
         self.on_cleanup()
 

@@ -17,3 +17,6 @@ class RandomRobot(Robot):
 
     def on_hit_by_bullet(self, event):
         pass
+
+    def on_hit_wall(self, event):
+        pass
