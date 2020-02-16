@@ -3,8 +3,8 @@ from robot import Robot
 
 class MyFirstRobot(Robot):
     def do(self):
-        self.move_forward(400)
-        self.turn_left(180)
+        self.move_forward(1000)
+        self.turn_left(360)
 
     def on_scanned(self, scanned):
         self.fire(1)
