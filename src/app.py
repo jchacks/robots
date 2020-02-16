@@ -16,12 +16,41 @@ from random import randint
 #
 # robots = robots[1:]
 
+class Overlay(object):
+    def __init__(self, robots):
+        self._robots = robots
+
+    def on_render(self, screen):
+        offset = 0
+        for robot in self._robots:
+            offset = self.draw(screen, robot, offset)
+
+    def draw(self,screen, robot, offset):
+        if pygame.font:
+            font = pygame.font.Font(None, 36)
+            text = font.render(str(robot.__class__.__name__), 1, (255, 255, 255))
+            textpos = text.get_rect(left=0, top=offset)
+            screen.blit(text, textpos)
+
+            backgr = pygame.Surface((100, 4))
+            backgr.fill((255, 0, 0))
+
+            energy = pygame.Surface((robot.energy, 2))
+            energy.fill((0, 255, 0))
+            backgr.blit(energy,(0,1))
+
+            backgrpos = backgr.get_rect(left=0, top=textpos.bottom + 2)
+            screen.blit(backgr, backgrpos)
+            return backgrpos.bottom + 5
+
+
 class Battle(object):
     def __init__(self, size, robots):
         self.size = size
         self.ratio = size[0] / size[1]
         self.robots_classes = robots
         self.robots = []
+        self.overlay = None
         self.iterations = 10
         # display stuff
         self.scale_size = None
@@ -46,6 +75,7 @@ class Battle(object):
             robot = Robot(self, (randint(20, w - 20), randint(20, h - 20)), randint(0, 360))
             robot.on_init()
             self.robots.append(robot)
+        self.overlay = Overlay(self.robots)
 
     def on_resize(self, size):
         nw, nh = size
@@ -64,6 +94,7 @@ class Battle(object):
         resized = pygame.transform.smoothscale(self.surface, self.scale_size)
         resizedpos = resized.get_rect(centerx=screen.get_width() / 2, centery=screen.get_height() / 2)
         screen.blit(resized, resizedpos)
+        self.overlay.on_render(screen)
 
     def step(self):
         self.last_sim = time.time()

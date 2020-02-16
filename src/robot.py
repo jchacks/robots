@@ -185,6 +185,7 @@ class Robot(LogicalObject, ABC):
                 offset = max(self.base.coll.w, self.base.coll.h)
                 bounds = (offset, offset), (self.app.size[0] - offset, self.app.size[1] - offset)
                 self.center = np.clip(self.center + self.velocity, *bounds)
+                self.energy -= max(abs(self._speed) * 0.5 - 1, 0)
                 self._speed = 0
 
     def collide_robots(self):
