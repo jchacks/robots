@@ -2,7 +2,7 @@
 
 Basic clone of Robocode focused on simulation speed when rendering is turned off.
 
-![Battle Image](/doc/images/battle.png)
+[Battle Image](/docs/images/battle.png)
 
 #### How to use:
 To run the application:
