@@ -4,8 +4,9 @@ from pygame.sprite import OrderedUpdates
 
 from events import *
 from parts import *
-from utils import Move, LogicalObject, test_segment_circle
-
+from utils import Move, LogicalObject, test_segment_circle, Turn
+import pygame
+import numpy as np
 
 class Robot(LogicalObject, ABC):
     def __init__(self, battle, center, bearing=0.0):

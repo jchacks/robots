@@ -6,6 +6,12 @@ import numpy as np
 from enum import Enum
 from abc import ABC
 
+__all__ = [
+    'Turn', 'Move', 'Colors', 'rot_center', 'scale_image',
+    'load_image', 'test_segment_circle',
+    'Rotatable', 'LogicalObject', 'GameObject'
+]
+
 
 class Turn(Enum):
     NONE = 0

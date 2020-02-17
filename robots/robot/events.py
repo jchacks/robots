@@ -1,3 +1,5 @@
+__all__ = ['ScannedRobotEvent', 'HitBulletEvent', 'HitByBulletEvent', 'HitByRobotEvent']
+
 
 class Event(object):
     pass
@@ -9,7 +11,8 @@ class ScannedRobotEvent(Event):
 
 
 class HitByRobotEvent(Event):
-    pass
+    def __init__(self, robot):
+        self.energy = robot.energy
 
 
 class HitByBulletEvent(Event):
@@ -20,4 +23,3 @@ class HitByBulletEvent(Event):
 class HitBulletEvent(Event):
     def __init__(self, bullet):
         self.damage = bullet.damage
-
