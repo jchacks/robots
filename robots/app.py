@@ -184,9 +184,21 @@ class App(object):
         elif event.type == pygame.VIDEORESIZE:
             self.on_resize(event.dict['size'])
         elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN:
+                command = input('>>>',)
+                self.on_command(command)
             if event.key == pygame.K_r:
                 self.render = not self.render
             self.battle.on_event(event)
+
+    def on_command(self, command):
+        command, *args = command.split(' ')
+        if command == 'sim':
+            self.battle.sim_rate = int(args[0])
+            self.battle.sim_interval = 1/self.battle.sim_rate
+        elif command == 'fps':
+            self.render_rate = int(args[0])
+            self.render_interval = 1/self.render_rate
 
     def on_render(self):
         if (time.time() - self.last_render >= self.render_interval):
