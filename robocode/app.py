@@ -19,7 +19,8 @@ from collections import deque
 
 
 class Battle(object):
-    def __init__(self, size, robots):
+    def __init__(self, app, size, robots):
+        self.app = app
         self.size = size
         self.ratio = size[0] / size[1]
         self.robots_classes = robots
@@ -55,7 +56,7 @@ class Battle(object):
             robot = Robot(self, (randint(20, w - 20), randint(20, h - 20)), randint(0, 360))
             robot.on_init()
             self.robots.append(robot)
-        self.overlay = Overlay(self.robots)
+        self.overlay = Overlay(self.app, self.robots)
 
     def on_clean_up(self):
         for robot in self.robots:
@@ -68,6 +69,7 @@ class Battle(object):
         w = int(w * r)
         h = int(h * r)
         self.scale_size = w, h
+        self.overlay.on_resize(size)
 
     def on_render(self, screen):
         self.surface.blit(self.bg, (0, 0))
@@ -136,11 +138,11 @@ class Battle(object):
 
 
 class App(object):
-    def __init__(self):
+    def __init__(self, dimensions=(1080, 800)):
         self._running = True
         self.screen = None
         self.rect = None
-        self.size = 1080, 800
+        self.size = dimensions
 
         self.render = True
         self.last_render = 0
@@ -151,7 +153,7 @@ class App(object):
         pygame.init()
         pygame.font.init()
         self._running = True
-        self.battle = Battle((1080, 800), [RandomRobot.RandomRobot, MyFirstRobot.MyFirstRobot])
+        self.battle = Battle(self, (1080, 800), [RandomRobot.RandomRobot, MyFirstRobot.MyFirstRobot])
         self.init_screen()
         self.battle.on_init()
         Bullet.on_init()
@@ -212,8 +214,3 @@ class App(object):
                 time.sleep(0.1)
 
         self.on_cleanup()
-
-
-if __name__ == "__main__":
-    app = App()
-    app.on_execute()
