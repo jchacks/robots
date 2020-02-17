@@ -14,11 +14,24 @@ app.on_execute()
 ```
 To build your own robot:
 ```python
-from robots.app import App
+from robots import AdvancedRobot
 
-app = App((1920, 1080))
-app.on_execute()
+
+class MyFirstRobot(AdvancedRobot):
+    def __init__(self, *args, **kwargs):
+        super(MyFirstRobot, self).__init__(*args, **kwargs)
+        self.radar.locked = True
+        self.gun.locked = True
+
+    def do(self):
+        self.move_forward(1000)
+        self.turn_left(360)
+
+    def on_scanned(self, scanned):
+        self.fire(1)
 ```
+
+Simple spin and shoot when a robot is scanned.
 
 ### Todo
 * Move `parts.Base.coll` bounding rect to `robot.Robot`
