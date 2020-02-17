@@ -1,6 +1,24 @@
 # Robocode Python Clone
 
-Basic clone of Robocode
+Basic clone of Robocode focused on simulation speed when rendering is turned off.
+
+![Battle Image](/doc/images/battle.png)
+
+#### How to use:
+To run the application:
+```python
+from robots.app import App
+
+app = App((1920, 1080))
+app.on_execute()
+```
+To build your own robot:
+```python
+from robots.app import App
+
+app = App((1920, 1080))
+app.on_execute()
+```
 
 ### Todo
 * Move `parts.Base.coll` bounding rect to `robot.Robot`
