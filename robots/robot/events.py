@@ -59,6 +59,7 @@ class HitByBulletEvent(Event):
 class HitRobotEvent(Event):
     def __init__(self, robot):
         self.energy = robot.energy
+        self.position = robot.center
 
 
 class HitWallEvent(Event):

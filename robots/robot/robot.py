@@ -49,75 +49,57 @@ class Robot(LogicalObject, ABC):
     def do(self):
         pass
 
-    @abstractmethod
     def on_battle_ended(self, event: BattleEndedEvent):
         pass
 
-    @abstractmethod
     def on_bullet_hit_bullet(self, event: BulletHitBulletEvent):
         pass
 
-    @abstractmethod
     def on_bullet_hit(self, event: BulletHitEvent):
         pass
 
-    @abstractmethod
     def on_bullet_missed(self, event: BulletMissedEvent):
         pass
 
-    @abstractmethod
     def on_custom_event(self, event: CustomEvent):
         pass
 
-    @abstractmethod
     def on_death(self, event: DeathEvent):
         pass
 
-    @abstractmethod
     def on_hit_by_bullet(self, event: HitByBulletEvent):
         pass
 
-    @abstractmethod
     def on_hit_robot(self, event: HitRobotEvent):
         pass
 
-    @abstractmethod
     def on_hit_wall(self, event: HitWallEvent):
         pass
 
-    @abstractmethod
     def on_key(self, event: KeyEvent):
         pass
 
-    @abstractmethod
     def on_message(self, event: MessageEvent):
         pass
 
-    @abstractmethod
     def on_paint(self, event: PaintEvent):
         pass
 
-    @abstractmethod
     def on_robot_death(self, event: RobotDeathEvent):
         pass
 
-    @abstractmethod
     def on_round_ended(self, event: RoundEndedEvent):
         pass
 
-    @abstractmethod
     def on_scanned_robot(self, event: ScannedRobotEvent):
         pass
 
-    @abstractmethod
     def on_skipped_turn(self, event: SkippedTurnEvent):
         pass
 
-    @abstractmethod
     def on_status(self, event: StatusEvent):
         pass
 
-    @abstractmethod
     def on_win(self, event: WinEvent):
         pass
 
@@ -248,7 +230,10 @@ class Robot(LogicalObject, ABC):
                         norm = (norm / np.sum(norm ** 2)) * 10
                         self.center = self.center + norm
                         robot.center = robot.center - norm
+                        self.on_hit_robot(HitRobotEvent(robot))
+                        robot.on_hit_robot(HitRobotEvent(self))
                         break
+
             # robot_colls = {robot: robot.rect for robot in bots}
             # robot, coll = self.rect.collidedict(robot_colls)
             # if not robot is self:
@@ -260,8 +245,8 @@ class Robot(LogicalObject, ABC):
                 if robot is not self and not robot.dead:
                     if test_segment_circle(self.center, self.radar.scan_endpoint, robot.center, robot.radius):
                         scanned.append(ScannedRobotEvent(robot))
-        if scanned:
-            self.on_scanned(scanned)
+        for scan in scanned:
+            self.on_scanned_robot(scan)
 
 
 class AdvancedRobot(Robot):
