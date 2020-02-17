@@ -4,18 +4,18 @@ from ui import Overlay
 import pygame
 
 from robot import Bullet
-from robots import RandomRobot, MyFirstRobot
+from bots import RandomRobot, MyFirstRobot
 from random import randint
 from collections import deque
 
 
-# robots = []
-# for path in os.listdir('robots'):
+# bots = []
+# for path in os.listdir('bots'):
 #     name = path.split('.')[0]
-#     robot_class = __import__('robots.' + name, fromlist=[''])
-#     robots.append(getattr(robot_class, name))
+#     robot_class = __import__('bots.' + name, fromlist=[''])
+#     bots.append(getattr(robot_class, name))
 #
-# robots = robots[1:]
+# bots = bots[1:]
 
 
 class Battle(object):
@@ -50,7 +50,7 @@ class Battle(object):
         self.ticks = 0
         self.last_sim = 0
 
-        # Add robots
+        # Add bots
         self.robots = []
         for Robot in self.robots_classes:
             robot = Robot(self, (randint(20, w - 20), randint(20, h - 20)), randint(0, 360))
@@ -120,7 +120,7 @@ class Battle(object):
             self.step()
             self.sim_times.append(time.time() - s)
             self.ticks += 1
-        # print(round(self.get_sim_times(),5), 1/max(self.get_sim_times(), 0.0000000001), self.ticks, [r.energy for r in self.robots])
+        # print(round(self.get_sim_times(),5), 1/max(self.get_sim_times(), 0.0000000001), self.ticks, [r.energy for r in self.bots])
 
     def on_event(self, event):
         if event.key == pygame.K_w:

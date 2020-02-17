@@ -215,7 +215,7 @@ class Robot(LogicalObject, ABC):
                         self.center = self.center + norm
                         robot.center = robot.center - norm
                         break
-            # robot_colls = {robot: robot.rect for robot in robots}
+            # robot_colls = {robot: robot.rect for robot in bots}
             # robot, coll = self.rect.collidedict(robot_colls)
             # if not robot is self:
 
