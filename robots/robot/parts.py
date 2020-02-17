@@ -2,7 +2,7 @@ import numpy as np
 import pygame
 from pygame.sprite import Group
 
-from utils import LogicalObject, GameObject, Turn, load_image, scale_image
+from robot.utils import LogicalObject, GameObject, Turn, load_image, scale_image
 
 __all__ = ['Bullet', 'Radar', 'Gun', 'Base', ]
 

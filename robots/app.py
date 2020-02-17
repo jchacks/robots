@@ -1,9 +1,8 @@
-import os
 import time
 from ui import Overlay
 import pygame
 
-from robot import Bullet
+from robot.robot import Bullet
 from bots import RandomRobot, MyFirstRobot
 from random import randint
 from collections import deque

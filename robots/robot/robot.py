@@ -1,16 +1,17 @@
 from abc import ABC, abstractmethod
 
-from pygame.sprite import OrderedUpdates
-
-from events import *
-from parts import *
-from utils import Move, LogicalObject, test_segment_circle, Turn
-import pygame
 import numpy as np
+import pygame
+from pygame.sprite import OrderedUpdates
+from robot.events import *
+from robot.parts import *
+from robot.utils import Move, LogicalObject, test_segment_circle, Turn
+
 
 class Robot(LogicalObject, ABC):
     def __init__(self, battle, center, bearing=0.0):
         LogicalObject.__init__(self, center, bearing)
+        self.name = self.__class__.__name__
         self.battle = battle
         self.center = np.array(center, np.float64)
         self.bearing = bearing
@@ -49,19 +50,75 @@ class Robot(LogicalObject, ABC):
         pass
 
     @abstractmethod
-    def on_scanned(self, event):
+    def on_battle_ended(self, event: BattleEndedEvent):
         pass
 
     @abstractmethod
-    def on_hit_robot(self, event):
+    def on_bullet_hit_bullet(self, event: BulletHitBulletEvent):
         pass
 
     @abstractmethod
-    def on_hit_by_bullet(self, event):
+    def on_bullet_hit(self, event: BulletHitEvent):
         pass
 
     @abstractmethod
-    def on_hit_wall(self, event):
+    def on_bullet_missed(self, event: BulletMissedEvent):
+        pass
+
+    @abstractmethod
+    def on_custom_event(self, event: CustomEvent):
+        pass
+
+    @abstractmethod
+    def on_death(self, event: DeathEvent):
+        pass
+
+    @abstractmethod
+    def on_hit_by_bullet(self, event: HitByBulletEvent):
+        pass
+
+    @abstractmethod
+    def on_hit_robot(self, event: HitRobotEvent):
+        pass
+
+    @abstractmethod
+    def on_hit_wall(self, event: HitWallEvent):
+        pass
+
+    @abstractmethod
+    def on_key(self, event: KeyEvent):
+        pass
+
+    @abstractmethod
+    def on_message(self, event: MessageEvent):
+        pass
+
+    @abstractmethod
+    def on_paint(self, event: PaintEvent):
+        pass
+
+    @abstractmethod
+    def on_robot_death(self, event: RobotDeathEvent):
+        pass
+
+    @abstractmethod
+    def on_round_ended(self, event: RoundEndedEvent):
+        pass
+
+    @abstractmethod
+    def on_scanned_robot(self, event: ScannedRobotEvent):
+        pass
+
+    @abstractmethod
+    def on_skipped_turn(self, event: SkippedTurnEvent):
+        pass
+
+    @abstractmethod
+    def on_status(self, event: StatusEvent):
+        pass
+
+    @abstractmethod
+    def on_win(self, event: WinEvent):
         pass
 
     @property
@@ -82,29 +139,9 @@ class Robot(LogicalObject, ABC):
         else:
             return Turn.NONE
 
+    @abstractmethod
     def update_logic(self):
-        if not self.dead:
-            if self.energy < 0.0:
-                self.destroy()
-            else:
-                self._do()
-
-                self._speed = np.clip(self._speed + self.acceleration, -8.0, 8.0)
-                self.left_to_move = max(0, self.left_to_move - self._speed)
-
-                self.center = self.center + self.velocity
-                self.rect.center = self.center
-                self.bearing = self.get_delta_bearing(self.turning.value)
-                self.left_to_turn = max(0, self.left_to_turn - self.rotation_speed)
-
-                self.base.delta()
-                self.gun.delta()
-                self.radar.delta()
-                if self.should_fire:
-                    self._fire(self.fire_power)
-
-        if self.moving is Move.NONE and self.turning is Turn.NONE:
-            self.commands = False
+        pass
 
     @property
     def velocity(self):
@@ -148,12 +185,6 @@ class Robot(LogicalObject, ABC):
         else:
             return 0.0
 
-    def move_forward(self, dist: float):
-        self.left_to_move = dist
-
-    def turn_left(self, angle: float):
-        self.left_to_turn = angle
-
     def _draw(self, surface):
         if not self.dead:
             self._group.update()
@@ -171,6 +202,8 @@ class Robot(LogicalObject, ABC):
         surface.blit(r, (self.rect.left, self.rect.top))
 
     def draw_debug(self, surface):
+        debug_overlay = pygame.Surface((self.rect.w, self.rect.h), pygame.SRCALPHA)
+
         pygame.draw.circle(surface, (255, 0, 255), self.center.astype(int), 2)
         pygame.draw.line(surface, (255, 0, 255), self.center.astype(int),
                          (self.center + (self.direction * 10)).astype(int), 1)
@@ -189,8 +222,8 @@ class Robot(LogicalObject, ABC):
                     bullet.robot.energy += 3 * bullet.power
                     bullet.clean_up()
                     events.append(HitByBulletEvent(bullet))
-        if events:
-            self.on_hit_by_bullet(events)
+        for event in events:
+            self.on_hit_by_bullet(event)
 
     def collide_wall(self):
         if not self.dead:
@@ -231,3 +264,41 @@ class Robot(LogicalObject, ABC):
             self.on_scanned(scanned)
 
 
+class AdvancedRobot(Robot):
+    def __init__(self, *args, **kwargs):
+        super(AdvancedRobot, self).__init__(*args, **kwargs)
+
+    def update_logic(self):
+        if not self.dead:
+            if self.energy < 0.0:
+                self.destroy()
+            else:
+                self._do()
+
+                self._speed = np.clip(self._speed + self.acceleration, -8.0, 8.0)
+                self.left_to_move = max(0, self.left_to_move - self._speed)
+
+                self.center = self.center + self.velocity
+                self.rect.center = self.center
+                self.bearing = self.get_delta_bearing(self.turning.value)
+                self.left_to_turn = max(0, self.left_to_turn - self.rotation_speed)
+
+                self.base.delta()
+                self.gun.delta()
+                self.radar.delta()
+                if self.should_fire:
+                    self._fire(self.fire_power)
+
+        if self.moving is Move.NONE and self.turning is Turn.NONE:
+            self.commands = False
+
+    def move_forward(self, dist: float):
+        self.left_to_move = dist
+
+    def turn_left(self, angle: float):
+        self.left_to_turn = angle
+
+
+class SimpleRobot(Robot):
+    def update_logic(self):
+        pass

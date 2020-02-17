@@ -1,5 +1,7 @@
 import pygame
 
+__all__ = ['Overlay']
+
 
 class Overlay(object):
     def __init__(self, app, robots):
