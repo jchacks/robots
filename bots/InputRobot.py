@@ -1,8 +1,7 @@
-from robot import Robot
-import pygame as pg
+from robots import AdvancedRobot
 
 
-class InputRobot(Robot):
+class InputRobot(AdvancedRobot):
     def do(self):
         pass
     #     pg.mouse.get_pos()
