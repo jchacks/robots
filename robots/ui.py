@@ -34,7 +34,7 @@ class Overlay(object):
         backgr = pygame.Surface(self.bar_dims)
         backgr.fill((255, 0, 0))
         if robot.energy > 0:
-            energy = pygame.Surface((robot.energy * self.bar_dims[0], 2))
+            energy = pygame.Surface((robot.energy * self.bar_dims[0]/100, 2))
             energy.fill((0, 255, 0))
             backgr.blit(energy, (0, 1))
 

@@ -1,3 +1,4 @@
+import os
 import time
 from ui import Overlay
 import pygame
@@ -6,7 +7,7 @@ from robot.robot import Bullet
 from bots import RandomRobot, MyFirstRobot
 from random import randint
 from collections import deque
-
+os.environ['SDL_VIDEO_CENTERED'] = '1'
 
 # bots = []
 # for path in os.listdir('bots'):
@@ -30,7 +31,7 @@ class Battle(object):
         self.rect = None
 
         # Iteration stuff
-        self.sim_rate = 1000
+        self.sim_rate = 100
         self.sim_interval = 1.0 / self.sim_rate
         self.simulate = False
         self.sim_times = deque(maxlen=100)
@@ -43,6 +44,7 @@ class Battle(object):
         size = w, h = self.surface.get_size()
         self.bg = pygame.Surface(size)
         self.bg = self.bg.convert()
+        pygame.draw.rect(self.bg, (255, 0, 0), self.bg.get_rect(), 1)
         self.surface.blit(self.bg, (0, 0))
 
         # Simulation stuff
@@ -137,7 +139,7 @@ class Battle(object):
 
 
 class App(object):
-    def __init__(self, dimensions=(1080, 800)):
+    def __init__(self, dimensions=(1280, 720)):
         self._running = True
         self.screen = None
         self.rect = None
@@ -152,10 +154,11 @@ class App(object):
         pygame.init()
         pygame.font.init()
         self._running = True
-        self.battle = Battle(self, (1080, 800), [RandomRobot.RandomRobot, MyFirstRobot.MyFirstRobot])
+        self.battle = Battle(self, (1280, 720), [RandomRobot.RandomRobot, MyFirstRobot.MyFirstRobot])
         self.init_screen()
         self.battle.on_init()
         Bullet.on_init()
+        return True
 
     def init_screen(self):
         self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
@@ -201,7 +204,7 @@ class App(object):
         pygame.quit()
 
     def on_execute(self):
-        if self.on_init() == False:
+        if not self.on_init():
             self._running = False
         while self._running:
             for event in pygame.event.get():
@@ -213,3 +216,4 @@ class App(object):
                 time.sleep(0.1)
 
         self.on_cleanup()
+

@@ -1,2 +1,2 @@
-from robot.robot import Robot
+from robot.robot import AdvancedRobot, SimpleRobot
 
