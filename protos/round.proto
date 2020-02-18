@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+package ai;
+
+message Tick {
+  required string robot = 1;
+  required int32 num = 2;
+}
+
+message Round {
+  repeated Tick tick = 1;
+}
