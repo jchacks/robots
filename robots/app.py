@@ -5,7 +5,7 @@ from random import randint
 
 import pygame
 
-from bots import RandomRobot, MyFirstRobot, TestRobot
+from bots import RandomRobot, MyFirstRobot, TestRobot, AiRobot
 from robot.robot import Bullet
 from ui import Overlay
 
@@ -156,7 +156,7 @@ class App(object):
         pygame.init()
         pygame.font.init()
         self._running = True
-        self.battle = Battle(self, (1280, 720), [TestRobot.TestRobot, TestRobot.TestRobot])
+        self.battle = Battle(self, (1280, 720), [AiRobot.AiRobot, AiRobot.AiRobot])
         self.init_screen()
         self.battle.on_init()
         Bullet.on_init()
