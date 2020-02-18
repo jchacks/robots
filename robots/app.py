@@ -5,7 +5,7 @@ from random import randint
 
 import pygame
 
-from bots import RandomRobot, MyFirstRobot
+from bots import RandomRobot, MyFirstRobot, TestRobot
 from robot.robot import Bullet
 from ui import Overlay
 
@@ -124,7 +124,6 @@ class Battle(object):
             self.step()
             self.sim_times.append(time.time() - s)
             self.ticks += 1
-        # print(round(self.get_sim_times(),5), 1/max(self.get_sim_times(), 0.0000000001), self.ticks, [r.energy for r in self.bots])
 
     def on_event(self, event):
         if event.key == pygame.K_w:
@@ -157,7 +156,7 @@ class App(object):
         pygame.init()
         pygame.font.init()
         self._running = True
-        self.battle = Battle(self, (1280, 720), [RandomRobot.RandomRobot, MyFirstRobot.MyFirstRobot])
+        self.battle = Battle(self, (1280, 720), [TestRobot.TestRobot, TestRobot.TestRobot])
         self.init_screen()
         self.battle.on_init()
         Bullet.on_init()
