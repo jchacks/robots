@@ -50,6 +50,10 @@ class Robot(LogicalObject, ABC):
     def do(self):
         pass
 
+    @property
+    def position(self):
+        return self.center
+
     def on_battle_ended(self, event: BattleEndedEvent):
         pass
 
@@ -149,7 +153,7 @@ class Robot(LogicalObject, ABC):
 
     @property
     def rotation_speed(self):
-        return (10 - 0.75 * abs(self._speed)) * float(self.turning.value)
+        return (self._max_rotation - 0.75 * abs(self._speed)) * float(self.turning.value)
 
     @property
     def acceleration(self):
@@ -174,9 +178,12 @@ class Robot(LogicalObject, ABC):
             self._group.draw(surface)
             self.radar.draw(surface)
             if self.draw_bbs:
-                self.draw_rect(surface)
+                # self.draw_rect(surface)
                 self.draw_debug(surface)
-        self.draw()
+        try:
+            self.draw(surface)
+        except NotImplementedError:
+            pass
 
     def draw_rect(self, surface):
         r = pygame.Surface((self.rect.w, self.rect.h))  # the size of your rect
@@ -185,15 +192,16 @@ class Robot(LogicalObject, ABC):
         surface.blit(r, (self.rect.left, self.rect.top))
 
     def draw_debug(self, surface):
-        debug_overlay = pygame.Surface((self.rect.w, self.rect.h), pygame.SRCALPHA)
-        debug_overlay.set_alpha(125)
-        pygame.draw.circle(debug_overlay, (0, 0, 255), self.center.astype(int), 2)
+        debug_overlay = pygame.Surface((self.rect.w, self.rect.h))
+        debug_overlay.set_colorkey((0, 0, 0))
+        debug_overlay.set_alpha(255)
+        pygame.draw.circle(debug_overlay, (0, 0, 255), self.center.astype(int),self.radius)
         pygame.draw.line(debug_overlay, (255, 0, 255), self.center.astype(int),
                          (self.center + (self.direction * 10)).astype(int), 1)
         surface.blit(debug_overlay, (self.rect.left, self.rect.top))
 
-    def draw(self):
-        pass
+    def draw(self, surface):
+        raise NotImplementedError
 
     def collide_bullets(self):
         events = []
@@ -246,7 +254,8 @@ class Robot(LogicalObject, ABC):
             for robot in robots:
                 if robot is not self and not robot.dead:
                     if test_segment_circle(self.center, self.radar.scan_endpoint, robot.center, robot.radius):
-                        scanned.append(ScannedRobotEvent(robot))
+                        scanned.append(ScannedRobotEvent(self, robot))
+                        print("scanned")
         for scan in scanned:
             self.on_scanned_robot(scan)
 
@@ -255,7 +264,7 @@ class AdvancedRobot(Robot):
     def __init__(self, *args, **kwargs):
         super(AdvancedRobot, self).__init__(*args, **kwargs)
 
-    def update_logic(self):
+    def delta(self):
         if not self.dead:
             if self.energy < 0.0:
                 self.destroy()
@@ -287,5 +296,5 @@ class AdvancedRobot(Robot):
 
 
 class SimpleRobot(Robot):
-    def update_logic(self):
+    def delta(self):
         pass
