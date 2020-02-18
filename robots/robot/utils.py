@@ -1,5 +1,5 @@
 import os
-from abc import ABC
+from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Union
 
@@ -107,11 +107,12 @@ class Rotatable(ABC):
         return self.bearing + (rotation_speed * float(direction)) % 360
 
     @property
+    @abstractmethod
     def rotation_speed(self):
         raise NotImplementedError
 
 
-class LogicalObject(Rotatable):
+class LogicalObject(Rotatable, ABC):
     def __init__(self, center, bearing):
         Rotatable.__init__(self, bearing)
         self.center = np.array(center, dtype=np.float64)
@@ -121,7 +122,8 @@ class LogicalObject(Rotatable):
         rads = np.pi * self.bearing / 180
         return np.stack([np.sin(rads), np.cos(rads)], axis=-1)
 
-    def delta(self):
+    @abstractmethod
+    def delta(self, tick):
         raise NotImplementedError
 
 
