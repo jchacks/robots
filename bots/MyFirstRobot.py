@@ -11,5 +11,5 @@ class MyFirstRobot(AdvancedRobot):
         self.move_forward(1000)
         self.turn_left(360)
 
-    def on_scanned(self, scanned):
+    def on_scanned_robot(self, scanned):
         self.fire(1)
