@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 import pygame
 from pygame.sprite import OrderedUpdates
+
 from robot.events import *
 from robot.parts import *
 from robot.utils import Move, LogicalObject, test_segment_circle, Turn
@@ -122,7 +123,7 @@ class Robot(LogicalObject, ABC):
             return Turn.NONE
 
     @abstractmethod
-    def update_logic(self):
+    def delta(self):
         pass
 
     @property
@@ -185,10 +186,11 @@ class Robot(LogicalObject, ABC):
 
     def draw_debug(self, surface):
         debug_overlay = pygame.Surface((self.rect.w, self.rect.h), pygame.SRCALPHA)
-
-        pygame.draw.circle(surface, (255, 0, 255), self.center.astype(int), 2)
-        pygame.draw.line(surface, (255, 0, 255), self.center.astype(int),
+        debug_overlay.set_alpha(125)
+        pygame.draw.circle(debug_overlay, (0, 0, 255), self.center.astype(int), 2)
+        pygame.draw.line(debug_overlay, (255, 0, 255), self.center.astype(int),
                          (self.center + (self.direction * 10)).astype(int), 1)
+        surface.blit(debug_overlay, (self.rect.left, self.rect.top))
 
     def draw(self):
         pass

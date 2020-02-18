@@ -1,10 +1,12 @@
-import pygame
 import os
+from abc import ABC
+from enum import Enum
+from typing import Union
+
+import numpy as np
+import pygame
 from pygame.locals import *
 from pygame.sprite import Sprite
-import numpy as np
-from enum import Enum
-from abc import ABC
 
 __all__ = [
     'Turn', 'Move', 'Colors', 'rot_center', 'scale_image',
@@ -94,7 +96,7 @@ class Rotatable(ABC):
     def set_max_rotation(self, rot):
         self._max_rotation = rot
 
-    def get_delta_bearing(self, direction: float):
+    def get_delta_bearing(self, direction: Union[float, Turn]):
         rotation_speed = self.rotation_speed
         if self._max_rotation:
             rotation_speed = min(self._max_rotation, rotation_speed)
