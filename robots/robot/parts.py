@@ -33,7 +33,11 @@ class Bullet(LogicalObject):
         if self.draw_trajectory:
             pygame.draw.line(surface, Colors.Y, self.center, self.center + self.direction * 1000)
 
-    def delta(self):
+    @property
+    def rotation_speed(self):
+        return 0
+
+    def delta(self, tick):
         self.center += self.velocity
         self.rect.center = self.center
         if (self.center[0] < 0) or (self.center[1] < 0) or \
@@ -50,13 +54,15 @@ class Bullet(LogicalObject):
 
     @classmethod
     def collide_bullets(cls):
+        to_remove = set()
         for bullet in cls.bullets:
             group = cls.bullets.copy()
             group.remove(bullet)
             other_bullet = pygame.sprite.spritecollideany(bullet, group)
             if other_bullet is not None:
-                cls.bullets.remove(bullet)
-                cls.bullets.remove(other_bullet)
+                to_remove.add(bullet)
+                to_remove.add(other_bullet)
+        cls.bullets.difference_update(to_remove)
 
 
 class Gun(GameObject):
@@ -144,6 +150,10 @@ class Base(GameObject):
         super(Base, self).delta()
         self.center = self.robot.center  # TODO propagate these changes down instead of fetching them
         self.bearing = self.robot.bearing
+
+    @property
+    def rotation_speed(self):
+        return 0
 
     def draw_rect(self, surface):
         r = pygame.Surface((self.rect.w, self.rect.h))  # the size of your rect
