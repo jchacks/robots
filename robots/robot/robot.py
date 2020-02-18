@@ -19,7 +19,6 @@ class Robot(LogicalObject, ABC):
         self.radius = 36 // 2
         self.rect = pygame.Rect(0, 0, 36, 36)  # named rect for colliders
         self.rect.center = self.center
-        print("rect", self.rect)
         self.dead = False
         self._speed = 0.0
 
@@ -35,11 +34,15 @@ class Robot(LogicalObject, ABC):
         self.energy = 100
         self._group = OrderedUpdates(self.base, self.gun, self.radar)
         self.commands = False
-        self.left_to_move = 0.0
-        self.left_to_turn = 0.0
         self.radar.on_init()
         self.gun.on_init()
         self.base.on_init()
+
+        self.moving = Move.NONE
+        self.turning = Turn.NONE
+        self.gun_turning = Turn.NONE
+        self.radar_turning = Turn.NONE
+
 
     @abstractmethod
     def do(self, tick: int):
@@ -104,23 +107,6 @@ class Robot(LogicalObject, ABC):
     def on_win(self, event: WinEvent):
         pass
 
-    @property
-    def moving(self):
-        if self.left_to_move > 0:
-            return Move.FORWARD
-        elif self.left_to_move < 0:
-            return Move.BACK
-        else:
-            return Move.NONE
-
-    @property
-    def turning(self):
-        if self.left_to_turn > 0:
-            return Turn.LEFT
-        elif self.left_to_turn < 0:
-            return Turn.RIGHT
-        else:
-            return Turn.NONE
 
     @abstractmethod
     def delta(self, tick):
@@ -135,13 +121,12 @@ class Robot(LogicalObject, ABC):
         self._group.empty()
         self.dead = True
 
-    def fire(self, firepower):
+    def set_fire(self, firepower):
         self.should_fire = True
         self.fire_power = firepower
 
-    def _fire(self, firepower):
+    def fire(self, firepower):
         if self.gun.heat == 0:
-            print("Firing")
             Bullet(self, firepower)
             self.gun.heat = 1 + firepower / 5
             self.energy -= firepower
@@ -278,10 +263,33 @@ class AdvancedRobot(Robot):
                 self.gun.delta()
                 self.radar.delta()
                 if self.should_fire:
-                    self._fire(self.fire_power)
+                    self.fire(self.fire_power)
 
         if self.moving is Move.NONE and self.turning is Turn.NONE:
             self.commands = False
+
+    def on_init(self):
+        super(AdvancedRobot, self).on_init()
+        self.left_to_move = 0.0
+        self.left_to_turn = 0.0
+
+    @property
+    def moving(self):
+        if self.left_to_move > 0:
+            return Move.FORWARD
+        elif self.left_to_move < 0:
+            return Move.BACK
+        else:
+            return Move.NONE
+
+    @property
+    def turning(self):
+        if self.left_to_turn > 0:
+            return Turn.LEFT
+        elif self.left_to_turn < 0:
+            return Turn.RIGHT
+        else:
+            return Turn.NONE
 
     def move_forward(self, dist: float):
         self.left_to_move = dist
@@ -312,4 +320,5 @@ class SignalRobot(Robot):
                 self.gun.delta()
                 self.radar.delta()
                 if self.should_fire:
-                    self._fire(self.fire_power)
+                    self.fire(self.fire_power)
+                self.should_fire = False
