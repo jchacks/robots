@@ -51,7 +51,7 @@ class Battle(object):
         self.surface.blit(self.bg, (0, 0))
 
         # Simulation stuff
-        self.ticks = 0
+        self.tick = 0
         self.last_sim = 0
 
         # Add bots
@@ -106,7 +106,7 @@ class Battle(object):
         for robot in self.robots:
             robot.collide_bullets()
         for robot in self.robots:
-            robot.delta()
+            robot.delta(self.tick)
         for robot in self.robots:
             robot.collide_wall()
         for robot in self.robots:
@@ -123,7 +123,7 @@ class Battle(object):
             s = time.time()
             self.step()
             self.sim_times.append(time.time() - s)
-            self.ticks += 1
+            self.tick += 1
 
     def on_event(self, event):
         if event.key == pygame.K_w:
