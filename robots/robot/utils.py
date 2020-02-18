@@ -27,13 +27,17 @@ class Move(Enum):
     BACK = -1
 
 
-class Colors(Enum):
-    RED = (255, 0, 0)
-    GREEN = (0, 255, 0)
-    BLUE = (0, 0, 255)
-    BLACK = (0, 0, 0)
-    WHITE = (255, 255, 255)
-    TURQ = (0, 255, 255)
+class Colors(object):
+    RED = R = (255, 0, 0)
+    GREEN = G = (0, 255, 0)
+    BLUE = B = (0, 0, 255)
+    BLACK = K = (0, 0, 0)
+    WHITE = W = (255, 255, 255)
+    CYAN = C = (0, 255, 255)
+    MAGENTA = M = (255, 0, 255)
+    YELLOW = Y = (255, 255, 0)
+    ORANGE = O = (255, 128, 0)
+    LIME = L = (128, 255, 0)
 
 
 def rot_center(image, rect, angle):
