@@ -1,13 +1,16 @@
 import os
 import time
-from ui import Overlay
+from collections import deque
+from random import randint
+
 import pygame
 
-from robot.robot import Bullet
 from bots import RandomRobot, MyFirstRobot
-from random import randint
-from collections import deque
+from robot.robot import Bullet
+from ui import Overlay
+
 os.environ['SDL_VIDEO_CENTERED'] = '1'
+
 
 # bots = []
 # for path in os.listdir('bots'):
@@ -103,7 +106,7 @@ class Battle(object):
         for robot in self.robots:
             robot.collide_bullets()
         for robot in self.robots:
-            robot.update_logic()
+            robot.delta()
         for robot in self.robots:
             robot.collide_wall()
         for robot in self.robots:
@@ -185,7 +188,7 @@ class App(object):
             self.on_resize(event.dict['size'])
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RETURN:
-                command = input('>>>',)
+                command = input('>>>', )
                 self.on_command(command)
             if event.key == pygame.K_r:
                 self.render = not self.render
@@ -195,10 +198,10 @@ class App(object):
         command, *args = command.split(' ')
         if command == 'sim':
             self.battle.sim_rate = int(args[0])
-            self.battle.sim_interval = 1/self.battle.sim_rate
+            self.battle.sim_interval = 1 / self.battle.sim_rate
         elif command == 'fps':
             self.render_rate = int(args[0])
-            self.render_interval = 1/self.render_rate
+            self.render_interval = 1 / self.render_rate
 
     def on_render(self):
         if (time.time() - self.last_render >= self.render_interval):
@@ -228,4 +231,3 @@ class App(object):
                 time.sleep(0.1)
 
         self.on_cleanup()
-
