@@ -1,3 +1,5 @@
+import numpy as np
+
 __all__ = [
     'BattleEndedEvent',
     'BulletHitBulletEvent',
@@ -22,7 +24,8 @@ __all__ = [
 
 
 class Event(object):
-    pass
+    def __repr__(self):
+        return "%s<%s>" % (self.__class__.__name__, self.__dict__)
 
 
 class BattleEndedEvent(Event):
@@ -91,8 +94,13 @@ class RoundEndedEvent(Event):
 
 
 class ScannedRobotEvent(Event):
-    def __init__(self, robot):
+    def __init__(self, scanner, robot):
+        d = (scanner.center - robot.center)
+        self.bearing = np.sin(d[0] / d[1]) * 180 / np.pi
+        self.distance = np.sqrt(np.sum(d ** 2))
         self.energy = robot.energy
+        self.heading = robot.bearing
+        self.velocity = robot.velocity
 
 
 class SkippedTurnEvent(Event):

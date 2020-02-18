@@ -2,13 +2,14 @@ import numpy as np
 import pygame
 from pygame.sprite import Group
 
-from robot.utils import LogicalObject, GameObject, Turn, load_image, scale_image
+from robot.utils import LogicalObject, GameObject, Turn, load_image, scale_image, Colors
 
 __all__ = ['Bullet', 'Radar', 'Gun', 'Base', ]
 
 
 class Bullet(LogicalObject):
     bullets = set()
+    draw_trajectory = True
     _image, _rect = None, None
 
     def __init__(self, robot, power):
@@ -29,6 +30,8 @@ class Bullet(LogicalObject):
 
     def draw(self, surface):
         surface.blit(self.image, self.rect.topleft)
+        if self.draw_trajectory:
+            pygame.draw.line(surface, Colors.Y, self.center, self.center + self.direction * 1000)
 
     def delta(self):
         self.center += self.velocity
