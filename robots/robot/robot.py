@@ -41,13 +41,9 @@ class Robot(LogicalObject, ABC):
         self.gun.on_init()
         self.base.on_init()
 
-    def _do(self):
-        if not self.commands:
-            self.do()
-            self.commands = True
-
     @abstractmethod
-    def do(self):
+    def do(self, tick: int):
+        """To be implemented in subclasses controlling the logic of the Robot"""
         pass
 
     @property
@@ -127,7 +123,7 @@ class Robot(LogicalObject, ABC):
             return Turn.NONE
 
     @abstractmethod
-    def delta(self):
+    def delta(self, tick):
         pass
 
     @property
@@ -153,7 +149,7 @@ class Robot(LogicalObject, ABC):
 
     @property
     def rotation_speed(self):
-        return (self._max_rotation - 0.75 * abs(self._speed)) * float(self.turning.value)
+        return (10 - 0.75 * abs(self._speed)) * float(self.turning.value)
 
     @property
     def acceleration(self):
@@ -195,7 +191,7 @@ class Robot(LogicalObject, ABC):
         debug_overlay = pygame.Surface((self.rect.w, self.rect.h))
         debug_overlay.set_colorkey((0, 0, 0))
         debug_overlay.set_alpha(255)
-        pygame.draw.circle(debug_overlay, (0, 0, 255), self.center.astype(int),self.radius)
+        pygame.draw.circle(debug_overlay, (0, 0, 255), self.center.astype(int), self.radius)
         pygame.draw.line(debug_overlay, (255, 0, 255), self.center.astype(int),
                          (self.center + (self.direction * 10)).astype(int), 1)
         surface.blit(debug_overlay, (self.rect.left, self.rect.top))
@@ -255,21 +251,20 @@ class Robot(LogicalObject, ABC):
                 if robot is not self and not robot.dead:
                     if test_segment_circle(self.center, self.radar.scan_endpoint, robot.center, robot.radius):
                         scanned.append(ScannedRobotEvent(self, robot))
-                        print("scanned")
         for scan in scanned:
             self.on_scanned_robot(scan)
 
 
 class AdvancedRobot(Robot):
-    def __init__(self, *args, **kwargs):
-        super(AdvancedRobot, self).__init__(*args, **kwargs)
-
-    def delta(self):
+    def delta(self, tick):
         if not self.dead:
             if self.energy < 0.0:
                 self.destroy()
             else:
-                self._do()
+                # TODO check that the order of operations executes correctly i.e. velocity updated then self.rotation_speed
+                if not self.commands:
+                    self.do(tick)
+                    self.commands = True
 
                 self._speed = np.clip(self._speed + self.acceleration, -8.0, 8.0)
                 self.left_to_move = max(0, self.left_to_move - self._speed)
@@ -296,5 +291,25 @@ class AdvancedRobot(Robot):
 
 
 class SimpleRobot(Robot):
-    def delta(self):
-        pass
+    def delta(self, tick):
+        if not self.commands:
+            self.do(tick)
+            self.commands = True
+
+
+class SignalRobot(Robot):
+    def delta(self, tick):
+        if not self.dead:
+            if self.energy < 0.0:
+                self.destroy()
+            else:
+                self.do(tick)
+                self._speed = np.clip(self._speed + self.acceleration, -8.0, 8.0)
+                self.center = self.center + self.velocity
+                self.rect.center = self.center
+                self.bearing = self.get_delta_bearing(self.turning.value)
+                self.base.delta()
+                self.gun.delta()
+                self.radar.delta()
+                if self.should_fire:
+                    self._fire(self.fire_power)
