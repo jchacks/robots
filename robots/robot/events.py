@@ -108,7 +108,8 @@ class SkippedTurnEvent(Event):
 
 
 class StatusEvent(Event):
-    pass
+    def __init__(self, battle, robot):
+        self.num_other = sum(1 for robot in battle.robots if not robot.dead) - 1
 
 
 class WinEvent(Event):
