@@ -102,7 +102,7 @@ class Battle(object):
     def step(self):
         self.last_sim = time.time()
         for bullet in Bullet.bullets.copy():
-            bullet.delta()
+            bullet.delta(self.tick)
         for robot in self.robots:
             robot.collide_bullets()
         for robot in self.robots:
