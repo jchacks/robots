@@ -7,7 +7,7 @@ class MyFirstRobot(AdvancedRobot):
         self.radar.locked = True
         self.gun.locked = True
 
-    def do(self):
+    def do(self, tick):
         self.move_forward(1000)
         self.turn_left(360)
 

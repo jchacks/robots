@@ -18,10 +18,48 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='ai',
   syntax='proto2',
   serialized_options=None,
-  serialized_pb=b'\n\x0bround.proto\x12\x02\x61i\"\x80\x01\n\x05State\x12\x10\n\x08position\x18\x01 \x01(\x02\x12\x0f\n\x07\x62\x65\x61ring\x18\x02 \x01(\x02\x12\x0e\n\x06\x65nergy\x18\x03 \x01(\x02\x12\x15\n\renemy_scanned\x18\x04 \x01(\x02\x12\x16\n\x0e\x65nemy_distance\x18\x05 \x01(\x02\x12\x15\n\renemy_bearing\x18\x06 \x01(\x02\"X\n\x06\x41\x63tion\x12\x0c\n\x04move\x18\x01 \x02(\x02\x12\x0c\n\x04\x66ire\x18\x02 \x02(\x02\x12\x0c\n\x04turn\x18\x03 \x02(\x02\x12\x10\n\x08gun_turn\x18\x04 \x02(\x02\x12\x12\n\nradar_turn\x18\x05 \x02(\x02\"Y\n\x04Tick\x12\r\n\x05robot\x18\x01 \x02(\t\x12\x0c\n\x04tick\x18\x02 \x02(\x05\x12\x18\n\x05state\x18\x03 \x02(\x0b\x32\t.ai.State\x12\x1a\n\x06\x61\x63tion\x18\x04 \x02(\x0b\x32\n.ai.Action\"\x1f\n\x05Round\x12\x16\n\x04tick\x18\x01 \x03(\x0b\x32\x08.ai.Tick'
+  serialized_pb=b'\n\x0bround.proto\x12\x02\x61i\"\x1d\n\x05Point\x12\t\n\x01x\x18\x01 \x02(\x02\x12\t\n\x01y\x18\x02 \x02(\x02\"\x8b\x01\n\x05State\x12\x1b\n\x08position\x18\x01 \x02(\x0b\x32\t.ai.Point\x12\x0f\n\x07\x62\x65\x61ring\x18\x02 \x02(\x02\x12\x0e\n\x06\x65nergy\x18\x03 \x02(\x02\x12\x15\n\renemy_scanned\x18\x04 \x01(\x02\x12\x16\n\x0e\x65nemy_distance\x18\x05 \x01(\x02\x12\x15\n\renemy_bearing\x18\x06 \x01(\x02\"N\n\x06\x41\x63tion\x12\x0c\n\x04move\x18\x01 \x02(\x02\x12\x0c\n\x04\x66ire\x18\x02 \x02(\x02\x12\x0c\n\x04turn\x18\x03 \x02(\x02\x12\x0b\n\x03gun\x18\x04 \x02(\x02\x12\r\n\x05radar\x18\x05 \x02(\x02\"X\n\x04Tick\x12\r\n\x05robot\x18\x01 \x02(\t\x12\x0b\n\x03num\x18\x02 \x02(\x05\x12\x18\n\x05state\x18\x03 \x02(\x0b\x32\t.ai.State\x12\x1a\n\x06\x61\x63tion\x18\x04 \x02(\x0b\x32\n.ai.Action\"\x1f\n\x05Round\x12\x16\n\x04tick\x18\x01 \x03(\x0b\x32\x08.ai.Tick'
 )
 
 
+
+
+_POINT = _descriptor.Descriptor(
+  name='Point',
+  full_name='ai.Point',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='x', full_name='ai.Point.x', index=0,
+      number=1, type=2, cpp_type=6, label=2,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='y', full_name='ai.Point.y', index=1,
+      number=2, type=2, cpp_type=6, label=2,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=19,
+  serialized_end=48,
+)
 
 
 _STATE = _descriptor.Descriptor(
@@ -33,21 +71,21 @@ _STATE = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='position', full_name='ai.State.position', index=0,
-      number=1, type=2, cpp_type=6, label=1,
-      has_default_value=False, default_value=float(0),
+      number=1, type=11, cpp_type=10, label=2,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='bearing', full_name='ai.State.bearing', index=1,
-      number=2, type=2, cpp_type=6, label=1,
+      number=2, type=2, cpp_type=6, label=2,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='energy', full_name='ai.State.energy', index=2,
-      number=3, type=2, cpp_type=6, label=1,
+      number=3, type=2, cpp_type=6, label=2,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -85,8 +123,8 @@ _STATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=20,
-  serialized_end=148,
+  serialized_start=51,
+  serialized_end=190,
 )
 
 
@@ -119,14 +157,14 @@ _ACTION = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='gun_turn', full_name='ai.Action.gun_turn', index=3,
+      name='gun', full_name='ai.Action.gun', index=3,
       number=4, type=2, cpp_type=6, label=2,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='radar_turn', full_name='ai.Action.radar_turn', index=4,
+      name='radar', full_name='ai.Action.radar', index=4,
       number=5, type=2, cpp_type=6, label=2,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
@@ -144,8 +182,8 @@ _ACTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=150,
-  serialized_end=238,
+  serialized_start=192,
+  serialized_end=270,
 )
 
 
@@ -164,7 +202,7 @@ _TICK = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='tick', full_name='ai.Tick.tick', index=1,
+      name='num', full_name='ai.Tick.num', index=1,
       number=2, type=5, cpp_type=1, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -196,8 +234,8 @@ _TICK = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=240,
-  serialized_end=329,
+  serialized_start=272,
+  serialized_end=360,
 )
 
 
@@ -227,18 +265,27 @@ _ROUND = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=331,
-  serialized_end=362,
+  serialized_start=362,
+  serialized_end=393,
 )
 
+_STATE.fields_by_name['position'].message_type = _POINT
 _TICK.fields_by_name['state'].message_type = _STATE
 _TICK.fields_by_name['action'].message_type = _ACTION
 _ROUND.fields_by_name['tick'].message_type = _TICK
+DESCRIPTOR.message_types_by_name['Point'] = _POINT
 DESCRIPTOR.message_types_by_name['State'] = _STATE
 DESCRIPTOR.message_types_by_name['Action'] = _ACTION
 DESCRIPTOR.message_types_by_name['Tick'] = _TICK
 DESCRIPTOR.message_types_by_name['Round'] = _ROUND
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
+
+Point = _reflection.GeneratedProtocolMessageType('Point', (_message.Message,), {
+  'DESCRIPTOR' : _POINT,
+  '__module__' : 'round_pb2'
+  # @@protoc_insertion_point(class_scope:ai.Point)
+  })
+_sym_db.RegisterMessage(Point)
 
 State = _reflection.GeneratedProtocolMessageType('State', (_message.Message,), {
   'DESCRIPTOR' : _STATE,

@@ -4,7 +4,7 @@ from robots import AdvancedRobot
 
 
 class RandomRobot(AdvancedRobot):
-    def do(self):
+    def do(self, tick):
         self.move_forward(random.randint(50, 500))
         self.turn_left(random.randint(0, 360))
         if random.randint(0, 1):

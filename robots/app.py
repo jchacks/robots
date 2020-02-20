@@ -5,20 +5,12 @@ from random import randint
 
 import pygame
 
-from bots import RandomRobot, MyFirstRobot, TestRobot, AiRobot
-from robot.robot import Bullet
-from ui import Overlay
+from robots.bots.MyFirstRobot import MyFirstRobot
+from robots.bots.RandomRobot import RandomRobot
+from robots.robot.parts import Bullet
+from robots.ui import Overlay
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
-
-
-# bots = []
-# for path in os.listdir('bots'):
-#     name = path.split('.')[0]
-#     robot_class = __import__('bots.' + name, fromlist=[''])
-#     bots.append(getattr(robot_class, name))
-#
-# bots = bots[1:]
 
 
 class Battle(object):
@@ -39,6 +31,8 @@ class Battle(object):
         self.simulate = False
         self.sim_times = deque(maxlen=100)
 
+        self.robots = [R(0) for R in self.robots_classes]
+
     def on_init(self):
         # Draw stuff
         self.surface = pygame.Surface(self.size)
@@ -55,11 +49,10 @@ class Battle(object):
         self.last_sim = 0
 
         # Add bots
-        self.robots = []
-        for Robot in self.robots_classes:
-            robot = Robot(self, (randint(20, w - 20), randint(20, h - 20)), randint(0, 360))
+        for robot in self.robots:
+            robot.set_bearing(randint(0,360))
+            robot.set_position((randint(20, w - 20), randint(20, h - 20)))
             robot.on_init()
-            self.robots.append(robot)
         self.overlay = Overlay(self.app, self.robots)
 
     def on_clean_up(self):
@@ -107,8 +100,7 @@ class Battle(object):
             robot.collide_bullets()
         for robot in self.robots:
             robot.delta(self.tick)
-        for robot in self.robots:
-            robot.collide_wall()
+        self.collide_walls()
         for robot in self.robots:
             robot.collide_robots(self.robots)
         for robot in self.robots:
@@ -118,12 +110,23 @@ class Battle(object):
             self.on_clean_up()
             self.on_init()
 
+    def collide_walls(self):
+        for robot in self.robots:
+            if not robot.dead:
+                if not self.rect.contains(robot.rect):
+                    robot.collided_wall(self.size)
+
+        for bullet in Bullet.bullets.copy():
+            if not self.rect.contains(bullet.rect):
+                bullet.clean_up()
+
     def on_loop(self):
         if (time.time() - self.last_sim >= self.sim_interval) and self.simulate:
             s = time.time()
             self.step()
             self.sim_times.append(time.time() - s)
             self.tick += 1
+            print(round(self.get_sim_times(), 5), 1 / max(self.get_sim_times(), 0.0000000001), self.tick)
 
     def on_event(self, event):
         if event.key == pygame.K_w:
@@ -151,12 +154,15 @@ class App(object):
         self.last_render = 0
         self.render_rate = 120
         self.render_interval = 1.0 / self.render_rate
+        self.battle = None
 
     def on_init(self):
         pygame.init()
         pygame.font.init()
         self._running = True
-        self.battle = Battle(self, (1280, 720), [AiRobot.AiRobot, AiRobot.AiRobot])
+        if not self.battle:
+            print("Battle is None creating default")
+            self.battle = Battle(self, (1280, 720), [MyFirstRobot, RandomRobot])
         self.init_screen()
         self.battle.on_init()
         Bullet.on_init()

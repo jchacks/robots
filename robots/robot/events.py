@@ -96,7 +96,7 @@ class RoundEndedEvent(Event):
 class ScannedRobotEvent(Event):
     def __init__(self, scanner, robot):
         d = (scanner.center - robot.center)
-        self.bearing = np.sin(d[0] / d[1]) * 180 / np.pi
+        self.bearing = np.arctan(d[0] / d[1]) * 180 / np.pi
         self.distance = np.sqrt(np.sum(d ** 2))
         self.energy = robot.energy
         self.heading = robot.bearing
