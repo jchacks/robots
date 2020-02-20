@@ -2,10 +2,15 @@ syntax = "proto2";
 
 package ai;
 
+message Point {
+    required float x = 1;
+    required float y = 2;
+}
+
 message State {
-    optional float position = 1;
-    optional float bearing = 2;
-    optional float energy = 3;
+    required Point position = 1;
+    required float bearing = 2;
+    required float energy = 3;
     optional float enemy_scanned = 4;
     optional float enemy_distance = 5;
     optional float enemy_bearing = 6;
@@ -15,13 +20,13 @@ message Action {
     required float move = 1;
     required float fire = 2;
     required float turn = 3;
-    required float gun_turn = 4;
-    required float radar_turn = 5;
+    required float gun = 4;
+    required float radar = 5;
 }
 
 message Tick {
     required string robot = 1;
-    required int32 tick = 2;
+    required int32 num = 2;
     required State state = 3;
     required Action action = 4;
 }

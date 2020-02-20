@@ -50,7 +50,7 @@ def rot_center(image, rect, angle):
 def scale_image(image, rect, factor):
     """rotate an image while keeping its center"""
     size = image.get_size()
-    scale_image = pygame.transform.scale(image, (round(size[0] * factor), round(size[1] * factor)))
+    scale_image = pygame.transform.scale(image, (int(round(size[0] * factor)), int(round(size[1] * factor))))
     scale_rect = scale_image.get_rect(center=rect.center)
     return scale_image, scale_rect
 
@@ -96,15 +96,25 @@ class Rotatable(ABC):
     def __init__(self, bearing):
         self.bearing = bearing
         self._max_rotation = None
+        self.turning = Turn.NONE
+
+    def on_init(self):
+        self.turning = Turn.NONE
+
+    def set_bearing(self, angle):
+        self.bearing = angle
 
     def set_max_rotation(self, rot):
         self._max_rotation = rot
 
-    def get_delta_bearing(self, direction: Union[float, Turn]):
+    def get_bearing_delta(self):
         rotation_speed = self.rotation_speed
         if self._max_rotation:
             rotation_speed = min(self._max_rotation, rotation_speed)
-        return self.bearing + (rotation_speed * float(direction)) % 360
+        return self.bearing + (rotation_speed * self.turning.value) % 360
+
+    def set_rotation(self, direction: Union[float, Turn]):
+        self.turning = direction
 
     @property
     @abstractmethod
@@ -113,9 +123,24 @@ class Rotatable(ABC):
 
 
 class LogicalObject(Rotatable, ABC):
-    def __init__(self, center, bearing):
+    def __init__(self, bearing, dimensions=None):
         Rotatable.__init__(self, bearing)
-        self.center = np.array(center, dtype=np.float64)
+        self._dimensions = dimensions
+        self._center = np.array((np.nan, np.nan), dtype=np.float64)
+        if self._dimensions:
+            self.rect = pygame.Rect(0, 0, *self._dimensions)
+
+    def on_init(self):
+        Rotatable.on_init(self)
+
+    @property
+    def center(self):
+        return self._center
+
+    @center.setter
+    def center(self, center):
+        self._center[:] = center
+        self.rect.center = center
 
     @property
     def direction(self):
@@ -128,9 +153,9 @@ class LogicalObject(Rotatable, ABC):
 
 
 class GameObject(Sprite, LogicalObject):
-    def __init__(self, center: tuple, bearing: float, filename, scale_factor=None):
+    def __init__(self, bearing: float, filename, scale_factor=None):
         Sprite.__init__(self)
-        LogicalObject.__init__(self, center, bearing)
+        LogicalObject.__init__(self, bearing)
         self.scale_factor = scale_factor
         self.filename = filename
 
@@ -140,9 +165,10 @@ class GameObject(Sprite, LogicalObject):
 
     def on_init(self):
         self.image, self.rect = load_image(self.filename, -1)
+        print(self, self.rect)
+        LogicalObject.on_init(self)
         if self.scale_factor:
             self.image, self.rect = scale_image(self.image, self.rect, self.scale_factor)
-        self.rect.center = self.center
         self.orig_image = self.image
 
     def draw_rect(self, surface):

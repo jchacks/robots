@@ -1,23 +1,24 @@
+import os
+
 import numpy as np
 import pygame
 from pygame.sprite import Group
 
-from robot.utils import LogicalObject, GameObject, Turn, load_image, scale_image, Colors
+from robots.robot.utils import LogicalObject, GameObject, Turn, load_image, scale_image, Colors
 
 __all__ = ['Bullet', 'Radar', 'Gun', 'Base', ]
+data_dir = os.path.join(os.path.dirname(__file__), '../../data/')
 
 
 class Bullet(LogicalObject):
     bullets = set()
     draw_trajectory = True
     _image, _rect = None, None
-
     def __init__(self, robot, power):
-        LogicalObject.__init__(self, robot.gun.tip_location, robot.gun.bearing)
+        LogicalObject.__init__(self, robot.gun.bearing, (10,10))
         self.robot = robot
         self.power = power
         self.image, self.rect = scale_image(self._image, self._rect, self.power / 3)
-        self.rect.center = self.center
         self.speed = 20 - (3 * self.power)
         self.damage = 4 * self.power
         if self.power > 1:
@@ -26,7 +27,8 @@ class Bullet(LogicalObject):
 
     @classmethod
     def on_init(cls):
-        cls._image, cls._rect = load_image('blast.png', -1)
+        cls._image, cls._rect = load_image(data_dir + 'blast.png', -1)
+        print(cls._rect)
 
     def draw(self, surface):
         surface.blit(self.image, self.rect.topleft)
@@ -39,11 +41,6 @@ class Bullet(LogicalObject):
 
     def delta(self, tick):
         self.center += self.velocity
-        self.rect.center = self.center
-        if (self.center[0] < 0) or (self.center[1] < 0) or \
-                (self.center[0] > self.robot.battle.size[0]) or \
-                (self.center[1] > self.robot.battle.size[1]):
-            self.clean_up()
 
     @property
     def velocity(self):
@@ -67,12 +64,15 @@ class Bullet(LogicalObject):
 
 class Gun(GameObject):
     def __init__(self, robot):
-        GameObject.__init__(self, robot.center, robot.bearing, 'gunGrey.png')
+        GameObject.__init__(self, robot.bearing, data_dir + 'gunGrey.png')
         self.robot = robot
         self.locked = False
         self.heat = 1.0
-        self.turning = Turn.NONE
         self.set_max_rotation(2)
+
+    def on_init(self):
+        super(Gun, self).on_init()
+        self.center = self.robot.center
 
     @property
     def tip_location(self):
@@ -83,7 +83,7 @@ class Gun(GameObject):
         if self.locked:
             self.bearing = self.robot.bearing
         else:
-            self.bearing = self.get_delta_bearing(self.turning.value)
+            self.bearing = self.get_bearing_delta()
 
         self.heat = max(self.heat - 0.1, 0)
 
@@ -94,11 +94,14 @@ class Gun(GameObject):
 
 class Radar(GameObject):
     def __init__(self, robot):
-        GameObject.__init__(self, robot.center, robot.bearing, 'radar.png')
+        GameObject.__init__(self, robot.bearing, data_dir + 'radar.png')
         self.robot = robot
         self.locked = False
-        self.turning = Turn.NONE
         self.last_bearing = robot.bearing
+
+    def on_init(self):
+        GameObject.on_init(self)
+        self.center = self.robot.center
 
     def delta(self):
         self.last_bearing = self.bearing
@@ -106,7 +109,7 @@ class Radar(GameObject):
         if self.locked:
             self.bearing = self.robot.gun.bearing
         else:
-            self.bearing = self.get_delta_bearing(self.turning.value)
+            self.bearing = self.get_bearing_delta()
 
     @property
     def scan_endpoint(self):
@@ -133,18 +136,13 @@ class Radar(GameObject):
 
 
 class Base(GameObject):
-    class_group = Group()
-
     def __init__(self, robot):
-        GameObject.__init__(self, robot.center, robot.bearing, 'baseGrey.png')
+        GameObject.__init__(self, robot.bearing, data_dir + 'baseGrey.png')
         self.robot = robot
 
     def on_init(self):
         super(Base, self).on_init()
-        self.class_group.add(self)
-
-    def clean_up(self):
-        self.class_group.remove(self)
+        self.center = self.robot.center
 
     def delta(self):
         super(Base, self).delta()

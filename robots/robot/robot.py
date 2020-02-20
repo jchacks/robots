@@ -1,57 +1,55 @@
+import logging
 from abc import ABC, abstractmethod
+from typing import List
 
 import numpy as np
 import pygame
 from pygame.sprite import OrderedUpdates
 
-from robot.events import *
-from robot.parts import *
-from robot.utils import Move, LogicalObject, test_segment_circle, Turn
+from robots.robot.events import *
+from robots.robot.parts import *
+from robots.robot.utils import Move, LogicalObject, test_segment_circle, Turn
+
+logger = logging.getLogger(__name__)
 
 
 class Robot(LogicalObject, ABC):
-    def __init__(self, battle, center, bearing=0.0):
-        LogicalObject.__init__(self, center, bearing)
+    def __init__(self, bearing=0.0):
+        LogicalObject.__init__(self, bearing, (36, 36))
         self.name = self.__class__.__name__
-        self.battle = battle
-        self.center = np.array(center, np.float64)
-        self.bearing = bearing
         self.radius = 36 // 2
-        self.rect = pygame.Rect(0, 0, 36, 36)  # named rect for colliders
-        self.rect.center = self.center
-        self.dead = False
-        self._speed = 0.0
-
         self.draw_bbs = True
         self.radar = Radar(self)
         self.gun = Gun(self)
         self.base = Base(self)
 
+    def on_init(self):
+        LogicalObject.on_init(self)
+        self._group = OrderedUpdates(self.base, self.gun, self.radar)
+        self.energy = 100
+        self._speed = 0.0
+        self.dead = False
         self.should_fire = False
         self.fire_power = 3
-
-    def on_init(self):
-        self.energy = 100
-        self._group = OrderedUpdates(self.base, self.gun, self.radar)
         self.commands = False
         self.radar.on_init()
         self.gun.on_init()
         self.base.on_init()
-
         self.moving = Move.NONE
-        self.turning = Turn.NONE
-        self.gun_turning = Turn.NONE
-        self.radar_turning = Turn.NONE
-
+        self.gun.turning = Turn.NONE
+        self.radar.turning = Turn.NONE
 
     @abstractmethod
     def do(self, tick: int):
         """To be implemented in subclasses controlling the logic of the Robot"""
         pass
 
+    def set_position(self, center):
+        self.center = center
+
     @property
     def position(self):
-        return self.center
+        return self.center.astype(int)
 
     def on_battle_ended(self, event: BattleEndedEvent):
         pass
@@ -71,7 +69,7 @@ class Robot(LogicalObject, ABC):
     def on_death(self, event: DeathEvent):
         pass
 
-    def on_hit_by_bullet(self, event: HitByBulletEvent):
+    def on_hit_by_bullet(self, event: List[HitByBulletEvent]):
         pass
 
     def on_hit_robot(self, event: HitRobotEvent):
@@ -95,7 +93,7 @@ class Robot(LogicalObject, ABC):
     def on_round_ended(self, event: RoundEndedEvent):
         pass
 
-    def on_scanned_robot(self, event: ScannedRobotEvent):
+    def on_scanned_robot(self, event: List[ScannedRobotEvent]):
         pass
 
     def on_skipped_turn(self, event: SkippedTurnEvent):
@@ -107,17 +105,29 @@ class Robot(LogicalObject, ABC):
     def on_win(self, event: WinEvent):
         pass
 
-
     @abstractmethod
     def delta(self, tick):
-        pass
+        if not self.dead:
+            if self.energy < 0.0:
+                self.destroy()
+            else:
+                self.do(tick)
+                self._speed = np.clip(self._speed + self.acceleration, -8.0, 8.0)
+                self.center = self.center + self.velocity
+                self.rect.center = self.center
+                self.bearing = self.get_bearing_delta()
+                self.base.delta()
+                self.gun.delta()
+                self.radar.delta()
+                if self.should_fire:
+                    self.fire(self.fire_power)
+                self.should_fire = False
 
     @property
     def velocity(self):
         return self.direction * self._speed
 
     def destroy(self):
-        self.base.clean_up()
         self._group.empty()
         self.dead = True
 
@@ -127,7 +137,8 @@ class Robot(LogicalObject, ABC):
 
     def fire(self, firepower):
         if self.gun.heat == 0:
-            Bullet(self, firepower)
+            b = Bullet(self, firepower)
+            b.center = self.gun.tip_location
             self.gun.heat = 1 + firepower / 5
             self.energy -= firepower
             self.should_fire = False
@@ -195,19 +206,18 @@ class Robot(LogicalObject, ABC):
                     bullet.robot.energy += 3 * bullet.power
                     bullet.clean_up()
                     events.append(HitByBulletEvent(bullet))
-        for event in events:
-            self.on_hit_by_bullet(event)
+        if not events:
+            logger.debug("%s scanned events %s." % (self, events))
+            self.on_hit_by_bullet(events)
 
-    def collide_wall(self):
-        if not self.dead:
-            if not self.battle.rect.contains(self.rect):
-                self.center += -self.velocity
-                offset = max(self.rect.w // 2, self.rect.h // 2) + 4
-                bounds = (offset, offset), (self.battle.size[0] - offset, self.battle.size[1] - offset)
-                self.center = np.clip(self.center + self.velocity, *bounds)
-                self.energy -= max(abs(self._speed) * 0.5 - 1, 0)
-                self._speed = 0
-                self.on_hit_wall(self.velocity)
+    def collided_wall(self, battle_size):
+        self.center += -self.velocity
+        offset = max(self.rect.w // 2, self.rect.h // 2) + 4
+        bounds = (offset, offset), (battle_size[0] - offset, battle_size[1] - offset)
+        self.center = np.clip(self.center + self.velocity, *bounds)
+        self.energy -= max(abs(self._speed) * 0.5 - 1, 0)
+        self._speed = 0
+        self.on_hit_wall(self.velocity)
 
     def collide_robots(self, robots):
         if not self.dead:
@@ -236,8 +246,10 @@ class Robot(LogicalObject, ABC):
                 if robot is not self and not robot.dead:
                     if test_segment_circle(self.center, self.radar.scan_endpoint, robot.center, robot.radius):
                         scanned.append(ScannedRobotEvent(self, robot))
-        for scan in scanned:
-            self.on_scanned_robot(scan)
+
+        if scanned:
+            logger.debug("%s scanned events %s." % (self, scanned))
+            self.on_scanned_robot(scanned)
 
 
 class AdvancedRobot(Robot):
@@ -282,6 +294,10 @@ class AdvancedRobot(Robot):
         else:
             return Move.NONE
 
+    @moving.setter
+    def moving(self, move):
+        pass
+
     @property
     def turning(self):
         if self.left_to_turn > 0:
@@ -290,6 +306,10 @@ class AdvancedRobot(Robot):
             return Turn.RIGHT
         else:
             return Turn.NONE
+
+    @turning.setter
+    def turning(self, turn):
+        pass
 
     def move_forward(self, dist: float):
         self.left_to_move = dist
@@ -315,7 +335,7 @@ class SignalRobot(Robot):
                 self._speed = np.clip(self._speed + self.acceleration, -8.0, 8.0)
                 self.center = self.center + self.velocity
                 self.rect.center = self.center
-                self.bearing = self.get_delta_bearing(self.turning.value)
+                self.bearing = self.get_bearing_delta()
                 self.base.delta()
                 self.gun.delta()
                 self.radar.delta()
