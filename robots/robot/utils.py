@@ -16,6 +16,43 @@ __all__ = [
 ]
 
 
+class Vector(object):
+    def __init__(self, item_shape=(2,), initial_size=10):
+        self.initial_size = initial_size
+        self.item_shape = item_shape
+        self._data = np.zeros((initial_size, *item_shape))
+        self._mask = np.zeros(initial_size, dtype='bool')
+
+    @property
+    def data(self):
+        return self._data[self._mask]
+
+    @data.setter
+    def data(self, new_data):
+        self._data[self._mask] = new_data
+
+    def append(self, item):
+        if not (self._mask == False).any():
+            self._mask = np.concatenate([self._mask, np.zeros(self.initial_size, dtype='bool')])
+            self._data = np.concatenate([self._data, np.zeros((self.initial_size, *self.item_shape))])
+        pos = np.argmin(self._mask)
+        self._data[pos] = item
+        self._mask[pos] = True
+        return pos
+
+    def __setitem__(self, key, value):
+        self._data[key] = value
+
+    def __delitem__(self, key):
+        self._mask[key] = False
+
+    def __mul__(self, other):
+        return self.data * other
+
+    def __add__(self, other):
+        return self.data + other
+
+
 class Turn(Enum):
     NONE = 0
     LEFT = 1
@@ -161,6 +198,25 @@ class LogicalObject(Rotatable, ABC):
     def delta(self, tick):
         raise NotImplementedError
 
+
+class GroupedLogicalObject(object):
+    centers = Vector()
+    bearings = Vector((1,))
+    speeds = Vector((1,))
+
+    def __init__(self, center, speed, bearing):
+        self._center = self.centers.append(*center)
+        self._speed = self.speeds.append(speed)
+        self._bearing = self.bearings.append(bearing)
+
+    @classmethod
+    def directions(cls):
+        rads = np.pi * cls.bearings / 180
+        return np.stack([np.sin(rads), np.cos(rads)], axis=-1)
+
+    @classmethod
+    def delta(cls, tick):
+        cls.centers.data = cls.centers + (cls.speeds * cls.directions())
 
 class GameObject(Sprite, LogicalObject):
     def __init__(self, bearing: float, filename, scale_factor=None):
