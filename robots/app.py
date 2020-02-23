@@ -76,7 +76,7 @@ class App(object):
             self.render_interval = 1 / self.render_rate
 
     def on_render(self):
-        if (time.time() - self.last_render >= self.render_interval):
+        if (time.time() - self.last_render) >= self.render_interval:
             self.last_render = time.time()
             self.screen.blit(self.bg, (0, 0))
             self.battle.on_render(self.screen)
