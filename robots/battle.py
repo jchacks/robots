@@ -13,7 +13,6 @@ class Battle(object):
         self.app = app
         self.size = size
         self.ratio = size[0] / size[1]
-        self.robots_classes = robots
         self.iterations = 10
         # display stuff
         self.scale_size = None
@@ -21,12 +20,17 @@ class Battle(object):
         self.rect = None
 
         # Iteration stuff
-        self.sim_rate = 100
+        self.sim_rate = -1
         self.sim_interval = 1.0 / self.sim_rate
         self.simulate = True
-        self.sim_times = deque(maxlen=100)
+        self.sim_times = deque(maxlen=1000)
 
-        self.robots = [R(0) for R in self.robots_classes]
+        # self.robots = [R() for R in self.robots_classes]
+        self.robots = robots
+
+    @property
+    def alive_robots(self):
+        return [r for r in self.robots if not r.dead]
 
     def on_init(self):
         # Draw stuff
@@ -99,8 +103,8 @@ class Battle(object):
         self.collide_walls()
         for robot in self.robots:
             robot.collide_robots(self.robots)
-        for robot in self.robots:
-            robot.collide_scan(self.robots)
+        for robot in self.alive_robots:
+            robot.collide_scan(self.alive_robots)
         Bullet.collide_bullets()
         if self.check_round_over():
             self.on_clean_up()
@@ -117,12 +121,12 @@ class Battle(object):
                 bullet.clean_up()
 
     def on_loop(self):
-        if (time.time() - self.last_sim >= self.sim_interval) and self.simulate:
-            s = time.time()
+        s = time.time()
+        if ((s - self.last_sim) >= self.sim_interval) and self.simulate:
             self.step()
             self.sim_times.append(time.time() - s)
             self.tick += 1
-            print(round(self.get_sim_times(), 5), 1 / max(self.get_sim_times(), 0.0000000001), self.tick)
+        print(round(self.get_sim_times(), 5), round(1 / self.get_sim_times()), self.tick)
 
     def on_event(self, event):
         if event.key == pygame.K_w:
