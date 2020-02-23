@@ -96,12 +96,12 @@ class Battle(object):
         self.last_sim = time.time()
         for bullet in Bullet.bullets.copy():
             bullet.delta(self.tick)
-        for robot in self.robots:
+        for robot in self.alive_robots:
             robot.collide_bullets()
-        for robot in self.robots:
+        for robot in self.alive_robots:
             robot.delta(self.tick)
         self.collide_walls()
-        for robot in self.robots:
+        for robot in self.alive_robots:
             robot.collide_robots(self.robots)
         for robot in self.alive_robots:
             robot.collide_scan(self.alive_robots)
