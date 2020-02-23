@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Union
 
+import numba as nb
 import numpy as np
 import pygame
 from pygame.locals import *
@@ -55,17 +56,13 @@ def scale_image(image, rect, factor):
     return scale_image, scale_rect
 
 
+@nb.njit
 def test_segment_circle(start, stop, center, radius):
-    ax, ay = start
-    bx, by = stop
-    cx, cy = center
-    ax -= cx
-    ay -= cy
-    bx -= cx
-    by -= cy
-    a = (bx - ax) ** 2 + (by - ay) ** 2
-    b = 2 * (ax * (bx - ax) + ay * (by - ay))
-    c = ax ** 2 + ay ** 2 - radius ** 2
+    start = start - center
+    stop = stop - center
+    a = np.sum((stop - start) ** 2)
+    b = 2 * np.sum(start * (stop - start))
+    c = np.sum(start ** 2) - radius ** 2
     disc = b ** 2 - 4 * a * c
     if disc <= 0:
         return False
@@ -75,6 +72,19 @@ def test_segment_circle(start, stop, center, radius):
     if ((0 < t1) and (t1 < 1)) or ((0 < t2) and (t2 < 1)):
         return True
     return False
+
+
+@nb.njit
+def test_circle_circle(c1, c2, r1, r2):
+    return np.sum((c1 - c2) ** 2) <= (r1 + r2) ** 2
+
+
+@nb.njit
+def test_circles(cs, rs):
+    distances = np.sum((np.expand_dims(cs, 1) - np.expand_dims(cs, 0)) ** 2, axis=2)
+    radius_diffs = (np.expand_dims(rs, 1) - np.expand_dims(rs, 0)) ** 2
+    bool_in = (distances <= radius_diffs)
+    return bool_in ^ np.identity(len(cs), nb.bool_)
 
 
 def load_image(name, colorkey=None):

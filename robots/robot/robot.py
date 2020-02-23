@@ -5,10 +5,10 @@ from typing import List
 import numpy as np
 import pygame
 from pygame.sprite import OrderedUpdates
-
 from robots.robot.events import *
 from robots.robot.parts import *
-from robots.robot.utils import Move, LogicalObject, test_segment_circle, Turn
+from robots.robot.utils import Move, LogicalObject, Turn
+from robots.robot.utils import test_segment_circle, test_circle_circle
 
 logger = logging.getLogger(__name__)
 
@@ -170,7 +170,7 @@ class Robot(LogicalObject, ABC):
             self._group.draw(surface)
             self.radar.draw(surface)
             if self.draw_bbs:
-                # self.draw_rect(surface)
+                self.draw_rect(surface)
                 self.draw_debug(surface)
         try:
             self.draw(surface)
@@ -184,12 +184,13 @@ class Robot(LogicalObject, ABC):
         surface.blit(r, (self.rect.left, self.rect.top))
 
     def draw_debug(self, surface):
+        middle = (self.rect.w//2, self.rect.h//2)
         debug_overlay = pygame.Surface((self.rect.w, self.rect.h))
         debug_overlay.set_colorkey((0, 0, 0))
-        debug_overlay.set_alpha(255)
-        pygame.draw.circle(debug_overlay, (0, 0, 255), self.center.astype(int), self.radius)
-        pygame.draw.line(debug_overlay, (255, 0, 255), self.center.astype(int),
-                         (self.center + (self.direction * 10)).astype(int), 1)
+        debug_overlay.set_alpha(128)
+        pygame.draw.circle(debug_overlay, (0, 0, 255), middle, self.radius)
+        pygame.draw.line(debug_overlay, (255, 0, 255), middle,
+                         (middle + (self.direction * 10)).astype(int), 1)
         surface.blit(debug_overlay, (self.rect.left, self.rect.top))
 
     def draw(self, surface):
@@ -211,7 +212,7 @@ class Robot(LogicalObject, ABC):
             self.on_hit_by_bullet(events)
 
     def collided_wall(self, battle_size):
-        self.center += -self.velocity
+        self.center = self.center - self.velocity
         offset = max(self.rect.w // 2, self.rect.h // 2) + 4
         bounds = (offset, offset), (battle_size[0] - offset, battle_size[1] - offset)
         self.center = np.clip(self.center + self.velocity, *bounds)
@@ -223,14 +224,16 @@ class Robot(LogicalObject, ABC):
         if not self.dead:
             for robot in robots:
                 if robot is not self:
-                    res = pygame.sprite.collide_circle(self, robot)
-                    if res:
+                    if test_circle_circle(self.center, robot.center, self.radius, robot.radius):
                         self.energy -= 0.6
                         robot.energy -= 0.6
                         norm = (self.center - robot.center)
-                        norm = (norm / np.sum(norm ** 2)) * 10
+                        norm = (norm / np.sum(norm ** 2)) * 15
                         self.center = self.center + norm
                         robot.center = robot.center - norm
+                        self._speed = 0
+                        robot._speed = 0
+
                         self.on_hit_robot(HitRobotEvent(robot))
                         robot.on_hit_robot(HitRobotEvent(self))
                         break
@@ -241,11 +244,10 @@ class Robot(LogicalObject, ABC):
 
     def collide_scan(self, robots):
         scanned = []
-        if not self.dead:
-            for robot in robots:
-                if robot is not self and not robot.dead:
-                    if test_segment_circle(self.center, self.radar.scan_endpoint, robot.center, robot.radius):
-                        scanned.append(ScannedRobotEvent(self, robot))
+        for robot in robots:
+            if robot is not self and not robot.dead:
+                if test_segment_circle(self.center, self.radar.scan_endpoint, robot.center, robot.radius):
+                    scanned.append(ScannedRobotEvent(self, robot))
 
         if scanned:
             logger.debug("%s scanned events %s." % (self, scanned))
@@ -268,7 +270,7 @@ class AdvancedRobot(Robot):
 
                 self.center = self.center + self.velocity
                 self.rect.center = self.center
-                self.bearing = self.get_delta_bearing(self.turning.value)
+                self.bearing = self.get_bearing_delta()
                 self.left_to_turn = max(0, self.left_to_turn - self.rotation_speed)
 
                 self.base.delta()

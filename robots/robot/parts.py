@@ -2,9 +2,7 @@ import os
 
 import numpy as np
 import pygame
-from pygame.sprite import Group
-
-from robots.robot.utils import LogicalObject, GameObject, Turn, load_image, scale_image, Colors
+from robots.robot.utils import LogicalObject, GameObject, load_image, scale_image, Colors, test_circles
 
 __all__ = ['Bullet', 'Radar', 'Gun', 'Base', ]
 data_dir = os.path.join(os.path.dirname(__file__), '../../data/')
@@ -14,10 +12,12 @@ class Bullet(LogicalObject):
     bullets = set()
     draw_trajectory = True
     _image, _rect = None, None
+
     def __init__(self, robot, power):
-        LogicalObject.__init__(self, robot.gun.bearing, (10,10))
+        LogicalObject.__init__(self, robot.gun.bearing, (10, 10))
         self.robot = robot
         self.power = power
+        self.radius = 5 * self.power / 3
         self.image, self.rect = scale_image(self._image, self._rect, self.power / 3)
         self.speed = 20 - (3 * self.power)
         self.damage = 4 * self.power
@@ -51,15 +51,13 @@ class Bullet(LogicalObject):
 
     @classmethod
     def collide_bullets(cls):
-        to_remove = set()
-        for bullet in cls.bullets:
-            group = cls.bullets.copy()
-            group.remove(bullet)
-            other_bullet = pygame.sprite.spritecollideany(bullet, group)
-            if other_bullet is not None:
-                to_remove.add(bullet)
-                to_remove.add(other_bullet)
-        cls.bullets.difference_update(to_remove)
+        bullets = list(cls.bullets)
+        if len(bullets) > 1:
+            c = np.array([b.center for b in bullets])
+            r = np.array([b.radius for b in bullets])
+            where = np.argwhere(np.any(test_circles(c, r), 0))
+            to_remove = [bullets[idx] for idx in where.flatten().tolist()]
+            cls.bullets.difference_update(to_remove)
 
 
 class Gun(GameObject):
