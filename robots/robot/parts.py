@@ -10,6 +10,8 @@ data_dir = os.path.join(os.path.dirname(__file__), '../../data/')
 
 class Bullet(LogicalObject):
     bullets = set()
+    bullet_positions = Vector()
+    bullet_velocities = Vector()
     draw_trajectory = True
     _image, _rect = None, None
 
