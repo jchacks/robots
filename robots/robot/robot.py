@@ -5,6 +5,7 @@ from typing import List
 import numpy as np
 import pygame
 from pygame.sprite import OrderedUpdates
+
 from robots.robot.events import *
 from robots.robot.parts import *
 from robots.robot.utils import Move, LogicalObject, Turn
@@ -184,7 +185,7 @@ class Robot(LogicalObject, ABC):
         surface.blit(r, (self.rect.left, self.rect.top))
 
     def draw_debug(self, surface):
-        middle = (self.rect.w//2, self.rect.h//2)
+        middle = (self.rect.w // 2, self.rect.h // 2)
         debug_overlay = pygame.Surface((self.rect.w, self.rect.h))
         debug_overlay.set_colorkey((0, 0, 0))
         debug_overlay.set_alpha(128)
@@ -329,18 +330,17 @@ class SimpleRobot(Robot):
 
 class SignalRobot(Robot):
     def delta(self, tick):
-        if not self.dead:
-            if self.energy < 0.0:
-                self.destroy()
-            else:
-                self.do(tick)
-                self._speed = np.clip(self._speed + self.acceleration, -8.0, 8.0)
-                self.center = self.center + self.velocity
-                self.rect.center = self.center
-                self.bearing = self.get_bearing_delta()
-                self.base.delta()
-                self.gun.delta()
-                self.radar.delta()
-                if self.should_fire:
-                    self.fire(self.fire_power)
-                self.should_fire = False
+        if self.energy < 0.0:
+            self.destroy()
+        else:
+            self.do(tick)
+            self._speed = np.clip(self._speed + self.acceleration, -8.0, 8.0)
+            self.center = self.center + self.velocity
+            self.rect.center = self.center
+            self.bearing = self.get_bearing_delta()
+            self.base.delta()
+            self.gun.delta()
+            self.radar.delta()
+            if self.should_fire:
+                self.fire(self.fire_power)
+            self.should_fire = False
