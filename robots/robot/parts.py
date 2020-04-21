@@ -10,8 +10,8 @@ data_dir = os.path.join(os.path.dirname(__file__), '../../data/')
 
 class Bullet(LogicalObject):
     bullets = set()
-    bullet_positions = Vector()
-    bullet_velocities = Vector()
+    # bullet_positions = Vector()
+    # bullet_velocities = Vector()
     draw_trajectory = True
     _image, _rect = None, None
 
@@ -30,7 +30,6 @@ class Bullet(LogicalObject):
     @classmethod
     def on_init(cls):
         cls._image, cls._rect = load_image(data_dir + 'blast.png', -1)
-        print(cls._rect)
 
     def draw(self, surface):
         surface.blit(self.image, self.rect.topleft)
