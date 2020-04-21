@@ -25,8 +25,8 @@ class Battle(object):
         self.simulate = True
         self.sim_times = deque(maxlen=1000)
 
-        # self.robots = [R() for R in self.robots_classes]
-        self.robots = robots
+        self._robots = robots
+        self.robots = None
 
     @property
     def alive_robots(self):
@@ -49,10 +49,12 @@ class Battle(object):
 
         Bullet.on_init()
         # Add bots
-        for robot in self.robots:
-            robot.set_bearing(randint(0, 360))
+        self.robots = []
+        for robot_class in self._robots:
+            robot = robot_class(randint(0, 360))
             robot.set_position((randint(20, w - 20), randint(20, h - 20)))
             robot.on_init()
+            self.robots.append(robot)
         self.overlay = Overlay(self.app, self.robots)
 
     def on_clean_up(self):
@@ -111,10 +113,9 @@ class Battle(object):
             self.on_init()
 
     def collide_walls(self):
-        for robot in self.robots:
-            if not robot.dead:
-                if not self.rect.contains(robot.rect):
-                    robot.collided_wall(self.size)
+        for robot in self.alive_robots:
+            if not self.rect.contains(robot.rect):
+                robot.collided_wall(self.size)
 
         for bullet in Bullet.bullets.copy():
             if not self.rect.contains(bullet.rect):
@@ -126,7 +127,7 @@ class Battle(object):
             self.step()
             self.sim_times.append(time.time() - s)
             self.tick += 1
-        print(round(self.get_sim_times(), 5), round(1 / self.get_sim_times()), self.tick)
+            # print(round(self.get_sim_times(), 5), round(1 / self.get_sim_times()), self.tick)
 
     def on_event(self, event):
         if event.key == pygame.K_w:
@@ -139,5 +140,6 @@ class Battle(object):
             print(self.sim_rate, self.sim_interval)
         elif event.key == pygame.K_p:
             self.simulate = not self.simulate
+            print("Simulate", self.simulate)
         elif event.key == pygame.K_l:
             self.step()

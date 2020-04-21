@@ -218,6 +218,7 @@ class GroupedLogicalObject(object):
     def delta(cls, tick):
         cls.centers.data = cls.centers + (cls.speeds * cls.directions())
 
+
 class GameObject(Sprite, LogicalObject):
     def __init__(self, bearing: float, filename, scale_factor=None):
         Sprite.__init__(self)
@@ -231,7 +232,6 @@ class GameObject(Sprite, LogicalObject):
 
     def on_init(self):
         self.image, self.rect = load_image(self.filename, -1)
-        print(self, self.rect)
         LogicalObject.on_init(self)
         if self.scale_factor:
             self.image, self.rect = scale_image(self.image, self.rect, self.scale_factor)

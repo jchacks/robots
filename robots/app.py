@@ -6,7 +6,7 @@ import pygame
 from robots.battle import Battle
 from robots.bots.MyFirstRobot import MyFirstRobot
 from robots.bots.RandomRobot import RandomRobot
-from robots.robot.parts import Bullet
+from robots.ui import Console
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 
@@ -20,9 +20,10 @@ class App(object):
 
         self.render = True
         self.last_render = 0
-        self.render_rate = 120
+        self.render_rate = 30
         self.render_interval = 1.0 / self.render_rate
         self.battle = None
+        self.console = Console()
 
     def on_init(self):
         pygame.init()
@@ -32,6 +33,7 @@ class App(object):
             print("Battle is None creating default")
             self.battle = Battle(self, (1280, 720), [MyFirstRobot, RandomRobot])
         self.init_screen()
+        self.console.on_init(self.screen)
         self.battle.on_init()
         return True
 
@@ -59,12 +61,15 @@ class App(object):
         elif event.type == pygame.VIDEORESIZE:
             self.on_resize(event.dict['size'])
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RETURN:
-                command = input('>>>', )
-                self.on_command(command)
-            if event.key == pygame.K_r:
-                self.render = not self.render
-            self.battle.on_event(event)
+            if self.console.active:
+                self.console.handle_event(event)
+            else:
+                if event.key == pygame.K_RETURN:
+                    self.console.active = True
+                elif event.key == pygame.K_r:
+                    self.render = not self.render
+                else:
+                    self.battle.on_event(event)
 
     def on_command(self, command):
         command, *args = command.split(' ')
@@ -78,9 +83,10 @@ class App(object):
     def on_render(self):
         if (time.time() - self.last_render) >= self.render_interval:
             self.last_render = time.time()
-            self.screen.blit(self.bg, (0, 0))
+            # self.screen.blit(self.bg, (0, 0))
             self.battle.on_render(self.screen)
-            self.render_text(int(1 / max(1, time.time() - self.battle.last_sim)))
+            self.render_text(int(1 / max(0.00000000000001, time.time() - self.battle.last_sim)))
+            self.console.on_render(self.screen)
             pygame.display.flip()
 
     def on_loop(self):
@@ -100,6 +106,56 @@ class App(object):
             if self.render:
                 self.on_render()
             if not self.render and not self.battle.simulate:
+                time.sleep(0.1)
+
+        self.on_cleanup()
+
+
+class HeadlessApp(object):
+    def __init__(self):
+        self._running = True
+        self.console = Console()
+
+    def on_init(self):
+        pygame.init()
+        self._running = True
+        if not self.battle:
+            print("Battle is None creating default")
+            self.battle = Battle(self, (1280, 720), [MyFirstRobot, RandomRobot])
+        self.battle.on_init()
+        return True
+
+    def on_event(self, event):
+        if event.type == pygame.QUIT:
+            self._running = False
+
+
+    def on_command(self, command):
+        command, *args = command.split(' ')
+        if command == 'sim':
+            self.battle.sim_rate = int(args[0])
+            self.battle.sim_interval = 1 / self.battle.sim_rate
+        elif command == 'fps':
+            self.render_rate = int(args[0])
+            self.render_interval = 1 / self.render_rate
+
+    def on_loop(self):
+        if self.battle:
+            self.battle.on_loop()
+            for robot in self.battle.robots:
+                print(robot.__class__, robot.energy)
+
+    def on_cleanup(self):
+        pygame.quit()
+
+    def on_execute(self):
+        if not self.on_init():
+            self._running = False
+        while self._running:
+            for event in pygame.event.get():
+                self.on_event(event)
+            self.on_loop()
+            if not self.battle.simulate:
                 time.sleep(0.1)
 
         self.on_cleanup()
