@@ -29,7 +29,9 @@ class Event(object):
 
 
 class BattleEndedEvent(Event):
-    pass
+    def __init__(self, battle, console):
+        self.battle = battle
+        self.console = console
 
 
 class BulletHitBulletEvent(Event):
@@ -95,8 +97,10 @@ class RoundEndedEvent(Event):
 
 class ScannedRobotEvent(Event):
     def __init__(self, scanner, robot):
-        d = (scanner.center - robot.center)
-        self.bearing = np.arctan(d[0] / d[1]) * 180 / np.pi
+        d = (robot.center - scanner.center)
+        h = np.sqrt(np.sum(d**2))
+        self.direction = d/h
+        self.bearing = np.arctan(d[0] / d[1]) * 180 / np.pi % 360
         self.distance = np.sqrt(np.sum(d ** 2))
         self.energy = robot.energy
         self.heading = robot.bearing

@@ -2,6 +2,7 @@ import os
 
 import numpy as np
 import pygame
+
 from robots.robot.utils import LogicalObject, GameObject, load_image, scale_image, Colors, test_circles
 
 __all__ = ['Bullet', 'Radar', 'Gun', 'Base', ]
@@ -82,7 +83,7 @@ class Gun(GameObject):
         if self.locked:
             self.bearing = self.robot.bearing
         else:
-            self.bearing = self.get_bearing_delta()
+            self.bearing = (self.bearing + self.get_bearing_delta()) % 360
 
         self.heat = max(self.heat - 0.1, 0)
 
@@ -108,7 +109,7 @@ class Radar(GameObject):
         if self.locked:
             self.bearing = self.robot.gun.bearing
         else:
-            self.bearing = self.get_bearing_delta()
+            self.bearing = (self.bearing + self.get_bearing_delta()) % 360
 
     @property
     def scan_endpoint(self):
@@ -125,12 +126,12 @@ class Radar(GameObject):
 
     @property
     def rotation_speed(self):
-        return 45
+        return 5  # 45
 
     def draw(self, surface):
         rads = np.pi * self.last_bearing / 180
         last_direction = np.stack([np.sin(rads), np.cos(rads)], axis=-1)
-        pygame.draw.line(surface, (0, 255, 0), self.center, self.center + (last_direction * 1200))
+        pygame.draw.line(surface, (0, 128, 0), self.center, self.center + (last_direction * 1200))
         pygame.draw.line(surface, (0, 255, 0), self.center, self.scan_endpoint)
 
 

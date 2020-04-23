@@ -3,15 +3,15 @@ from pygame.draw import circle
 from robots import AdvancedRobot
 
 
-class TestRobot(AdvancedRobot):
+class DoNothing(AdvancedRobot):
     def on_init(self):
-        super(TestRobot, self).on_init()
+        super(DoNothing, self).on_init()
         self.radar.locked = True
         self.gun.locked = True
         self.scans = []
 
     def do(self, tick):
-        self.turn_left(360)
+        pass
 
     def on_scanned_robot(self, scanned):
         self.scans.append((self.position, scanned[0]))
@@ -20,4 +20,4 @@ class TestRobot(AdvancedRobot):
     def draw(self, surface):
         for pos, scan in self.scans:
             print(scan)
-            circle(surface, (255, 255, 0), pos - (scan.direction * (scan.distance/2)).astype(int), 2)
+            circle(surface, (255, 255, 0), ((pos + scan.bearing) * scan.distance).astype(int), 2)

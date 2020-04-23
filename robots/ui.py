@@ -47,7 +47,7 @@ class Overlay(object):
 
 
 class Console(object):
-    def __init__(self, font_family=None, font_size=28):
+    def __init__(self, font_family=None, font_size=20):
         self.active = False
         self.font_size = font_size
         self.font_family = font_family

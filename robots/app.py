@@ -5,6 +5,8 @@ import pygame
 
 from robots.battle import Battle
 from robots.bots.MyFirstRobot import MyFirstRobot
+from robots.bots.TestRobot import TestRobot
+from robots.bots.DoNothing import DoNothing
 from robots.bots.RandomRobot import RandomRobot
 from robots.ui import Console
 
@@ -12,7 +14,7 @@ os.environ['SDL_VIDEO_CENTERED'] = '1'
 
 
 class App(object):
-    def __init__(self, dimensions=(1280, 720)):
+    def __init__(self, dimensions=(600, 400)):
         self._running = True
         self.screen = None
         self.rect = None
@@ -31,7 +33,7 @@ class App(object):
         self._running = True
         if not self.battle:
             print("Battle is None creating default")
-            self.battle = Battle(self, (1280, 720), [MyFirstRobot, RandomRobot])
+            self.battle = Battle(self, (600, 400), [TestRobot, DoNothing])
         self.init_screen()
         self.console.on_init(self.screen)
         self.battle.on_init()
