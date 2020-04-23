@@ -4,6 +4,7 @@ from random import randint
 
 import pygame
 
+from robots.robot.events import BattleEndedEvent
 from robots.robot.parts import Bullet
 from robots.ui import Overlay
 
@@ -58,7 +59,11 @@ class Battle(object):
         self.overlay = Overlay(self.app, self.robots)
 
     def on_clean_up(self):
+        # Remove all bullets
+        for bullet in Bullet.bullets.copy():
+            bullet.clean_up()
         for robot in self.robots:
+            robot.on_battle_ended(BattleEndedEvent(self, self.app.console))
             robot.destroy()
 
     def on_resize(self, size):

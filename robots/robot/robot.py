@@ -116,7 +116,8 @@ class Robot(LogicalObject, ABC):
                 self._speed = np.clip(self._speed + self.acceleration, -8.0, 8.0)
                 self.center = self.center + self.velocity
                 self.rect.center = self.center
-                self.bearing = self.get_bearing_delta()
+                self.bearing = (self.bearing + self.get_bearing_delta()) % 360
+                print(self.bearing)
                 self.base.delta()
                 self.gun.delta()
                 self.radar.delta()
@@ -146,7 +147,7 @@ class Robot(LogicalObject, ABC):
 
     @property
     def rotation_speed(self):
-        return (10 - 0.75 * abs(self._speed)) * float(self.turning.value)
+        return 10 - 0.75 * abs(self._speed)
 
     @property
     def acceleration(self):
@@ -271,9 +272,8 @@ class AdvancedRobot(Robot):
 
                 self.center = self.center + self.velocity
                 self.rect.center = self.center
-                self.bearing = self.get_bearing_delta()
+                self.bearing = (self.bearing + self.get_bearing_delta()) % 360
                 self.left_to_turn = max(0, self.left_to_turn - self.rotation_speed)
-
                 self.base.delta()
                 self.gun.delta()
                 self.radar.delta()
@@ -337,7 +337,7 @@ class SignalRobot(Robot):
             self._speed = np.clip(self._speed + self.acceleration, -8.0, 8.0)
             self.center = self.center + self.velocity
             self.rect.center = self.center
-            self.bearing = self.get_bearing_delta()
+            self.bearing = (self.bearing + self.get_bearing_delta()) % 360
             self.base.delta()
             self.gun.delta()
             self.radar.delta()

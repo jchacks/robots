@@ -158,7 +158,7 @@ class Rotatable(ABC):
         rotation_speed = self.rotation_speed
         if self._max_rotation:
             rotation_speed = min(self._max_rotation, rotation_speed)
-        return self.bearing + (rotation_speed * self.turning.value) % 360
+        return rotation_speed * self.turning.value
 
     def set_rotation(self, direction: Union[float, Turn]):
         self.turning = direction
