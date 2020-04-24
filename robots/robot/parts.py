@@ -83,7 +83,7 @@ class Gun(GameObject):
         if self.locked:
             self.bearing = self.robot.bearing
         else:
-            self.bearing = (self.bearing + self.get_bearing_delta()) % 360
+            self.bearing = (self.bearing + self.get_bearing_delta() + self.robot.get_bearing_delta()) % 360
 
         self.heat = max(self.heat - 0.1, 0)
 
@@ -109,7 +109,7 @@ class Radar(GameObject):
         if self.locked:
             self.bearing = self.robot.gun.bearing
         else:
-            self.bearing = (self.bearing + self.get_bearing_delta()) % 360
+            self.bearing = (self.bearing + self.get_bearing_delta() + + self.robot.get_bearing_delta() + + self.robot.gun.get_bearing_delta()) % 360
 
     @property
     def scan_endpoint(self):
