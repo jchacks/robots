@@ -19,7 +19,7 @@ class Robot(LogicalObject, ABC):
         LogicalObject.__init__(self, bearing, (36, 36))
         self.name = self.__class__.__name__
         self.radius = 36 // 2
-        self.draw_bbs = True
+        self.draw_bbs = False
         self.radar = Radar(self)
         self.gun = Gun(self)
         self.base = Base(self)
@@ -106,7 +106,6 @@ class Robot(LogicalObject, ABC):
     def on_win(self, event: WinEvent):
         pass
 
-    @abstractmethod
     def delta(self, tick):
         if not self.dead:
             if self.energy < 0.0:
@@ -117,7 +116,6 @@ class Robot(LogicalObject, ABC):
                 self.center = self.center + self.velocity
                 self.rect.center = self.center
                 self.bearing = (self.bearing + self.get_bearing_delta()) % 360
-                print(self.bearing)
                 self.base.delta()
                 self.gun.delta()
                 self.radar.delta()
@@ -329,18 +327,4 @@ class SimpleRobot(Robot):
 
 
 class SignalRobot(Robot):
-    def delta(self, tick):
-        if self.energy < 0.0:
-            self.destroy()
-        else:
-            self.do(tick)
-            self._speed = np.clip(self._speed + self.acceleration, -8.0, 8.0)
-            self.center = self.center + self.velocity
-            self.rect.center = self.center
-            self.bearing = (self.bearing + self.get_bearing_delta()) % 360
-            self.base.delta()
-            self.gun.delta()
-            self.radar.delta()
-            if self.should_fire:
-                self.fire(self.fire_power)
-            self.should_fire = False
+    pass
