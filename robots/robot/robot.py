@@ -200,7 +200,7 @@ class Robot(LogicalObject, ABC):
     def collide_bullets(self):
         events = []
         if not self.dead:
-            bases_colls = {bullet: bullet.rect for bullet in Bullet.bullets}
+            bases_colls = {bullet: bullet.rect for bullet in self.battle.bullets}
             hits = self.rect.collidedictall(bases_colls)
             for bullet, coll in hits:
                 if not bullet.robot is self:

@@ -1,8 +1,9 @@
 import os
+import time
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Union
-
+from collections import deque
 import numba as nb
 import numpy as np
 import pygame
@@ -197,6 +198,39 @@ class LogicalObject(Rotatable, ABC):
     @abstractmethod
     def delta(self, tick):
         raise NotImplementedError
+
+
+class Simable(object):
+    def __init__(self):
+        self.tick = 0
+        self.last_sim = 0
+        self.is_finished = False
+        self.sim_rate = -1
+        self.sim_interval = 1.0 / self.sim_rate
+        self.simulate = True
+        self.sim_times = deque(maxlen=1000)
+
+    def set_sim_rate(self, r):
+        self.sim_rate = int(r)
+        self.sim_interval = 1.0 / self.sim_rate
+
+    def get_sim_times(self):
+        if len(self.sim_times) > 0:
+            return sum(self.sim_times) / len(self.sim_times)
+        else:
+            return -1
+
+    @abstractmethod
+    def step(self):
+        pass
+
+    def on_loop(self):
+        s = time.time()
+        if ((s - self.last_sim) >= self.sim_interval) and self.simulate:
+            self.sim_times.append(time.time() - s)
+            self.tick += 1
+            self.step()
+            self.last_sim = s
 
 
 class GroupedLogicalObject(object):
