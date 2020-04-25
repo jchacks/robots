@@ -107,7 +107,7 @@ class App(object):
             self.last_render = time.time()
             # self.screen.blit(self.bg, (0, 0))
             self.battle.on_render(self.screen)
-            self.render_text(int(1 / max(0.00000000000001, time.time() - self.battle.last_sim)))
+            # self.render_text(int(1 / max(0.00000000000001, time.time() - self.battle.last_sim)))
             self.console.on_render(self.screen)
             pygame.display.flip()
 

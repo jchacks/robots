@@ -39,3 +39,4 @@ Simple spin and shoot when a robot is scanned.
 * Impelement movement as a proper stack of commands that have decreasing amounts.
 * Remove bullets on round end
 * Abstract out the canvas drawable setup and resizing to a canvas class
+* TODO change the 

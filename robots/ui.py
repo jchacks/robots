@@ -1,4 +1,5 @@
 import os
+from abc import abstractmethod
 
 import pygame
 import pygame.locals as pl
@@ -137,3 +138,51 @@ class Console(object):
         self.commands[command] = action
         if help:
             self.help[command] = help
+
+
+class Canvas(object):
+    def __init__(self, screen=None, size=None):
+        self.screen = screen
+        self.size = size
+        self.canvas = None
+        self.ratio = size[0] / size[1]
+        self.scale_size = None
+        self.rect = None
+        self.bg = None
+        self.children = []
+
+    def init_canvas(self):
+        self.canvas = pygame.Surface(self.size)
+        self.rect = self.canvas.get_rect()
+        self.canvas = self.canvas.convert()
+        size = self.canvas.get_size()
+        self.bg = pygame.Surface(size)
+        self.bg = self.bg.convert()
+        pygame.draw.rect(self.bg, (255, 0, 0), self.bg.get_rect(), 1)
+        self.canvas.blit(self.bg, (0, 0))
+
+    def on_resize(self, size):
+        print('New Size', size)
+        nw, nh = size
+        w, h = self.size
+        r = min(nw / w, nh / h)
+        w = int(w * r)
+        h = int(h * r)
+        self.scale_size = w, h
+
+    @abstractmethod
+    def render(self):
+        pass
+
+    def on_render(self, screen=None):
+        self.canvas.blit(self.bg, (0, 0))
+
+        if screen is None:
+            screen = self.screen
+        self.render()
+        if self.scale_size and self.scale_size != self.size:
+            resized = pygame.transform.smoothscale(self.canvas, self.scale_size)
+            resizedpos = resized.get_rect(centerx=screen.get_width() / 2, centery=screen.get_height() / 2)
+            screen.blit(resized, resizedpos)
+
+        screen.blit(self.canvas, (0, 0))
