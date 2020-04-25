@@ -100,7 +100,6 @@ class ScannedRobotEvent(Event):
         d = (robot.center - scanner.center)
         h = np.sqrt(np.sum(d**2))
         self.direction = d/h
-        self.bearing = np.arctan(d[0] / d[1]) * 180 / np.pi % 360
         self.distance = np.sqrt(np.sum(d ** 2))
         self.energy = robot.energy
         self.heading = robot.bearing
