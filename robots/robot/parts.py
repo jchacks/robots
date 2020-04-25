@@ -10,14 +10,14 @@ data_dir = os.path.join(os.path.dirname(__file__), '../../data/')
 
 
 class Bullet(LogicalObject):
-    bullets = set()
     # bullet_positions = Vector()
     # bullet_velocities = Vector()
     draw_trajectory = True
     _image, _rect = None, None
 
-    def __init__(self, robot, power):
+    def __init__(self, battle, robot, power):
         LogicalObject.__init__(self, robot.gun.bearing, (10, 10))
+        self.battle = battle
         self.robot = robot
         self.power = power
         self.radius = 5 * self.power / 3
@@ -26,10 +26,10 @@ class Bullet(LogicalObject):
         self.damage = 4 * self.power
         if self.power > 1:
             self.damage += 2 * (self.power - 1)
-        self.bullets.add(self)
+        self.battle.bullets.add(self)
 
     @classmethod
-    def on_init(cls):
+    def init_video(cls):
         cls._image, cls._rect = load_image(data_dir + 'blast.png', -1)
 
     def draw(self, surface):
@@ -49,17 +49,8 @@ class Bullet(LogicalObject):
         return self.direction * self.speed
 
     def clean_up(self):
-        self.bullets.remove(self)
+        self.battle.bullets.remove(self)
 
-    @classmethod
-    def collide_bullets(cls):
-        bullets = list(cls.bullets)
-        if len(bullets) > 1:
-            c = np.array([b.center for b in bullets])
-            r = np.array([b.radius for b in bullets])
-            where = np.argwhere(np.any(test_circles(c, r), 0))
-            to_remove = [bullets[idx] for idx in where.flatten().tolist()]
-            cls.bullets.difference_update(to_remove)
 
 
 class Gun(GameObject):

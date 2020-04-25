@@ -15,9 +15,10 @@ logger = logging.getLogger(__name__)
 
 
 class Robot(LogicalObject, ABC):
-    def __init__(self, bearing=0.0):
+    def __init__(self, battle, bearing=0.0):
         LogicalObject.__init__(self, bearing, (36, 36))
         self.name = self.__class__.__name__
+        self.battle = battle
         self.radius = 36 // 2
         self.draw_bbs = False
         self.radar = Radar(self)
@@ -137,7 +138,7 @@ class Robot(LogicalObject, ABC):
 
     def fire(self, firepower):
         if self.gun.heat == 0:
-            b = Bullet(self, firepower)
+            b = Bullet(self.battle, self, firepower)
             b.center = self.gun.tip_location
             self.gun.heat = 1 + firepower / 5
             self.energy -= firepower
@@ -327,4 +328,35 @@ class SimpleRobot(Robot):
 
 
 class SignalRobot(Robot):
-    pass
+    """
+    Extended Robot class that uses generators for the delta
+    so that information can be retrieved from delta method.
+    Useful when states and actions for all Robots in a battle
+    should be passed to one model.
+    """
+
+    @abstractmethod
+    def do(self, tick: int, action):
+        """To be implemented in subclasses controlling the logic of the Robot"""
+        pass
+
+    @abstractmethod
+    def get_state(self):
+        """ Returns information about the current world state. """
+        pass
+
+    def delta(self, tick, action):
+        if self.energy < 0.0:
+            self.destroy()
+        else:
+            self.do(action)
+            self._speed = np.clip(self._speed + self.acceleration, -8.0, 8.0)
+            self.center = self.center + self.velocity
+            self.rect.center = self.center
+            self.bearing = (self.bearing + self.get_bearing_delta()) % 360
+            self.base.delta()
+            self.gun.delta()
+            self.radar.delta()
+            if self.should_fire:
+                self.fire(self.fire_power)
+            self.should_fire = False

@@ -4,10 +4,10 @@ import time
 import pygame
 
 from robots.battle import Battle
-from robots.bots.MyFirstRobot import MyFirstRobot
-from robots.bots.TestRobot import TestRobot
 from robots.bots.DoNothing import DoNothing
+from robots.bots.MyFirstRobot import MyFirstRobot
 from robots.bots.RandomRobot import RandomRobot
+from robots.bots.TestRobot import TestRobot
 from robots.ui import Console
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
@@ -24,8 +24,22 @@ class App(object):
         self.last_render = 0
         self.render_rate = 30
         self.render_interval = 1.0 / self.render_rate
-        self.battle = None
-        self.console = Console()
+        self.battle: Battle = None
+        self.console = con = Console('consolas', font_size=14)
+        con.add_command('sim', self.set_sim_rate, help='Sets the simulation rate to given integer, -1 for unlimited')
+        con.add_command('fps',  self.set_frame_rate, help='Sets the FPS to given integer, -1 for unlimited')
+        con.add_command('close', None, help='Closes the application')
+
+    def create_default_battle(self):
+        return Battle(self, (600, 400), [TestRobot, DoNothing])
+
+    def set_frame_rate(self, r):
+        self.render_rate = int(r)
+        self.render_interval = 1 / self.render_rate
+
+    def set_sim_rate(self, r):
+        self.battle.sim_rate = int(r)
+        self.battle.sim_interval = 1 / self.battle.sim_rate
 
     def on_init(self):
         pygame.init()
@@ -33,8 +47,11 @@ class App(object):
         self._running = True
         if not self.battle:
             print("Battle is None creating default")
-            self.battle = Battle(self, (600, 400), [TestRobot, DoNothing])
+            self.battle = self.create_default_battle()
+
         self.init_screen()
+        self.battle.init_video(self.screen)
+
         self.console.on_init(self.screen)
         self.battle.on_init()
         return True
@@ -44,6 +61,9 @@ class App(object):
         self.rect = self.screen.get_rect()
         self.bg = pygame.Surface(self.screen.get_size())
         self.bg = self.bg.convert()
+
+    def init_logic(self):
+        pass
 
     def on_resize(self, size):
         self.size = size
@@ -130,7 +150,6 @@ class HeadlessApp(object):
     def on_event(self, event):
         if event.type == pygame.QUIT:
             self._running = False
-
 
     def on_command(self, command):
         command, *args = command.split(' ')

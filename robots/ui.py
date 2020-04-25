@@ -54,10 +54,13 @@ class Console(object):
         self.buffer = "PyRoboCode console: v1.0\nType 'help' for detailed commands..."
         self.input = ""
         self.cursor_pos = 0
+        self.commands = {}
+        self.help = {}
 
     def on_init(self, screen):
         if self.font_family is not None and not os.path.isfile(self.font_family):
             self.font_family = pygame.font.match_font(self.font_family)
+            print(self.font_family)
 
         self.font_object = pygame.font.Font(self.font_family, self.font_size)
 
@@ -72,6 +75,9 @@ class Console(object):
 
     def put_text(self, text):
         self.buffer = self.buffer + '\n' + text
+
+    def on_resize(self, size):
+        pass
 
     def on_render(self, screen):
         if self.active:
@@ -96,7 +102,9 @@ class Console(object):
                 self.input = self.input[:self.cursor_pos] + self.input[self.cursor_pos + 1:]
             elif event.key == pl.K_RETURN:
                 command, self.input = self.input, ""
-                self.buffer += '\n' + ''.join(command)
+                if len(command) > 0:
+                    self.put_text(command)
+                    self.handle_command(command.split(' '))
                 self.cursor_pos = 0
                 return command
             elif event.key == pl.K_RIGHT:
@@ -114,3 +122,18 @@ class Console(object):
             else:
                 self.input = self.input[:self.cursor_pos] + event.unicode + self.input[self.cursor_pos:]
                 self.cursor_pos += len(event.unicode)
+
+    def handle_command(self, command):
+        command, *args = command
+        if command in ['h', 'help']:
+            self.put_text("HELP:\n" + '\n\t'.join('%s: %s' % (c, h) for c, h in self.help.items()))
+        else:
+            try:
+                self.commands[command](*args)
+            except KeyError:
+                self.put_text("Command: '%s' not found." % command)
+
+    def add_command(self, command: str, action: callable, help=None):
+        self.commands[command] = action
+        if help:
+            self.help[command] = help
