@@ -33,6 +33,7 @@ from robots.app import App, Battle
 # Import the bot from wherever it was located
 from robots.bots import MyFirstRobot, RandomRobot
 
+
 app = App((600, 400))
 app.battle = Battle(app, (600,400), [
     MyFirstRobot.MyFirstRobot,
@@ -64,9 +65,11 @@ app.on_execute()
 ![Multi_Battle Image](/docs/images/multi_battle.png)
 
 ### Todo
-* Add a `robot.Robot` subclass that uses `moving`, `turing` to move, instead of using allocated amounts.
+* ~~Add a `robot.Robot` subclass that uses `moving`, `turing` to move, instead of using allocated amounts.~~
 * Add interrupt current command stack.
 * Implement movement as a proper stack of commands that have decreasing amounts.
 * ~~Remove bullets on round end~~
 * Abstract out the canvas drawable setup and resizing to a canvas class
 * Fully document all methods that are intended to be part of the public API.
+* Decide on whether to use degrees or radians for rotation.
+

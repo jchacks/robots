@@ -5,15 +5,21 @@ from typing import List
 import numpy as np
 import pygame
 from pygame.sprite import OrderedUpdates
+
 from robots.robot.events import *
 from robots.robot.parts import *
 from robots.robot.utils import Move, LogicalObject, Turn
-from robots.robot.utils import test_segment_circle, test_circle_circle, test_circle_to_circles
+from robots.robot.utils import test_circle_circle, test_circle_to_circles, test_segment_circle
 
 logger = logging.getLogger(__name__)
 
 
 class Robot(LogicalObject, ABC):
+    """
+    Abstract Robot class to be subclassed by any custom robots.
+    Controls movement, collision and rendering of robots.
+    """
+
     def __init__(self, battle, bearing=0.0):
         LogicalObject.__init__(self, bearing, (36, 36))
         self.name = self.__class__.__name__
@@ -25,8 +31,12 @@ class Robot(LogicalObject, ABC):
         self.base = Base(self)
 
     def on_init(self):
+        """
+        Init logical values
+        :return: None
+        """
         LogicalObject.on_init(self)
-        self._group = OrderedUpdates(self.base, self.gun, self.radar)
+        self._group = OrderedUpdates(self.base, self.gun, self.radar)  # Should this be here or in init_video()
         self.energy = 100
         self._speed = 0.0
         self.dead = False
@@ -41,6 +51,7 @@ class Robot(LogicalObject, ABC):
         self.radar.turning = Turn.NONE
 
     def init_video(self):
+        """ Init rendering """
         self.radar.init_video()
         self.gun.init_video()
         self.base.init_video()
@@ -112,6 +123,14 @@ class Robot(LogicalObject, ABC):
         pass
 
     def delta(self, tick):
+        """
+        Tick update:
+            * Position
+            * Speed
+            * Rotation
+        :param tick: Tick of the simulation
+        :return: None
+        """
         if not self.dead:
             if self.energy < 0.0:
                 self.destroy()
@@ -188,6 +207,11 @@ class Robot(LogicalObject, ABC):
         surface.blit(r, (self.rect.left, self.rect.top))
 
     def draw_debug(self, surface):
+        """
+        Draw debug graphics with bounding boxes and direction.
+        :param surface: The surface upon which to draw
+        :return: None
+        """
         middle = (self.rect.w // 2, self.rect.h // 2)
         debug_overlay = pygame.Surface((self.rect.w, self.rect.h))
         debug_overlay.set_colorkey((0, 0, 0))
@@ -198,9 +222,15 @@ class Robot(LogicalObject, ABC):
         surface.blit(debug_overlay, (self.rect.left, self.rect.top))
 
     def draw(self, surface):
+        """ Override this method to draw any custom graphics """
         raise NotImplementedError
 
     def collide_bullets(self):
+        """
+        Collision method for testing collision of self with other robot's bullets.
+        If a collision occurs a on_hit_by_bullet event is propagated.
+        :return: None
+        """
         events = []
         if not self.dead and len(self.battle.bullets):
             bullets = [(b, b.center, b.radius) for b in self.battle.bullets if b.robot is not self]
@@ -252,9 +282,8 @@ class Robot(LogicalObject, ABC):
         scanned = []
         for robot in robots:
             if robot is not self and not robot.dead:
-                # TODO remove this test
-                # if test_segment_circle(self.center, self.radar.scan_endpoint, robot.center, robot.radius):
-                scanned.append(ScannedRobotEvent(self, robot))
+                if test_segment_circle(self.center, self.radar.scan_endpoint, robot.center, robot.radius):
+                    scanned.append(ScannedRobotEvent(self, robot))
 
         if scanned:
             logger.debug("%s scanned events %s." % (self, scanned))
@@ -262,6 +291,9 @@ class Robot(LogicalObject, ABC):
 
 
 class AdvancedRobot(Robot):
+    """
+    Subclasses Robot allowing for simultaneous movement of all parts (Base, Turret, Radar).
+    """
     def delta(self, tick):
         if not self.dead:
             if self.energy < 0.0:
@@ -326,6 +358,9 @@ class AdvancedRobot(Robot):
 
 
 class SimpleRobot(Robot):
+    """
+    Subclasses Robot allowing simple chain of commands to be .
+    """
     def delta(self, tick):
         if not self.commands:
             self.do(tick)
@@ -334,10 +369,7 @@ class SimpleRobot(Robot):
 
 class SignalRobot(Robot):
     """
-    Extended Robot class that uses generators for the delta
-    so that information can be retrieved from delta method.
-    Useful when states and actions for all Robots in a battle
-    should be passed to one model.
+    API changed not sure if this is needed.
     """
 
     @abstractmethod
