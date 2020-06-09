@@ -14,7 +14,7 @@ os.environ['SDL_VIDEO_CENTERED'] = '1'
 
 
 class App(object):
-    def __init__(self, dimensions=(600, 400)):
+    def __init__(self, dimensions=(600, 400), battle=None):
         self._running = True
         self.screen = None
         self.rect = None
@@ -24,14 +24,18 @@ class App(object):
         self.last_render = 0
         self.render_rate = 30
         self.render_interval = 1.0 / self.render_rate
-        self.battle: Battle = None
+        if battle:
+            self.battle = battle
+        else:
+            print("Creating default battle")
+            self.battle: Battle = self.create_default_battle()
         self.console = con = Console('consolas', font_size=14)
         con.add_command('sim', self.set_sim_rate, help='Sets the simulation rate to given integer, -1 for unlimited')
         con.add_command('fps',  self.set_frame_rate, help='Sets the FPS to given integer, -1 for unlimited')
         con.add_command('close', None, help='Closes the application')
 
     def create_default_battle(self):
-        return Battle(self, (600, 400), [TestRobot, DoNothing])
+        return Battle(self, (400, 400), [TestRobot, TestRobot])
 
     def set_frame_rate(self, r):
         self.render_rate = int(r)
@@ -45,14 +49,9 @@ class App(object):
         pygame.init()
         pygame.font.init()
         self._running = True
-        if not self.battle:
-            print("Battle is None creating default")
-            self.battle = self.create_default_battle()
-
         self.init_screen()
-        self.battle.init_video(self.screen)
-
         self.console.on_init(self.screen)
+        self.battle.init_video(self.screen)
         self.battle.on_init()
         return True
 

@@ -5,11 +5,10 @@ from typing import List
 import numpy as np
 import pygame
 from pygame.sprite import OrderedUpdates
-
 from robots.robot.events import *
 from robots.robot.parts import *
 from robots.robot.utils import Move, LogicalObject, Turn
-from robots.robot.utils import test_segment_circle, test_circle_circle
+from robots.robot.utils import test_segment_circle, test_circle_circle, test_circle_to_circles
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +18,7 @@ class Robot(LogicalObject, ABC):
         LogicalObject.__init__(self, bearing, (36, 36))
         self.name = self.__class__.__name__
         self.battle = battle
-        self.radius = 36 // 2
+        self.radius = 22
         self.draw_bbs = False
         self.radar = Radar(self)
         self.gun = Gun(self)
@@ -40,6 +39,11 @@ class Robot(LogicalObject, ABC):
         self.moving = Move.NONE
         self.gun.turning = Turn.NONE
         self.radar.turning = Turn.NONE
+
+    def init_video(self):
+        self.radar.init_video()
+        self.gun.init_video()
+        self.base.init_video()
 
     @abstractmethod
     def do(self, tick: int):
@@ -115,7 +119,6 @@ class Robot(LogicalObject, ABC):
                 self.do(tick)
                 self._speed = np.clip(self._speed + self.acceleration, -8.0, 8.0)
                 self.center = self.center + self.velocity
-                self.rect.center = self.center
                 self.bearing = (self.bearing + self.get_bearing_delta()) % 360
                 self.base.delta()
                 self.gun.delta()
@@ -199,22 +202,24 @@ class Robot(LogicalObject, ABC):
 
     def collide_bullets(self):
         events = []
-        if not self.dead:
-            bases_colls = {bullet: bullet.rect for bullet in self.battle.bullets}
-            hits = self.rect.collidedictall(bases_colls)
-            for bullet, coll in hits:
-                if not bullet.robot is self:
+        if not self.dead and len(self.battle.bullets):
+            bullets = [(b, b.center, b.radius) for b in self.battle.bullets if b.robot is not self]
+            if bullets:
+                bs, cs, rs = zip(*bullets)
+                bs, cs, rs = np.stack(bs), np.stack(cs), np.stack(rs)
+                colls = test_circle_to_circles(self.center, self.radius, cs, rs)
+                for bullet in bs[colls]:
                     self.energy -= bullet.damage
                     bullet.robot.energy += 3 * bullet.power
                     bullet.clean_up()
                     events.append(HitByBulletEvent(bullet))
-        if not events:
-            logger.debug("%s scanned events %s." % (self, events))
-            self.on_hit_by_bullet(events)
+                if not events:
+                    logger.debug("%s scanned events %s." % (self, events))
+                    self.on_hit_by_bullet(events)
 
     def collided_wall(self, battle_size):
         self.center = self.center - self.velocity
-        offset = max(self.rect.w // 2, self.rect.h // 2) + 4
+        offset = self.radius // 2 + 4
         bounds = (offset, offset), (battle_size[0] - offset, battle_size[1] - offset)
         self.center = np.clip(self.center + self.velocity, *bounds)
         self.energy -= max(abs(self._speed) * 0.5 - 1, 0)
@@ -247,8 +252,9 @@ class Robot(LogicalObject, ABC):
         scanned = []
         for robot in robots:
             if robot is not self and not robot.dead:
-                if test_segment_circle(self.center, self.radar.scan_endpoint, robot.center, robot.radius):
-                    scanned.append(ScannedRobotEvent(self, robot))
+                # TODO remove this test
+                # if test_segment_circle(self.center, self.radar.scan_endpoint, robot.center, robot.radius):
+                scanned.append(ScannedRobotEvent(self, robot))
 
         if scanned:
             logger.debug("%s scanned events %s." % (self, scanned))
@@ -270,7 +276,6 @@ class AdvancedRobot(Robot):
                 self.left_to_move = max(0, self.left_to_move - self._speed)
 
                 self.center = self.center + self.velocity
-                self.rect.center = self.center
                 self.bearing = (self.bearing + self.get_bearing_delta()) % 360
                 self.left_to_turn = max(0, self.left_to_turn - self.rotation_speed)
                 self.base.delta()
@@ -352,7 +357,6 @@ class SignalRobot(Robot):
             self.do(action)
             self._speed = np.clip(self._speed + self.acceleration, -8.0, 8.0)
             self.center = self.center + self.velocity
-            self.rect.center = self.center
             self.bearing = (self.bearing + self.get_bearing_delta()) % 360
             self.base.delta()
             self.gun.delta()

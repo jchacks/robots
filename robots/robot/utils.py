@@ -1,9 +1,10 @@
 import os
 import time
 from abc import ABC, abstractmethod
+from collections import deque
 from enum import Enum
 from typing import Union
-from collections import deque
+
 import numba as nb
 import numpy as np
 import pygame
@@ -12,7 +13,7 @@ from pygame.sprite import Sprite
 
 __all__ = [
     'Turn', 'Move', 'Colors', 'rot_center', 'scale_image',
-    'load_image', 'test_segment_circle',
+    'load_image', 'test_segment_circle', 'test_circle_to_circles',
     'Rotatable', 'LogicalObject', 'GameObject'
 ]
 
@@ -56,8 +57,8 @@ class Vector(object):
 
 class Turn(Enum):
     NONE = 0
-    LEFT = 1
-    RIGHT = -1
+    LEFT = -1
+    RIGHT = 1
 
 
 class Move(Enum):
@@ -120,9 +121,16 @@ def test_circle_circle(c1, c2, r1, r2):
 @nb.njit
 def test_circles(cs, rs):
     distances = np.sum((np.expand_dims(cs, 1) - np.expand_dims(cs, 0)) ** 2, axis=2)
-    radius_diffs = (np.expand_dims(rs, 1) - np.expand_dims(rs, 0)) ** 2
+    radius_diffs = (np.expand_dims(rs, 1) + np.expand_dims(rs, 0)) ** 2
     bool_in = (distances <= radius_diffs)
     return bool_in ^ np.identity(len(cs), nb.bool_)
+
+
+@nb.njit
+def test_circle_to_circles(c, r, cs, rs):
+    distances = np.sum((c - cs) ** 2, axis=1)
+    radius_diffs = (r + rs) ** 2
+    return distances <= radius_diffs
 
 
 def load_image(name, colorkey=None):
@@ -170,16 +178,28 @@ class Rotatable(ABC):
         raise NotImplementedError
 
 
+class Renderable(ABC):
+    def __init__(self, dimensions):
+        self.rect = None
+        self._dimensions = dimensions
+
+    def init_video(self):
+        self.rect = pygame.Rect(0, 0, *self._dimensions)
+
+    @abstractmethod
+    def render(self, pos, angle):
+        pass
+
+
 class LogicalObject(Rotatable, ABC):
+    """
+    Abstract class that has all attributes necessary for movement, rotation and collision
+    """
+
     def __init__(self, bearing, dimensions=None):
         Rotatable.__init__(self, bearing)
         self._dimensions = dimensions
         self._center = np.array((np.nan, np.nan), dtype=np.float64)
-        if self._dimensions:
-            self.rect = pygame.Rect(0, 0, *self._dimensions)
-
-    def on_init(self):
-        Rotatable.on_init(self)
 
     @property
     def center(self):
@@ -188,7 +208,6 @@ class LogicalObject(Rotatable, ABC):
     @center.setter
     def center(self, center):
         self._center[:] = center
-        self.rect.center = center
 
     @property
     def direction(self):
@@ -196,7 +215,7 @@ class LogicalObject(Rotatable, ABC):
         return np.stack([np.sin(rads), np.cos(rads)], axis=-1)
 
     @abstractmethod
-    def delta(self, tick):
+    def delta(self):
         raise NotImplementedError
 
 
@@ -253,7 +272,7 @@ class GroupedLogicalObject(object):
         cls.centers.data = cls.centers + (cls.speeds * cls.directions())
 
 
-class GameObject(Sprite, LogicalObject):
+class GameObject(Sprite, LogicalObject, ABC):
     def __init__(self, bearing: float, filename, scale_factor=None):
         Sprite.__init__(self)
         LogicalObject.__init__(self, bearing)
@@ -264,9 +283,8 @@ class GameObject(Sprite, LogicalObject):
         # colorImage.fill((0, 0, 255))
         # self.image.blit(colorImage, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
 
-    def on_init(self):
+    def init_video(self):
         self.image, self.rect = load_image(self.filename, -1)
-        LogicalObject.on_init(self)
         if self.scale_factor:
             self.image, self.rect = scale_image(self.image, self.rect, self.scale_factor)
         self.orig_image = self.image

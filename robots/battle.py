@@ -1,13 +1,13 @@
+import math
 import time
 from random import randint
 
-import math
 import numpy as np
 import pygame
 
-from robots.robot.utils import test_circles, Simable
 from robots.robot.events import BattleEndedEvent
 from robots.robot.parts import Bullet
+from robots.robot.utils import test_circles, Simable
 from robots.ui import Overlay, Canvas
 
 
@@ -41,6 +41,7 @@ class Battle(Canvas, Simable):
             robot = robot_class(self, randint(0, 360))
             robot.set_position((randint(20, w - 20), randint(20, h - 20)))
             robot.on_init()
+            robot.init_video()
             self.robots.append(robot)
         self.overlay = Overlay(self.app, self.robots)
 
@@ -85,6 +86,8 @@ class Battle(Canvas, Simable):
         self.last_sim = time.time()
         for bullet in self.bullets.copy():
             bullet.delta(self.tick)
+            if not np.all(((0, 0) <= bullet.center) & (bullet.center <= self.size)):
+                self.bullets.remove(bullet)
         for robot in self.alive_robots:
             robot.collide_bullets()
         self.delta()
@@ -93,6 +96,8 @@ class Battle(Canvas, Simable):
             robot.collide_robots(self.robots)
         for robot in self.alive_robots:
             robot.collide_scan(self.alive_robots)
+        for robot in self.alive_robots:
+            robot.energy -= 1
         self.collide_bullets()
         if self.check_round_over():
             self.is_finished = True
@@ -105,7 +110,7 @@ class Battle(Canvas, Simable):
 
     def collide_walls(self):
         for robot in self.alive_robots:
-            if not np.all(((20, 20) <= robot.position) & (robot.position <= np.array(self.size) - (20,20))):
+            if not np.all(((20, 20) <= robot.position) & (robot.position <= np.array(self.size) - (20, 20))):
                 robot.collided_wall(self.size)
 
         for bullet in self.bullets.copy():
@@ -129,20 +134,20 @@ class Battle(Canvas, Simable):
 
 
 class MultiBattle(Simable):
-    def __init__(self, app, size, robots, battles=4):
+    def __init__(self, app, size, robots, num_battles=4):
         Simable.__init__(self)
         self._robots = robots
-        self.battles = [Battle(app, size, self._robots[:]) for _ in range(battles)]
+        self.battles = None
+        self. num_battles = num_battles
         self.app = app
         self.size = size
 
-    def init_grid(self, screen):
+    def init_grid(self, screen, c=5, r=4):
         w, h = screen.get_size()
-        div = math.ceil(math.sqrt(len(self.battles)))
-        w, h = w // div, h // div
+        w, h = w // c, h // r
         screens = []
-        for i in range(div):
-            for j in range(div):
+        for i in range(c):
+            for j in range(r):
                 shape = (int(i * w), int(j * h), int(w), int(h))
                 screens.append(screen.subsurface(shape))
         return screens
@@ -150,17 +155,16 @@ class MultiBattle(Simable):
     def init_video(self, screen):
         self.screen = screen
         self.screens = self.init_grid(self.screen)
-        for i, battle in enumerate(self.battles):
-            battle.init_video(self.screens[i])
 
     def on_resize(self, size):
         # Alter this to actually change the allotted screen sizes
         pass
 
     def on_init(self):
-        for battle in self.battles:
+        self.battles = [Battle(self.app, self.size, self._robots[:]) for _ in range(self.num_battles)]
+        for i, battle in enumerate(self.battles):
             battle.on_init()
-            battle.sim_rate = 1
+            battle.init_video(self.screens[i])
 
     def on_render(self, screen):
         for i, battle in enumerate(self.battles):  # TODO render each battle in its own size
@@ -173,27 +177,33 @@ class MultiBattle(Simable):
         pass
 
     def step(self):
-        for battle in self.battles:
-            battle.last_sim = time.time()
-            for bullet in battle.bullets.copy():
-                bullet.delta(battle.tick)
-            for robot in battle.alive_robots:
-                robot.collide_bullets()
+        if any(not b.is_finished for b in self.battles):
+            for battle in self.battles:
+                if not battle.is_finished:
+                    battle.last_sim = time.time()
+                    for bullet in battle.bullets.copy():
+                        bullet.delta(battle.tick)
+                    for robot in battle.alive_robots:
+                        robot.collide_bullets()
 
-        # Allows a hook for updating all battles simultaneously
-        self.delta()
+            # Allows a hook for updating all battles simultaneously
+            self.delta()
 
-        for battle in self.battles:
-            battle.collide_walls()
-            for robot in battle.alive_robots:
-                robot.collide_robots(battle.robots)
-            for robot in battle.alive_robots:
-                robot.collide_scan(battle.alive_robots)
-            battle.collide_bullets()
-            if battle.check_round_over():
-                battle.is_finished = True
-                battle.on_round_end()
-                battle.on_clean_up()
+            for battle in self.battles:
+                if not battle.is_finished:
+                    battle.collide_walls()
+                    for robot in battle.alive_robots:
+                        robot.collide_robots(battle.robots)
+                    for robot in battle.alive_robots:
+                        robot.collide_scan(battle.alive_robots)
+                    battle.collide_bullets()
+                    if battle.check_round_over():
+                        battle.is_finished = True
+                        battle.on_round_end()
+                        battle.on_clean_up()
+        else:
+            self.on_battles_ended()
+            self.on_init()
 
     def delta(self):
         for battle in self.battles:
