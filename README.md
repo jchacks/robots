@@ -72,4 +72,7 @@ app.on_execute()
 * Abstract out the canvas drawable setup and resizing to a canvas class
 * Fully document all methods that are intended to be part of the public API.
 * Decide on whether to use degrees or radians for rotation.
-
+* Convert to a Data Oriented Programming model (should allow for multi-battle speedup):
+    * Create robot data containers similar to `Bullets`
+    * Refer Robot classes back to these data containers
+    * Gracefully handle alive/dead, adding removing 
