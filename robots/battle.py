@@ -96,8 +96,6 @@ class Battle(Canvas, Simable):
             robot.collide_robots(self.robots)
         for robot in self.alive_robots:
             robot.collide_scan(self.alive_robots)
-        for robot in self.alive_robots:
-            robot.energy -= 1
         self.collide_bullets()
         if self.check_round_over():
             self.is_finished = True
