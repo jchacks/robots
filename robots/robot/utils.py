@@ -97,6 +97,14 @@ def scale_image(image, rect, factor):
 
 @nb.njit
 def test_segment_circle(start, stop, center, radius):
+    """
+    Test the collision of a line segment with a circle
+    :param start: start of line segment (x,y)
+    :param stop: stop of line segment (x,y)
+    :param center:
+    :param radius:
+    :return:
+    """
     start = start - center
     stop = stop - center
     a = np.sum((stop - start) ** 2)
@@ -115,11 +123,25 @@ def test_segment_circle(start, stop, center, radius):
 
 @nb.njit
 def test_circle_circle(c1, c2, r1, r2):
+    """
+    Test the collision of two circles
+    :param c1: Numpy Array (2,) center of circle1
+    :param c2: Numpy Array (2,) center of circle2
+    :param r1: radius of circle1
+    :param r2: radius of circle2
+    :return: Boolean value of the test
+    """
     return np.sum((c1 - c2) ** 2) <= (r1 + r2) ** 2
 
 
 @nb.njit
 def test_circles(cs, rs):
+    """
+    Test collision of all circles against each other.
+    :param cs: Numpy Array (n,2) of circle centers
+    :param rs: Numpy Array (n,) of circle radii
+    :return:
+    """
     distances = np.sum((np.expand_dims(cs, 1) - np.expand_dims(cs, 0)) ** 2, axis=2)
     radius_diffs = (np.expand_dims(rs, 1) + np.expand_dims(rs, 0)) ** 2
     bool_in = (distances <= radius_diffs)
@@ -128,12 +150,26 @@ def test_circles(cs, rs):
 
 @nb.njit
 def test_circle_to_circles(c, r, cs, rs):
+    """
+    Test collision of a 'single' circle to multiple 'other' circles.
+    :param c: Center of single circle
+    :param r: Radius of single circle
+    :param cs: Numpy Array (n,2) of other circles centers
+    :param rs: Numpy Array (n,) of other circles radii
+    :return: Boolean Array of collisions
+    """
     distances = np.sum((c - cs) ** 2, axis=1)
     radius_diffs = (r + rs) ** 2
     return distances <= radius_diffs
 
 
 def load_image(name, colorkey=None):
+    """
+    Load an image for pygame
+    :param name: Filename in data folder
+    :param colorkey: Colorkey value
+    :return: (image, rectangle)
+    """
     fullname = os.path.join('data', name)
     try:
         image = pygame.image.load(fullname)
