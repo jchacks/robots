@@ -33,6 +33,26 @@ class MyFirstRobot(AdvancedRobot):
 
 Simple spin and shoot when a robot is scanned.
 
+### Multi Battles
+
+It is also possible to run multiple battles simultaneously.
+Useful when training reinforcement learning algorithms.
+
+```python
+from robots.app import App
+from robots.battle import MultiBattle
+from robots.bots import MyFirstRobot, RandomRobot
+
+
+app = App((1200, 800))
+app.battle = MultiBattle(app, (600,400), [
+    MyFirstRobot.MyFirstRobot,
+    RandomRobot.RandomRobot
+], 16)
+app.on_execute()
+```
+![Multi_Battle Image](/docs/images/multi_battle.png)
+
 ### Todo
 * Add a `robot.Robot` subclass that uses `moving`, `turing` to move, instead of using allocated amounts.
 * Add interrupt current command stack.
