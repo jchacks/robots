@@ -5,13 +5,7 @@ Basic clone of Robocode focused on simulation speed when rendering is turned off
 ![Battle Image](/docs/images/battle.png)
 
 #### How to use:
-To run the application:
-```python
-from robots.app import App
 
-app = App((1920, 1080))
-app.on_execute()
-```
 To build your own robot:
 ```python
 from robots import AdvancedRobot
@@ -32,6 +26,22 @@ class MyFirstRobot(AdvancedRobot):
 ```
 
 Simple spin and shoot when a robot is scanned.
+
+To run the application:
+```python
+from robots.app import App, Battle
+# Import the bot from wherever it was located
+from robots.bots import MyFirstRobot, RandomRobot
+
+app = App((600, 400))
+app.battle = Battle(app, (600,400), [
+    MyFirstRobot.MyFirstRobot,
+    RandomRobot.RandomRobot
+])
+
+app.set_sim_rate(10) # Set the simulation rate
+app.on_execute() # Start execution
+```
 
 ### Multi Battles
 
