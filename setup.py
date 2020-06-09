@@ -14,12 +14,12 @@ setup(
     long_description_content_type='text/markdown',
     url='https://github.com/jchacks/robots',
     author='jchacks',
-    # author_email='flyingcircus@example.com',
     # license='MIT',
     packages=['robots'],
     install_requires=[
         'pygame',
-        'numpy'
+        'numpy',
+        'numba'
     ],
     include_package_data=True,
     zip_safe=False

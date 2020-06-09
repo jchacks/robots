@@ -184,5 +184,5 @@ class Canvas(object):
             resized = pygame.transform.smoothscale(self.canvas, self.scale_size)
             resizedpos = resized.get_rect(centerx=screen.get_width() / 2, centery=screen.get_height() / 2)
             screen.blit(resized, resizedpos)
-
-        screen.blit(self.canvas, (0, 0))
+        else:
+            screen.blit(self.canvas, (0, 0))

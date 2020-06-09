@@ -33,9 +33,9 @@ class Bullet(LogicalObject):
         cls._image, cls._rect = load_image(data_dir + 'blast.png', -1)
 
     def draw(self, surface):
-        surface.blit(self.image, self.rect.topleft)
         if self.draw_trajectory:
             pygame.draw.line(surface, Colors.Y, self.center, self.center + self.direction * 1000)
+        surface.blit(self.image, self.center - self.radius)
 
     @property
     def rotation_speed(self):
