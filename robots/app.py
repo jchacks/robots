@@ -42,6 +42,8 @@ class App(object):
         self.render_interval = 1 / self.render_rate
 
     def set_sim_rate(self, r):
+        if r == 0:
+            return "Cannot set sim rate to 0"
         self.battle.sim_rate = int(r)
         self.battle.sim_interval = 1 / self.battle.sim_rate
 

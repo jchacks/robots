@@ -1,4 +1,3 @@
-import math
 import time
 from random import randint
 
@@ -11,9 +10,14 @@ from robots.robot.utils import test_circles, Simable
 from robots.ui import Overlay, Canvas
 
 
+class BattleDisplay(Canvas):
+    def __init__(self, battle):
+        self.battle = battle
+
+
 class Battle(Canvas, Simable):
     def __init__(self, app, size, robots):
-        Canvas.__init__(self, size=size)
+        Canvas.__init__(self, size=size, background_color="orange")
         Simable.__init__(self)
         self.app = app
         self._robots = robots
@@ -29,15 +33,19 @@ class Battle(Canvas, Simable):
         self.init_canvas()
         Bullet.init_video()
 
-    def on_init(self):
-        # Draw stuff
-        self.bullets = set()
-        # Simulation stuff
+    def initial_angle(self, index):
+        return randint(0, 360)
 
+    def initial_positition(self, index):
+        w, h = self.size
+        return (randint(20, w - 20), randint(20, h - 20))
+
+    def on_init(self):
+        self.bullets = set()
         w, h = self.size
         # Add bots
         self.robots = []
-        for robot_class in self._robots:
+        for i, robot_class in enumerate(self._robots):
             robot = robot_class(self, randint(0, 360))
             robot.set_position((randint(20, w - 20), randint(20, h - 20)))
             robot.on_init()
@@ -136,7 +144,7 @@ class MultiBattle(Simable):
         Simable.__init__(self)
         self._robots = robots
         self.battles = None
-        self. num_battles = num_battles
+        self.num_battles = num_battles
         self.app = app
         self.size = size
 
@@ -152,7 +160,7 @@ class MultiBattle(Simable):
 
     def init_video(self, screen):
         self.screen = screen
-        self.screens = self.init_grid(self.screen)
+        self.screens = self.init_grid(self.screen,10,8)
 
     def on_resize(self, size):
         # Alter this to actually change the allotted screen sizes
