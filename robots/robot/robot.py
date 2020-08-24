@@ -51,12 +51,16 @@ class Robot(LogicalObject, ABC):
         self.radar.turning = Turn.NONE
 
     def init_video(self):
-
         """ Init rendering """
         self.radar.init_video()
         self.gun.init_video()
         self.base.init_video()
         self._group = OrderedUpdates(self.base, self.gun, self.radar)
+
+    def set_color(self, color):
+        self.radar.color = color
+        self.gun.color = color
+        self.base.color = color
 
     @abstractmethod
     def do(self, tick: int):
