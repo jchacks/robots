@@ -8,7 +8,6 @@ from typing import Union
 import numba as nb
 import numpy as np
 import pygame
-from pygame.locals import *
 from pygame.sprite import Sprite
 
 __all__ = [
@@ -176,11 +175,6 @@ def load_image(name, colorkey=None):
     except pygame.error as message:
         print('Cannot load image:', name)
         raise SystemExit(message)
-    image = image.convert()
-    if colorkey is not None:
-        if colorkey is -1:
-            colorkey = image.get_at((0, 0))
-        image.set_colorkey(colorkey, RLEACCEL)
     return image, image.get_rect()
 
 
@@ -309,18 +303,44 @@ class GroupedLogicalObject(object):
 
 
 class GameObject(Sprite, LogicalObject, ABC):
+    __sprites__ = {}
+
     def __init__(self, bearing: float, filename, scale_factor=None):
         Sprite.__init__(self)
         LogicalObject.__init__(self, bearing)
         self.scale_factor = scale_factor
         self.filename = filename
-
-        # colorImage = pygame.Surface(self.image.get_size()).convert_alpha()
-        # colorImage.fill((0, 0, 255))
-        # self.image.blit(colorImage, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+        self.color = None
+        self.image = None
+        self.rect = None
 
     def init_video(self):
-        self.image, self.rect = load_image(self.filename, -1)
+        self.image, self.rect = load_image(self.filename)
+
+        if isinstance(self.color, str):
+            self.color = pygame.Color(self.color)
+        elif isinstance(self.color, tuple):
+            self.color = pygame.Color(*self.color)
+        else:
+            self.color = None
+
+        if self.color:
+            grey = self.image.convert()
+            grey.set_colorkey((0, 255, 255))  # Image color key
+
+            base_color = pygame.Surface(self.image.get_size()).convert_alpha()
+            base_color.fill(self.color)
+
+            mask = pygame.Surface(self.image.get_size()).convert_alpha()
+            mask.fill((255, 255, 255, 0))
+            mask.blit(self.image, (0, 0), special_flags=pygame.BLEND_RGBA_ADD)
+
+            base_color.blit(grey, (0, 0))
+            base_color.blit(mask, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+            self.image = base_color
+        else:
+            self.image = self.image.convert_alpha()
+
         if self.scale_factor:
             self.image, self.rect = scale_image(self.image, self.rect, self.scale_factor)
         self.orig_image = self.image
@@ -332,8 +352,9 @@ class GameObject(Sprite, LogicalObject, ABC):
         surface.blit(r, (self.rect.left, self.rect.top))
 
     def update(self, *args):
-        self.image, self.rect = rot_center(self.orig_image, self.rect, self.bearing)
-        self.rect.center = self.center  # visual update rect
+        if self.image:
+            self.image, self.rect = rot_center(self.orig_image, self.rect, self.bearing)
+            self.rect.center = self.center  # visual update rect
 
     def delta(self):
         pass
