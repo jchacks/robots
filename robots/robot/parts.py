@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pygame
 
-from robots.robot.utils import LogicalObject, GameObject, load_image, scale_image, Colors, test_circles
+from robots.robot.utils import LogicalObject, GameObject, load_image, scale_image, Colors
 
 __all__ = ['Bullet', 'Radar', 'Gun', 'Base', ]
 data_dir = os.path.join(os.path.dirname(__file__), '../../data/')
@@ -20,7 +20,7 @@ class Bullet(LogicalObject):
         self.battle = battle
         self.robot = robot
         self.power = power
-        self.radius = 5 * self.power / 3
+        self.radius = 3
         self.image, self.rect = scale_image(self._image, self._rect, self.power / 3)
         self.speed = 20 - (3 * self.power)
         self.damage = 4 * self.power
@@ -30,7 +30,9 @@ class Bullet(LogicalObject):
 
     @classmethod
     def init_video(cls):
-        cls._image, cls._rect = load_image(data_dir + 'blast.png', -1)
+        cls._image, cls._rect = load_image(data_dir + 'blast.png')
+        # cls._image = cls._image.convert()
+        cls._image.set_colorkey(cls._image.get_at((0, 0)), pygame.RLEACCEL)
 
     def draw(self, surface):
         if self.draw_trajectory:
@@ -50,7 +52,6 @@ class Bullet(LogicalObject):
 
     def clean_up(self):
         self.battle.bullets.remove(self)
-
 
 
 class Gun(GameObject):
@@ -100,7 +101,7 @@ class Radar(GameObject):
         if self.locked:
             self.bearing = self.robot.gun.bearing
         else:
-            self.bearing = (self.bearing + self.get_bearing_delta() + + self.robot.get_bearing_delta() + + self.robot.gun.get_bearing_delta()) % 360
+            self.bearing = (self.bearing + self.get_bearing_delta() + self.robot.get_bearing_delta() + self.robot.gun.get_bearing_delta()) % 360
 
     @property
     def scan_endpoint(self):

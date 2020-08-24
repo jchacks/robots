@@ -9,7 +9,7 @@ from pygame.sprite import OrderedUpdates
 from robots.robot.events import *
 from robots.robot.parts import *
 from robots.robot.utils import Move, LogicalObject, Turn
-from robots.robot.utils import test_circle_circle, test_circle_to_circles, test_segment_circle
+from robots.robot.utils import test_circle_circle, test_circle_to_circles
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +26,7 @@ class Robot(LogicalObject, ABC):
         self.battle = battle
         self.radius = 22
         self.draw_bbs = False
+        self.color = None
         self.radar = Radar(self)
         self.gun = Gun(self)
         self.base = Base(self)
@@ -36,7 +37,6 @@ class Robot(LogicalObject, ABC):
         :return: None
         """
         LogicalObject.on_init(self)
-        self._group = OrderedUpdates(self.base, self.gun, self.radar)  # Should this be here or in init_video()
         self.energy = 100
         self._speed = 0.0
         self.dead = False
@@ -51,10 +51,12 @@ class Robot(LogicalObject, ABC):
         self.radar.turning = Turn.NONE
 
     def init_video(self):
+
         """ Init rendering """
         self.radar.init_video()
         self.gun.init_video()
         self.base.init_video()
+        self._group = OrderedUpdates(self.base, self.gun, self.radar)
 
     @abstractmethod
     def do(self, tick: int):
@@ -67,6 +69,10 @@ class Robot(LogicalObject, ABC):
     @property
     def position(self):
         return self.center.astype(int)
+
+    def _add_energy(self, energy):
+        self.energy += energy
+        self.energy = min(self.energy, 100.0)
 
     def on_battle_ended(self, event: BattleEndedEvent):
         pass
@@ -239,8 +245,8 @@ class Robot(LogicalObject, ABC):
                 bs, cs, rs = np.stack(bs), np.stack(cs), np.stack(rs)
                 colls = test_circle_to_circles(self.center, self.radius, cs, rs)
                 for bullet in bs[colls]:
-                    self.energy -= bullet.damage
-                    bullet.robot.energy += 3 * bullet.power
+                    self._add_energy(-bullet.damage)
+                    bullet.robot._add_energy(3 * bullet.power)
                     bullet.clean_up()
                     events.append(HitByBulletEvent(bullet))
                 if not events:
@@ -264,6 +270,8 @@ class Robot(LogicalObject, ABC):
                         self.energy -= 0.6
                         robot.energy -= 0.6
                         norm = (self.center - robot.center)
+                        if np.sum(norm) == 0:
+                            norm = np.array([0.0, 1.0])
                         norm = (norm / np.sum(norm ** 2)) * 15
                         self.center = self.center + norm
                         robot.center = robot.center - norm
@@ -282,8 +290,10 @@ class Robot(LogicalObject, ABC):
         scanned = []
         for robot in robots:
             if robot is not self and not robot.dead:
-                if test_segment_circle(self.center, self.radar.scan_endpoint, robot.center, robot.radius):
-                    scanned.append(ScannedRobotEvent(self, robot))
+                scanned.append(ScannedRobotEvent(self, robot))
+            # TODO change back
+            #     if test_segment_circle(self.center, self.radar.scan_endpoint, robot.center, robot.radius):
+            #         scanned.append(ScannedRobotEvent(self, robot))
 
         if scanned:
             logger.debug("%s scanned events %s." % (self, scanned))
@@ -294,6 +304,7 @@ class AdvancedRobot(Robot):
     """
     Subclasses Robot allowing for simultaneous movement of all parts (Base, Turret, Radar).
     """
+
     def delta(self, tick):
         if not self.dead:
             if self.energy < 0.0:
@@ -361,6 +372,7 @@ class SimpleRobot(Robot):
     """
     Subclasses Robot allowing simple chain of commands to be .
     """
+
     def delta(self, tick):
         if not self.commands:
             self.do(tick)

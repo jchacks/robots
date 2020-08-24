@@ -130,7 +130,9 @@ class Console(object):
             self.put_text("HELP:\n" + '\n\t'.join('%s: %s' % (c, h) for c, h in self.help.items()))
         else:
             try:
-                self.commands[command](*args)
+                res = self.commands[command](*args)
+                if res is not None:
+                    self.put_text(res)
             except KeyError:
                 self.put_text("Command: '%s' not found." % command)
 
@@ -141,23 +143,30 @@ class Console(object):
 
 
 class Canvas(object):
-    def __init__(self, screen=None, size=None):
+    def __init__(self, screen=None, size=None, background_color=None):
         self.screen = screen
         self.size = size
         self.canvas = None
         self.ratio = size[0] / size[1]
         self.scale_size = None
         self.rect = None
+
+        if isinstance(background_color, str):
+            self.bg_color = pygame.Color(background_color)
+        elif isinstance(background_color, tuple):
+            self.bg_color = pygame.Color(*background_color)
+        else:
+            self.bg_color = None
+
         self.bg = None
         self.children = []
 
     def init_canvas(self):
-        self.canvas = pygame.Surface(self.size)
+        self.canvas = pygame.Surface(self.size).convert()
         self.rect = self.canvas.get_rect()
-        self.canvas = self.canvas.convert()
-        size = self.canvas.get_size()
-        self.bg = pygame.Surface(size)
-        self.bg = self.bg.convert()
+        self.bg = pygame.Surface(self.size).convert()
+        if self.bg_color:
+            self.bg.fill(self.bg_color)
         pygame.draw.rect(self.bg, (255, 0, 0), self.bg.get_rect(), 1)
         self.canvas.blit(self.bg, (0, 0))
 
