@@ -4,6 +4,10 @@ from robots import AdvancedRobot
 class MyFirstRobot(AdvancedRobot):
     def __init__(self, *args, **kwargs):
         super(MyFirstRobot, self).__init__(*args, **kwargs)
+        self.radar.color = 'yellow'
+        self.gun.color = 'blue'
+        self.base.color = 'red'
+
         self.radar.locked = True
         self.gun.locked = True
 
