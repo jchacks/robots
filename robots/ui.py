@@ -8,16 +8,18 @@ __all__ = ['Overlay', 'Console']
 
 
 class Overlay(object):
-    def __init__(self, app, robots):
-        self.app = app
-        self._robots = robots
-        w, h = app.size
+    def __init__(self, size, battle):
+        self._robots = battle.robots
+        w, h = size
         self.bar_dims = (100, 4)
         self.bar_dims = min(100, int(w * 100 / 400)), min(4, int(h * 4 / 400))
         if pygame.font:
             self.font_size = 36
             self.font_size = min(36, int(h * 36 / 400))
             self.font = pygame.font.Font(None, self.font_size)
+
+    def set_battle(self, battle):
+        self._robots = battle.robots
 
     def on_resize(self, size):
         w, h = size
@@ -143,13 +145,11 @@ class Console(object):
 
 
 class Canvas(object):
-    def __init__(self, screen=None, size=None, background_color=None):
+    def __init__(self, *, screen, size=None, background_color=None):
         self.screen = screen
         self.size = size
-        self.canvas = None
-        self.ratio = size[0] / size[1]
+        self.ratio = self.size[0] / self.size[1]
         self.scale_size = None
-        self.rect = None
 
         if isinstance(background_color, str):
             self.bg_color = pygame.Color(background_color)
@@ -158,10 +158,6 @@ class Canvas(object):
         else:
             self.bg_color = None
 
-        self.bg = None
-        self.children = []
-
-    def init_canvas(self):
         self.canvas = pygame.Surface(self.size).convert()
         self.rect = self.canvas.get_rect()
         self.bg = pygame.Surface(self.size).convert()
@@ -185,7 +181,6 @@ class Canvas(object):
 
     def on_render(self, screen=None):
         self.canvas.blit(self.bg, (0, 0))
-
         if screen is None:
             screen = self.screen
         self.render()

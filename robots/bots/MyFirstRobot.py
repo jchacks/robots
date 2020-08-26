@@ -12,7 +12,7 @@ class MyFirstRobot(AdvancedRobot):
         self.gun.locked = True
 
     def do(self, tick):
-        self.move_forward(1000)
+        self.move_forward(100)
         self.turn_left(360)
 
     def on_scanned_robot(self, scanned):

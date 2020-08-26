@@ -4,8 +4,8 @@ from robots import AdvancedRobot
 
 
 class TestRobot(AdvancedRobot):
-    def on_init(self):
-        super(TestRobot, self).on_init()
+    def reset(self):
+        super(TestRobot, self).reset()
         self.radar.locked = True
         self.gun.locked = True
         self.scans = []

@@ -18,10 +18,11 @@ __all__ = [
 
 
 class Vector(object):
-    def __init__(self, item_shape=(2,), initial_size=10):
+    def __init__(self, item_shape, initial_size=10, dtype='float32'):
         self.initial_size = initial_size
         self.item_shape = item_shape
-        self._data = np.zeros((initial_size, *item_shape))
+        self.dtype = dtype
+        self._data = np.zeros((initial_size, *item_shape), dtype=self.dtype)
         self._mask = np.zeros(initial_size, dtype='bool')
 
     @property
@@ -33,9 +34,9 @@ class Vector(object):
         self._data[self._mask] = new_data
 
     def append(self, item):
-        if not (self._mask == False).any():
+        if not (~self._mask).any():
             self._mask = np.concatenate([self._mask, np.zeros(self.initial_size, dtype='bool')])
-            self._data = np.concatenate([self._data, np.zeros((self.initial_size, *self.item_shape))])
+            self._data = np.concatenate([self._data, np.zeros((self.initial_size, *self.item_shape), dtype=self.dtype)])
         pos = np.argmin(self._mask)
         self._data[pos] = item
         self._mask[pos] = True
@@ -52,6 +53,9 @@ class Vector(object):
 
     def __add__(self, other):
         return self.data + other
+
+    def __truediv__(self, other):
+        return self.data / other
 
 
 class Turn(Enum):
@@ -182,9 +186,8 @@ class Rotatable(ABC):
     def __init__(self, bearing):
         self.bearing = bearing
         self._max_rotation = None
-        self.turning = Turn.NONE
 
-    def on_init(self):
+    def reset(self):
         self.turning = Turn.NONE
 
     def set_bearing(self, angle):
@@ -203,22 +206,18 @@ class Rotatable(ABC):
         self.turning = direction
 
     @property
+    def direction(self):
+        rads = np.pi * self.bearing / 180
+        return np.stack([np.sin(rads), np.cos(rads)], axis=-1)
+
+    @abstractmethod
+    def delta(self):
+        raise NotImplementedError
+
+    @property
     @abstractmethod
     def rotation_speed(self):
         raise NotImplementedError
-
-
-class Renderable(ABC):
-    def __init__(self, dimensions):
-        self.rect = None
-        self._dimensions = dimensions
-
-    def init_video(self):
-        self.rect = pygame.Rect(0, 0, *self._dimensions)
-
-    @abstractmethod
-    def render(self, pos, angle):
-        pass
 
 
 class LogicalObject(Rotatable, ABC):
@@ -238,11 +237,6 @@ class LogicalObject(Rotatable, ABC):
     @center.setter
     def center(self, center):
         self._center[:] = center
-
-    @property
-    def direction(self):
-        rads = np.pi * self.bearing / 180
-        return np.stack([np.sin(rads), np.cos(rads)], axis=-1)
 
     @abstractmethod
     def delta(self):
@@ -274,16 +268,21 @@ class Simable(object):
         pass
 
     def on_loop(self):
+        """
+        Simulation function that limits simulation rate.
+        :return:
+        """
         s = time.time()
         if ((s - self.last_sim) >= self.sim_interval) and self.simulate:
-            self.sim_times.append(time.time() - s)
             self.tick += 1
+            start_step = time.time()
             self.step()
+            self.sim_times.append(time.time() - start_step)
             self.last_sim = s
 
 
 class GroupedLogicalObject(object):
-    centers = Vector()
+    centers = Vector((2,))
     bearings = Vector((1,))
     speeds = Vector((1,))
 
