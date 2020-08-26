@@ -1,0 +1,121 @@
+import os
+from abc import abstractmethod
+import numpy as np
+import pygame
+
+from robots.robot.utils import load_image, Colors, rot_center
+
+data_dir = os.path.join(os.path.dirname(__file__), '../../data/')
+
+
+class Renderer(object):
+    """
+    Tracking objects for rendering specific types of Entities
+    """
+    def __init__(self):
+        self.items = set()
+        self.orig_sprites = dict()
+        self.curr_sprites = dict()
+        self.scale_factor = None
+
+    def track(self, item):
+        self.items.add(item)
+
+    def untrack(self, item):
+        self.items.remove(item)
+        try:
+            del self.orig_sprites[item]
+            del self.curr_sprites[item]
+        except KeyError:
+            pass
+
+    @abstractmethod
+    def render(self, surface):
+        pass
+
+
+class BulletRenderer(Renderer):
+    def __init__(self):
+        super(BulletRenderer, self).__init__()
+        self.draw_trajectories = True
+        self._image, self._rect = load_image(data_dir + 'blast.png')
+        self._image = self._image.convert()
+        self._image.set_colorkey(self._image.get_at((0, 0)), pygame.RLEACCEL)
+
+    def render(self, surface):
+        for item in self.items.copy():
+            if self.draw_trajectories:
+                pygame.draw.line(surface, Colors.Y, item.center, item.center + item.direction * 1000)
+            surface.blit(self._image, item.center - item.radius)
+
+
+class RobotRenderer(Renderer):
+    def __init__(self):
+        super(RobotRenderer, self).__init__()
+        self._radar = load_image(data_dir + 'radar.png')
+        self._gun = load_image(data_dir + 'gunGrey.png')
+        self._base = load_image(data_dir + 'baseGrey.png')
+
+    def change_color(self, image, color):
+        if isinstance(color, str):
+            color = pygame.Color(color)
+        elif isinstance(color, tuple):
+            color = pygame.Color(*color)
+        else:
+            color = None
+
+        if color:
+            grey = image.convert()
+            grey.set_colorkey((0, 255, 255))  # Image color key
+
+            base_color = pygame.Surface(image.get_size()).convert_alpha()
+            base_color.fill(color)
+
+            mask = pygame.Surface(image.get_size()).convert_alpha()
+            mask.fill((255, 255, 255, 0))
+            mask.blit(image, (0, 0), special_flags=pygame.BLEND_RGBA_ADD)
+
+            base_color.blit(grey, (0, 0))
+            base_color.blit(mask, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+            image = base_color
+        else:
+            image = image.convert_alpha()
+
+        return image
+
+    def track(self, item):
+        radar = self.change_color(self._radar[0], item.radar.color), self._radar[1]
+        gun = self.change_color(self._gun[0], item.gun.color), self._radar[1]
+        base = self.change_color(self._base[0], item.base.color), self._radar[1]
+        self.orig_sprites[item] = (radar, gun, base)
+        super(RobotRenderer, self).track(item)
+
+    def render(self, surface):
+        for robot in self.items:
+            self.draw_base(surface, robot)
+            self.draw_gun(surface, robot)
+            self.draw_radar(surface, robot)
+
+    def draw_radar(self, surface, robot):
+        radar = robot.radar
+        image, rect = self.orig_sprites[robot][0]
+        image, rect = rot_center(image, rect, radar.bearing)
+        rect.center = robot.center
+        surface.blit(image, rect)
+
+        rads = np.pi * radar.last_bearing / 180
+        last_direction = np.stack([np.sin(rads), np.cos(rads)], axis=-1)
+        pygame.draw.line(surface, (0, 128, 0), robot.center, robot.center + (last_direction * 1200))
+        pygame.draw.line(surface, (0, 255, 0), robot.center, radar.scan_endpoint)
+
+    def draw_gun(self, surface, robot):
+        image, rect = self.orig_sprites[robot][1]
+        image, rect = rot_center(image, rect, robot.gun.bearing)
+        rect.center = robot.center
+        surface.blit(image, rect)
+
+    def draw_base(self, surface, robot):
+        image, rect = self.orig_sprites[robot][2]
+        image, rect = rot_center(image, rect, robot.bearing)
+        rect.center = robot.center
+        surface.blit(image, rect)

@@ -4,7 +4,6 @@ from typing import List
 
 import numpy as np
 import pygame
-from pygame.sprite import OrderedUpdates
 
 from robots.robot.events import *
 from robots.robot.parts import *
@@ -25,37 +24,28 @@ class Robot(LogicalObject, ABC):
         self.name = self.__class__.__name__
         self.battle = battle
         self.radius = 22
-        self.draw_bbs = False
-        self.color = None
         self.radar = Radar(self)
         self.gun = Gun(self)
         self.base = Base(self)
+        self.set_color(None)
+        self.reset()
 
-    def on_init(self):
+    def reset(self):
         """
         Init logical values
         :return: None
         """
-        LogicalObject.on_init(self)
         self.energy = 100
         self._speed = 0.0
         self.dead = False
         self.should_fire = False
         self.fire_power = 3
         self.commands = False
-        self.radar.on_init()
-        self.gun.on_init()
-        self.base.on_init()
         self.moving = Move.NONE
+        self.base.turning = Turn.NONE
         self.gun.turning = Turn.NONE
         self.radar.turning = Turn.NONE
-
-    def init_video(self):
-        """ Init rendering """
-        self.radar.init_video()
-        self.gun.init_video()
-        self.base.init_video()
-        self._group = OrderedUpdates(self.base, self.gun, self.radar)
+        super(Robot, self).reset()
 
     def set_color(self, color):
         self.radar.color = color
@@ -143,7 +133,7 @@ class Robot(LogicalObject, ABC):
         """
         if not self.dead:
             if self.energy < 0.0:
-                self.destroy()
+                self.dead = True
             else:
                 self.do(tick)
                 self._speed = np.clip(self._speed + self.acceleration, -8.0, 8.0)
@@ -160,17 +150,14 @@ class Robot(LogicalObject, ABC):
     def velocity(self):
         return self.direction * self._speed
 
-    def destroy(self):
-        self._group.empty()
-        self.dead = True
-
     def set_fire(self, firepower):
         self.should_fire = True
         self.fire_power = firepower
 
     def fire(self, firepower):
         if self.gun.heat == 0:
-            b = Bullet(self.battle, self, firepower)
+            b = Bullet(self, firepower)
+            self.battle.bullets.add(b)
             b.center = self.gun.tip_location
             self.gun.heat = 1 + firepower / 5
             self.energy -= firepower
@@ -251,7 +238,7 @@ class Robot(LogicalObject, ABC):
                 for bullet in bs[colls]:
                     self._add_energy(-bullet.damage)
                     bullet.robot._add_energy(3 * bullet.power)
-                    bullet.clean_up()
+                    self.battle.bullets.remove(bullet)
                     events.append(HitByBulletEvent(bullet))
                 if not events:
                     logger.debug("%s scanned events %s." % (self, events))
@@ -312,7 +299,7 @@ class AdvancedRobot(Robot):
     def delta(self, tick):
         if not self.dead:
             if self.energy < 0.0:
-                self.destroy()
+                self.dead = True
             else:
                 # TODO check that the order of operations executes correctly i.e. velocity updated then self.rotation_speed
                 if not self.commands:
@@ -334,8 +321,8 @@ class AdvancedRobot(Robot):
         if self.moving is Move.NONE and self.turning is Turn.NONE:
             self.commands = False
 
-    def on_init(self):
-        super(AdvancedRobot, self).on_init()
+    def reset(self):
+        super(AdvancedRobot, self).reset()
         self.left_to_move = 0.0
         self.left_to_turn = 0.0
 
@@ -374,7 +361,7 @@ class AdvancedRobot(Robot):
 
 class SimpleRobot(Robot):
     """
-    Subclasses Robot allowing simple chain of commands to be .
+    Subclasses Robot allowing simple chain of commands to be executed.
     """
 
     def delta(self, tick):
@@ -398,17 +385,17 @@ class SignalRobot(Robot):
         """ Returns information about the current world state. """
         pass
 
-    def delta(self, tick, action):
-        if self.energy < 0.0:
-            self.destroy()
-        else:
-            self.do(action)
-            self._speed = np.clip(self._speed + self.acceleration, -8.0, 8.0)
-            self.center = self.center + self.velocity
-            self.bearing = (self.bearing + self.get_bearing_delta()) % 360
-            self.base.delta()
-            self.gun.delta()
-            self.radar.delta()
-            if self.should_fire:
-                self.fire(self.fire_power)
-            self.should_fire = False
+    # def delta(self, tick, action):
+    #     if self.energy < 0.0:
+    #         self.destroy()
+    #     else:
+    #         self.do(action)
+    #         self._speed = np.clip(self._speed + self.acceleration, -8.0, 8.0)
+    #         self.center = self.center + self.velocity
+    #         self.bearing = (self.bearing + self.get_bearing_delta()) % 360
+    #         self.base.delta()
+    #         self.gun.delta()
+    #         self.radar.delta()
+    #         if self.should_fire:
+    #             self.fire(self.fire_power)
+    #         self.should_fire = False
