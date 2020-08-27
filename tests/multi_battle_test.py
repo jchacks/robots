@@ -1,10 +1,9 @@
-from robots.app import App
+from robots.app import MultiBattleApp
 from robots.battle import MultiBattle
 from robots.bots import MyFirstRobot, RandomRobot
 
-app = App((1200, 800))
-app.battle = MultiBattle(app, (600,400), [
+app = MultiBattleApp((1200, 800), battle=MultiBattle(size=(600, 400), robots=[
     MyFirstRobot.MyFirstRobot,
     RandomRobot.RandomRobot
-], 16)
-app.on_execute()
+], num_battles=80))
+app.run()

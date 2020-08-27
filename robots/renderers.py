@@ -1,17 +1,19 @@
 import os
 from abc import abstractmethod
+
 import numpy as np
 import pygame
 
 from robots.robot.utils import load_image, Colors, rot_center
 
-data_dir = os.path.join(os.path.dirname(__file__), '../../data/')
+data_dir = os.path.join(os.path.dirname(__file__), '../data/')
 
 
 class Renderer(object):
     """
     Tracking objects for rendering specific types of Entities
     """
+
     def __init__(self):
         self.items = set()
         self.orig_sprites = dict()
@@ -82,6 +84,27 @@ class RobotRenderer(Renderer):
             image = image.convert_alpha()
 
         return image
+
+    def draw_rect(self, surface, robot):
+        r = pygame.Surface((robot.rect.w, robot.rect.h))  # the size of your rect
+        r.set_alpha(128)  # alpha level
+        r.fill((255, 0, 0))  # this fills the entire surface
+        surface.blit(r, (robot.rect.left, robot.rect.top))
+
+    def draw_debug(self, surface, robot):
+        """
+        Draw debug graphics with bounding boxes and direction.
+        :param surface: The surface upon which to draw
+        :return: None
+        """
+        middle = (robot.rect.w // 2, robot.rect.h // 2)
+        debug_overlay = pygame.Surface((robot.rect.w, robot.rect.h))
+        debug_overlay.set_colorkey((0, 0, 0))
+        debug_overlay.set_alpha(128)
+        pygame.draw.circle(debug_overlay, (0, 0, 255), middle, robot.radius)
+        pygame.draw.line(debug_overlay, (255, 0, 255), middle,
+                         (middle + (robot.direction * 10)).astype(int), 1)
+        surface.blit(debug_overlay, (robot.rect.left, robot.rect.top))
 
     def track(self, item):
         radar = self.change_color(self._radar[0], item.radar.color), self._radar[1]

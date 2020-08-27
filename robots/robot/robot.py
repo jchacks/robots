@@ -184,44 +184,6 @@ class Robot(LogicalObject, ABC):
         else:
             return 0.0
 
-    def _draw(self, surface):
-        if not self.dead:
-            self._group.update()
-            self._group.draw(surface)
-            self.radar.draw(surface)
-            if self.draw_bbs:
-                self.draw_rect(surface)
-                self.draw_debug(surface)
-        try:
-            self.draw(surface)
-        except NotImplementedError:
-            pass
-
-    def draw_rect(self, surface):
-        r = pygame.Surface((self.rect.w, self.rect.h))  # the size of your rect
-        r.set_alpha(128)  # alpha level
-        r.fill((255, 0, 0))  # this fills the entire surface
-        surface.blit(r, (self.rect.left, self.rect.top))
-
-    def draw_debug(self, surface):
-        """
-        Draw debug graphics with bounding boxes and direction.
-        :param surface: The surface upon which to draw
-        :return: None
-        """
-        middle = (self.rect.w // 2, self.rect.h // 2)
-        debug_overlay = pygame.Surface((self.rect.w, self.rect.h))
-        debug_overlay.set_colorkey((0, 0, 0))
-        debug_overlay.set_alpha(128)
-        pygame.draw.circle(debug_overlay, (0, 0, 255), middle, self.radius)
-        pygame.draw.line(debug_overlay, (255, 0, 255), middle,
-                         (middle + (self.direction * 10)).astype(int), 1)
-        surface.blit(debug_overlay, (self.rect.left, self.rect.top))
-
-    def draw(self, surface):
-        """ Override this method to draw any custom graphics """
-        raise NotImplementedError
-
     def collide_bullets(self):
         """
         Collision method for testing collision of self with other robot's bullets.
@@ -273,9 +235,14 @@ class Robot(LogicalObject, ABC):
                         robot.on_hit_robot(HitRobotEvent(self))
                         break
 
-            # robot_colls = {robot: robot.rect for robot in bots}
-            # robot, coll = self.rect.collidedict(robot_colls)
-            # if not robot is self:
+    def to_dict(self):
+        return {
+            'energy': self.energy,
+            'bearing': self.bearing,
+            'gun_bearing': self.gun.bearing,
+            'gun_heat': self.gun.heat,
+            'radar_bearing': self.radar.bearing
+        }
 
     def collide_scan(self, robots):
         scanned = []
@@ -384,18 +351,3 @@ class SignalRobot(Robot):
     def get_state(self):
         """ Returns information about the current world state. """
         pass
-
-    # def delta(self, tick, action):
-    #     if self.energy < 0.0:
-    #         self.destroy()
-    #     else:
-    #         self.do(action)
-    #         self._speed = np.clip(self._speed + self.acceleration, -8.0, 8.0)
-    #         self.center = self.center + self.velocity
-    #         self.bearing = (self.bearing + self.get_bearing_delta()) % 360
-    #         self.base.delta()
-    #         self.gun.delta()
-    #         self.radar.delta()
-    #         if self.should_fire:
-    #             self.fire(self.fire_power)
-    #         self.should_fire = False
