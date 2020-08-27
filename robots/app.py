@@ -1,13 +1,12 @@
 import os
+import pygame
 import time
 
-import pygame
-
-from robots.battle import Battle, BattleDisplay
+from robots.battle import Battle, MultiBattle
 from robots.bots.MyFirstRobot import MyFirstRobot
 from robots.bots.RandomRobot import RandomRobot
 from robots.bots.TestRobot import TestRobot
-from robots.ui import Console
+from robots.ui import Console, BattleWindow, MultiBattleWindow
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 
@@ -49,22 +48,17 @@ class App(object):
         pygame.init()
         pygame.font.init()
         self._running = True
-        self.init_screen()
-        self.console.on_init(self.screen)
-        self.battle.reset()
-        return True
-
-    def init_screen(self):
         self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
         self.rect = self.screen.get_rect()
         self.bg = pygame.Surface(self.screen.get_size())
         self.bg = self.bg.convert()
-        self.battle_display = BattleDisplay(self.screen, self.battle)
+        self.init_window()
+        self.console.on_init(self.screen)
+        self.battle.reset()
+        return True
 
-    def on_resize(self, size):
-        self.size = size
-        self.init_screen()
-        self.battle_display.on_resize(size)
+    def init_window(self):
+        self.battle_display = BattleWindow(self.screen, self.battle)
 
     def render_text(self, text):
         if pygame.font:
@@ -119,6 +113,15 @@ class App(object):
             self.console.on_render(self.screen)
             pygame.display.flip()
 
+    def on_resize(self, size):
+        print('resize')
+        self.size = size
+        self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
+        self.rect = self.screen.get_rect()
+        self.bg = pygame.Surface(self.screen.get_size())
+        self.bg = self.bg.convert()
+        self.battle_display.on_resize(size)
+
     def on_cleanup(self):
         pygame.quit()
 
@@ -135,6 +138,21 @@ class App(object):
                 time.sleep(0.1)
 
         self.on_cleanup()
+
+
+class MultiBattleApp(App):
+    def init_window(self):
+        self.battle_display = MultiBattleWindow(self.screen, self.battle)
+
+    def create_default_battle(self):
+        return MultiBattle(size=(400, 400), robots=[TestRobot, TestRobot])
+
+    def on_render(self):
+        if (time.time() - self.last_render) >= self.render_interval:
+            self.last_render = time.time()
+            self.battle_display.on_render(self.screen)
+            self.console.on_render(self.screen)
+            pygame.display.flip()
 
 
 class HeadlessApp(object):

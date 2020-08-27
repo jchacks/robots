@@ -301,12 +301,9 @@ class GroupedLogicalObject(object):
         cls.centers.data = cls.centers + (cls.speeds * cls.directions())
 
 
-class GameObject(Sprite, LogicalObject, ABC):
-    __sprites__ = {}
-
-    def __init__(self, bearing: float, filename, scale_factor=None):
+class GameObject(Sprite):
+    def __init__(self, filename, scale_factor=None):
         Sprite.__init__(self)
-        LogicalObject.__init__(self, bearing)
         self.scale_factor = scale_factor
         self.filename = filename
         self.color = None
@@ -350,10 +347,10 @@ class GameObject(Sprite, LogicalObject, ABC):
         r.fill((255, 0, 0))
         surface.blit(r, (self.rect.left, self.rect.top))
 
-    def update(self, *args):
-        if self.image:
-            self.image, self.rect = rot_center(self.orig_image, self.rect, self.bearing)
-            self.rect.center = self.center  # visual update rect
+    def update(self, center, bearing=None):
+        if bearing and bearing != 0.0:
+            self.image, self.rect = rot_center(self.orig_image, self.rect, bearing)
+        self.rect.center = center  # visual update rect
 
     def delta(self):
         pass

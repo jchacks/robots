@@ -1,10 +1,11 @@
 import os
-from abc import abstractmethod
-
 import pygame
 import pygame.locals as pl
+from abc import abstractmethod
 
-__all__ = ['Overlay', 'Console']
+from renderers import BulletRenderer, RobotRenderer
+
+__all__ = ['Overlay', 'Console', 'BattleWindow']
 
 
 class Overlay(object):
@@ -167,7 +168,6 @@ class Canvas(object):
         self.canvas.blit(self.bg, (0, 0))
 
     def on_resize(self, size):
-        print('New Size', size)
         nw, nh = size
         w, h = self.size
         r = min(nw / w, nh / h)
@@ -190,3 +190,73 @@ class Canvas(object):
             screen.blit(resized, resizedpos)
         else:
             screen.blit(self.canvas, (0, 0))
+
+
+class BattleWindow(Canvas):
+    def __init__(self, screen, battle):
+        Canvas.__init__(self, screen=screen, size=battle.size, background_color="black")
+        self.bullet_r = BulletRenderer()
+        self.robot_r = RobotRenderer()
+        self.battle = None
+        self.overlay = None
+        self.set_battle(battle)
+
+    def set_battle(self, battle):
+        self.battle = battle
+        for robot in battle.robots:
+            self.robot_r.track(robot)
+        self.overlay = Overlay(battle.size, self.battle)
+        self.bullet_r.items = self.battle.bullets
+        self.on_resize(self.screen.get_size())
+
+    def render(self):
+        self.robot_r.render(self.canvas)
+        self.bullet_r.render(self.canvas)
+        self.overlay.on_render(self.canvas)
+
+    def on_resize(self, size):
+        super(BattleWindow, self).on_resize(size)
+        self.overlay.on_resize(size)
+
+
+class MultiBattleWindow(Canvas):
+    def __init__(self, screen, multibattle):
+        Canvas.__init__(self, screen=screen, size=screen.get_size(), background_color="black")
+        self.multibattle = multibattle
+        self.battle_windows = None
+        self.overlay = None
+        self.init_grid()
+
+    def init_grid(self, c=5, r=4):
+        self.battle_windows = []
+        w, h = self.size
+        w, h = w // c, h // r
+        for i in range(min(c * r, len(self.multibattle.battles))):
+            shape = (int((i * w) % (w * c)), int(i // c * h), int(w), int(h))
+            self.battle_windows.append(
+                BattleWindow(self.screen.subsurface(shape), self.multibattle.battles[i]))
+
+    def on_render(self, screen=None):
+        for i, window in enumerate(self.battle_windows):
+            window.on_render()
+
+    def on_resize(self, size):
+        self.size = size
+        self.init_grid()
+
+    def on_event(self, event):
+        if event.key == pygame.K_w:
+            self.sim_rate += 10
+            self.sim_interval = 1.0 / self.sim_rate
+            print(self.sim_rate, self.sim_interval)
+        elif event.key == pygame.K_s:
+            self.sim_rate = max(1, self.sim_rate - 10)
+            self.sim_interval = 1.0 / self.sim_rate
+            print(self.sim_rate, self.sim_interval)
+        elif event.key == pygame.K_p:
+            self.simulate = not self.simulate
+            print("Simulate", self.simulate)
+        elif event.key == pygame.K_l:
+            self.step()
+        for b in self.battles:
+            b.on_event(event)
