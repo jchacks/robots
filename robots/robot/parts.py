@@ -28,6 +28,9 @@ class Bullet(LogicalObject):
     def velocity(self):
         return self.direction * self.speed
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}<{self.robot}, {self.center}, {self.bearing}, {self.power}>"
+
 class Gun(Rotatable):
     def __init__(self, robot):
         super(Gun, self).__init__(robot.bearing)

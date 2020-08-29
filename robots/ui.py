@@ -3,7 +3,7 @@ import pygame
 import pygame.locals as pl
 from abc import abstractmethod
 
-from renderers import BulletRenderer, RobotRenderer
+from robots.renderers import BulletRenderer, RobotRenderer
 
 __all__ = ['Overlay', 'Console', 'BattleWindow']
 
@@ -34,7 +34,8 @@ class Overlay(object):
             offset = self.draw(screen, robot, offset)
 
     def draw(self, screen, robot, offset):
-        text = self.font.render(str(robot.__class__.__name__), 1, (255, 255, 255))
+        color = robot.base.color if robot.base.color is not None else (255, 255, 255)
+        text = self.font.render(str(robot.__class__.__name__), 1, color)
         textpos = text.get_rect(left=0, top=offset)
         screen.blit(text, textpos)
 
@@ -220,17 +221,30 @@ class BattleWindow(Canvas):
 
 
 class MultiBattleWindow(Canvas):
-    def __init__(self, screen, multibattle):
+    def __init__(self, screen, multibattle, *, rows=None, columns=None):
         Canvas.__init__(self, screen=screen, size=screen.get_size(), background_color="black")
         self.multibattle = multibattle
         self.battle_windows = None
         self.overlay = None
+        self.r = rows
+        self.c = columns
         self.init_grid()
 
-    def init_grid(self, c=5, r=4):
+    def init_grid(self):
+        c, r = self.c, self.r
+        assert (bool(c) ^ bool(r))
         self.battle_windows = []
-        w, h = self.size
-        w, h = w // c, h // r
+        tw, th = self.size
+        bw, bh = self.multibattle.size
+        if c:
+            w = tw // c
+            h = int(w * bh / bw)
+            r = th // h
+        else:
+            h = th // r
+            w = int(h * bw / bh)
+            c = tw // w
+
         for i in range(min(c * r, len(self.multibattle.battles))):
             shape = (int((i * w) % (w * c)), int(i // c * h), int(w), int(h))
             self.battle_windows.append(
@@ -258,5 +272,5 @@ class MultiBattleWindow(Canvas):
             print("Simulate", self.simulate)
         elif event.key == pygame.K_l:
             self.step()
-        for b in self.battles:
+        for b in self.multibattle.battles:
             b.on_event(event)

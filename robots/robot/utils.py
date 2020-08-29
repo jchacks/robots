@@ -13,7 +13,7 @@ from pygame.sprite import Sprite
 __all__ = [
     'Turn', 'Move', 'Colors', 'rot_center', 'scale_image',
     'load_image', 'test_segment_circle', 'test_circle_to_circles',
-    'Rotatable', 'LogicalObject', 'GameObject'
+    'Rotatable', 'LogicalObject', 'GameObject', 'Simable', 'test_circles'
 ]
 
 

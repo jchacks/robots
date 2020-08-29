@@ -12,7 +12,7 @@ os.environ['SDL_VIDEO_CENTERED'] = '1'
 
 
 class App(object):
-    def __init__(self, dimensions=(600, 400), battle=None):
+    def __init__(self, dimensions=(600, 400), battle=None, simulate=True, fps_target=30):
         self._running = True
         self.screen = None
         self.rect = None
@@ -20,8 +20,9 @@ class App(object):
         self.battle_display = None
 
         self.render = True
+        self.simulate = simulate
         self.last_render = 0
-        self.render_rate = 30
+        self.render_rate = fps_target
         self.render_interval = 1.0 / self.render_rate
 
         self.battle = battle if battle is not None else self.create_default_battle()
@@ -125,14 +126,19 @@ class App(object):
     def on_cleanup(self):
         pygame.quit()
 
+    def get_events(self):
+        return pygame.event.get()
+
     def run(self):
         if not self.on_init():
             self._running = False
         while self._running:
-            for event in pygame.event.get():
+            for event in self.get_events():
                 self.on_event(event)
-            self.battle.on_loop()
-            if self.render:
+            if self.simulate:
+                self.battle.on_loop()
+            if self.render and self.battle.dirty:
+                self.battle.dirty = False
                 self.on_render()
             if not self.render and not self.battle.simulate:
                 time.sleep(0.1)
@@ -141,11 +147,21 @@ class App(object):
 
 
 class MultiBattleApp(App):
+    """
+    Class that extends the Normal App class to render a multi Battle window
+    for when a multibattle is being used instead of a normal `Battle`
+    """
+
+    def __init__(self, *args, rows=None, columns=None, **kwargs):
+        super(MultiBattleApp, self).__init__(*args, **kwargs)
+        self.rows = rows
+        self.columns = columns
+
     def init_window(self):
-        self.battle_display = MultiBattleWindow(self.screen, self.battle)
+        self.battle_display = MultiBattleWindow(self.screen, self.battle, rows=self.rows, columns=self.columns)
 
     def create_default_battle(self):
-        return MultiBattle(size=(400, 400), robots=[TestRobot, TestRobot])
+        return MultiBattle(size=(400, 400), robots=[TestRobot, TestRobot], num_battles=2)
 
     def on_render(self):
         if (time.time() - self.last_render) >= self.render_interval:

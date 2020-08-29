@@ -14,6 +14,7 @@ class Battle(Simable):
     def __init__(self, *, size=(600, 400), robots):
         Simable.__init__(self)
         self.robots = [rc(self) for rc in robots]
+        self.dirty = True
         self.size = size
         self.sim_rate = 1
         self.done = False
@@ -29,12 +30,14 @@ class Battle(Simable):
 
     def initial_position(self, index):
         w, h = self.size
-        return (randint(20, w - 20), randint(20, h - 20))
+        return randint(20, w - 20), randint(20, h - 20)
 
     def reset(self):
         self.bullets.clear()
         for i, robot in enumerate(self.robots):
             robot.set_bearing(self.initial_bearing(0))
+            robot.gun.set_bearing(self.initial_bearing(0))
+            robot.radar.set_bearing(self.initial_bearing(0))
             robot.set_position(self.initial_position(0))
             robot.reset()
 
@@ -61,7 +64,7 @@ class Battle(Simable):
         for robot in self.robots:
             robot.on_battle_ended(BattleEndedEvent(self))
 
-    def step(self):
+    def step(self, *args):
         self.last_sim = time.time()
         self.collide_walls()
         for robot in self.alive_robots:
@@ -77,9 +80,10 @@ class Battle(Simable):
             self.is_finished = True
             self.on_round_end()
             self.reset()
-        self.delta()
+        self.delta(*args)
+        self.dirty = True
 
-    def delta(self):
+    def delta(self, *args):
         for robot in self.alive_robots:
             robot.delta(self.tick)
 
@@ -105,6 +109,7 @@ class MultiBattle(Simable):
     def __init__(self, size, robots, num_battles=4):
         Simable.__init__(self)
         self.robots = robots
+        self.dirty = True
         self.size = size
         self.num_battles = num_battles
         self.battles = [
@@ -118,8 +123,9 @@ class MultiBattle(Simable):
         for battle in self.battles:
             battle.reset()
 
-    def step(self):
+    def step(self, *args, **kwargs):
         for battle in self.battles:
+            battle.is_finished = False
             battle.last_sim = time.time()
             battle.collide_walls()
             for robot in battle.alive_robots:
@@ -136,8 +142,11 @@ class MultiBattle(Simable):
                 battle.on_round_end()
                 battle.reset()
         # Allows a hook for updating all battles simultaneously
-        self.delta()
+        res = self.delta(*args, **kwargs)
+        self.dirty = True
+        return res
 
-    def delta(self):
+    def delta(self, *args):
         for battle in self.battles:
             battle.delta()
+        return True
