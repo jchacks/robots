@@ -69,10 +69,11 @@ app.on_execute()
 * Add interrupt current command stack.
 * Implement movement as a proper stack of commands that have decreasing amounts.
 * ~~Remove bullets on round end~~
-* Abstract out the canvas drawable setup and resizing to a canvas class
+* ~~Abstract out the canvas drawable setup and resizing to a canvas class~~
 * Fully document all methods that are intended to be part of the public API.
 * Decide on whether to use degrees or radians for rotation.
 * Convert to a Data Oriented Programming model (should allow for multi-battle speedup):
     * Create robot data containers similar to `Bullets`
     * Refer Robot classes back to these data containers
     * Gracefully handle alive/dead, adding removing 
+* Scale the `Overlay` independently from the battle scaling

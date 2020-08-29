@@ -1,14 +1,11 @@
 import logging
-from abc import ABC, abstractmethod
-from typing import List
-
 import numpy as np
-import pygame
-
+from abc import ABC, abstractmethod
 from robots.robot.events import *
 from robots.robot.parts import *
 from robots.robot.utils import Move, LogicalObject, Turn
-from robots.robot.utils import test_circle_circle, test_circle_to_circles
+from robots.robot.utils import test_circle_circle, test_circle_to_circles, test_segment_circle
+from typing import List
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +16,7 @@ class Robot(LogicalObject, ABC):
     Controls movement, collision and rendering of robots.
     """
 
-    def __init__(self, battle, bearing=0.0):
+    def __init__(self, battle, bearing=0.0, color=None):
         LogicalObject.__init__(self, bearing, (36, 36))
         self.name = self.__class__.__name__
         self.battle = battle
@@ -27,7 +24,7 @@ class Robot(LogicalObject, ABC):
         self.radar = Radar(self)
         self.gun = Gun(self)
         self.base = Base(self)
-        self.set_color(None)
+        self.set_color(color)
         self.reset()
 
     def reset(self):
@@ -122,7 +119,7 @@ class Robot(LogicalObject, ABC):
     def on_win(self, event: WinEvent):
         pass
 
-    def delta(self, tick):
+    def delta(self, *args):
         """
         Tick update:
             * Position
@@ -135,7 +132,7 @@ class Robot(LogicalObject, ABC):
             if self.energy < 0.0:
                 self.dead = True
             else:
-                self.do(tick)
+                self.do(*args)
                 self._speed = np.clip(self._speed + self.acceleration, -8.0, 8.0)
                 self.center = self.center + self.velocity
                 self.bearing = (self.bearing + self.get_bearing_delta()) % 360
@@ -248,10 +245,10 @@ class Robot(LogicalObject, ABC):
         scanned = []
         for robot in robots:
             if robot is not self and not robot.dead:
-                scanned.append(ScannedRobotEvent(self, robot))
-            # TODO change back
-            #     if test_segment_circle(self.center, self.radar.scan_endpoint, robot.center, robot.radius):
-            #         scanned.append(ScannedRobotEvent(self, robot))
+                # scanned.append(ScannedRobotEvent(self, robot))
+                # TODO change back
+                if test_segment_circle(self.center, self.radar.scan_endpoint, robot.center, robot.radius):
+                    scanned.append(ScannedRobotEvent(self, robot))
 
         if scanned:
             logger.debug("%s scanned events %s." % (self, scanned))
@@ -342,12 +339,15 @@ class SignalRobot(Robot):
     API changed not sure if this is needed.
     """
 
+    def __init__(self, *args, **kwargs):
+        super(SignalRobot, self).__init__(*args, **kwargs)
+
     @abstractmethod
     def do(self, tick: int, action):
         """To be implemented in subclasses controlling the logic of the Robot"""
         pass
 
     @abstractmethod
-    def get_state(self):
+    def get_obs(self):
         """ Returns information about the current world state. """
         pass
