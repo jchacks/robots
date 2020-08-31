@@ -8,7 +8,7 @@ from robots.bots.RandomRobot import RandomRobot
 from robots.bots.TestRobot import TestRobot
 from robots.ui import Console, BattleWindow, MultiBattleWindow
 
-os.environ['SDL_VIDEO_CENTERED'] = '1'
+os.environ["SDL_VIDEO_CENTERED"] = "1"
 
 
 class App(object):
@@ -26,11 +26,11 @@ class App(object):
         self.render_interval = 1.0 / self.render_rate
 
         self.battle = battle if battle is not None else self.create_default_battle()
-        self.console = con = Console('consolas', font_size=14)
+        self.console = con = Console("consolas", font_size=14)
 
-        con.add_command('sim', self.set_sim_rate, help='Sets the simulation rate to given integer, -1 for unlimited')
-        con.add_command('fps', self.set_frame_rate, help='Sets the FPS to given integer, -1 for unlimited')
-        con.add_command('close', None, help='Closes the application')
+        con.add_command("sim", self.set_sim_rate, help="Sets the simulation rate to given integer, -1 for unlimited")
+        con.add_command("fps", self.set_frame_rate, help="Sets the FPS to given integer, -1 for unlimited")
+        con.add_command("close", None, help="Closes the application")
 
     def create_default_battle(self):
         return Battle(size=(400, 400), robots=[TestRobot, TestRobot])
@@ -72,7 +72,7 @@ class App(object):
         if event.type == pygame.QUIT:
             self._running = False
         elif event.type == pygame.VIDEORESIZE:
-            self.on_resize(event.dict['size'])
+            self.on_resize(event.dict["size"])
         elif event.type == pygame.KEYDOWN:
             if self.console.active:
                 self.console.handle_event(event)
@@ -82,28 +82,15 @@ class App(object):
                 elif event.key == pygame.K_r:
                     self.render = not self.render
                 else:
-                    # Reference Battle attrs from here so it doesnt need to
-                    # reference pygame
-                    if event.key == pygame.K_w:
-                        self.battle.sim_rate += 10
-                        self.battle.sim_interval = 1.0 / self.battle.sim_rate
-                        print(self.battle.sim_rate, self.battle.sim_interval)
-                    elif event.key == pygame.K_s:
-                        self.battle.sim_rate = max(1, self.battle.sim_rate - 10)
-                        self.battle.sim_interval = 1.0 / self.battle.sim_rate
-                        print(self.battle.sim_rate, self.battle.sim_interval)
-                    elif event.key == pygame.K_p:
-                        self.battle.simulate = not self.battle.simulate
-                        print("Simulate", self.battle.simulate)
-                    elif event.key == pygame.K_l:
-                        self.battle.step()
+                    self.battle_display.handle_event(event)
+                    
 
     def on_command(self, command):
-        command, *args = command.split(' ')
-        if command == 'sim':
+        command, *args = command.split(" ")
+        if command == "sim":
             self.battle.sim_rate = int(args[0])
             self.battle.sim_interval = 1 / self.battle.sim_rate
-        elif command == 'fps':
+        elif command == "fps":
             self.render_rate = int(args[0])
             self.render_interval = 1 / self.render_rate
 
@@ -115,7 +102,7 @@ class App(object):
             pygame.display.flip()
 
     def on_resize(self, size):
-        print('resize')
+        print("resize")
         self.size = size
         self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
         self.rect = self.screen.get_rect()
@@ -182,7 +169,7 @@ class HeadlessApp(object):
         if self.battle:
             self.battle.on_loop()
             for robot in self.battle.robots:
-                print(robot.__class__, robot.energy, end='')
+                print(robot.__class__, robot.energy, end="")
             print()
 
     def run(self):

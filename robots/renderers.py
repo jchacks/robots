@@ -6,7 +6,7 @@ import pygame
 
 from robots.robot.utils import load_image, Colors, rot_center
 
-data_dir = os.path.join(os.path.dirname(__file__), '../data/')
+data_dir = os.path.join(os.path.dirname(__file__), "../data/")
 
 
 class Renderer(object):
@@ -40,7 +40,7 @@ class BulletRenderer(Renderer):
     def __init__(self):
         super(BulletRenderer, self).__init__()
         self.draw_trajectories = True
-        self._image, self._rect = load_image(data_dir + 'blast.png')
+        self._image, self._rect = load_image(data_dir + "blast.png")
         self._image = self._image.convert()
         self._image.set_colorkey(self._image.get_at((0, 0)), pygame.RLEACCEL)
 
@@ -53,12 +53,13 @@ class BulletRenderer(Renderer):
             except Exception as e:
                 print(f"Error {e}, for bullet {item}")
 
+
 class RobotRenderer(Renderer):
     def __init__(self):
         super(RobotRenderer, self).__init__()
-        self._radar = load_image(data_dir + 'radar.png')
-        self._gun = load_image(data_dir + 'gunGrey.png')
-        self._base = load_image(data_dir + 'baseGrey.png')
+        self._radar = load_image(data_dir + "radar.png")
+        self._gun = load_image(data_dir + "gunGrey.png")
+        self._base = load_image(data_dir + "baseGrey.png")
 
     def change_color(self, image, color):
         if isinstance(color, str):
@@ -104,8 +105,7 @@ class RobotRenderer(Renderer):
         debug_overlay.set_colorkey((0, 0, 0))
         debug_overlay.set_alpha(128)
         pygame.draw.circle(debug_overlay, (0, 0, 255), middle, robot.radius)
-        pygame.draw.line(debug_overlay, (255, 0, 255), middle,
-                         (middle + (robot.direction * 10)).astype(int), 1)
+        pygame.draw.line(debug_overlay, (255, 0, 255), middle, (middle + (robot.direction * 10)).astype(int), 1)
         surface.blit(debug_overlay, (robot.rect.left, robot.rect.top))
 
     def track(self, item):

@@ -11,19 +11,40 @@ import pygame
 from pygame.sprite import Sprite
 
 __all__ = [
-    'Turn', 'Move', 'Colors', 'rot_center', 'scale_image',
-    'load_image', 'test_segment_circle', 'test_circle_to_circles',
-    'Rotatable', 'LogicalObject', 'GameObject', 'Simable', 'test_circles'
+    "Turn",
+    "Move",
+    "Colors",
+    "rot_center",
+    "scale_image",
+    "load_image",
+    "test_segment_circle",
+    "test_circle_to_circles",
+    "Rotatable",
+    "LogicalObject",
+    "GameObject",
+    "Simable",
+    "test_circles",
 ]
 
 
 class Vector(object):
-    def __init__(self, item_shape, initial_size=10, dtype='float32'):
-        self.initial_size = initial_size
+    def __init__(
+        self,
+        item_shape,
+        initial_size=10,
+        dtype="float32",
+        mask=None,
+    ):
+        if mask is None:
+            self.initial_size = initial_size
+            self._mask = np.zeros(initial_size, dtype="bool")
+        else:
+            self._mask = mask
+            self.initial_size = mask.shape[0]
+
         self.item_shape = item_shape
         self.dtype = dtype
         self._data = np.zeros((initial_size, *item_shape), dtype=self.dtype)
-        self._mask = np.zeros(initial_size, dtype='bool')
 
     @property
     def data(self):
@@ -35,7 +56,7 @@ class Vector(object):
 
     def append(self, item):
         if not (~self._mask).any():
-            self._mask = np.concatenate([self._mask, np.zeros(self.initial_size, dtype='bool')])
+            self._mask = np.concatenate([self._mask, np.zeros(self.initial_size, dtype="bool")])
             self._data = np.concatenate([self._data, np.zeros((self.initial_size, *self.item_shape), dtype=self.dtype)])
         pos = np.argmin(self._mask)
         self._data[pos] = item
@@ -147,7 +168,7 @@ def test_circles(cs, rs):
     """
     distances = np.sum((np.expand_dims(cs, 1) - np.expand_dims(cs, 0)) ** 2, axis=2)
     radius_diffs = (np.expand_dims(rs, 1) + np.expand_dims(rs, 0)) ** 2
-    bool_in = (distances <= radius_diffs)
+    bool_in = distances <= radius_diffs
     return bool_in ^ np.identity(len(cs), nb.bool_)
 
 
@@ -173,11 +194,11 @@ def load_image(name, colorkey=None):
     :param colorkey: Colorkey value
     :return: (image, rectangle)
     """
-    fullname = os.path.join('data', name)
+    fullname = os.path.join("data", name)
     try:
         image = pygame.image.load(fullname)
     except pygame.error as message:
-        print('Cannot load image:', name)
+        print("Cannot load image:", name)
         raise SystemExit(message)
     return image, image.get_rect()
 

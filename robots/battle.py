@@ -99,9 +99,9 @@ class Battle(Simable):
 
     def to_dict(self):
         return {
-            'tick': self.tick,
-            'robots': [r.to_dict() for r in self.robots],
-            'bullets': [(b.radius, b.center, b.direction) for b in list(self.bullets)],
+            "tick": self.tick,
+            "robots": [r.to_dict() for r in self.robots],
+            "bullets": [(b.radius, b.center, b.direction) for b in list(self.bullets)],
         }
 
 
@@ -112,12 +112,7 @@ class MultiBattle(Simable):
         self.dirty = True
         self.size = size
         self.num_battles = num_battles
-        self.battles = [
-            Battle(
-                size=self.size,
-                robots=self.robots
-            ) for _ in range(self.num_battles)
-        ]
+        self.battles = [Battle(size=self.size, robots=self.robots) for _ in range(self.num_battles)]
 
     def reset(self):
         for battle in self.battles:

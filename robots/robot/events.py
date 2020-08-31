@@ -1,25 +1,25 @@
 import numpy as np
 
 __all__ = [
-    'BattleEndedEvent',
-    'BulletHitBulletEvent',
-    'BulletHitEvent',
-    'BulletMissedEvent',
-    'CustomEvent',
-    'DeathEvent',
-    'HitByBulletEvent',
-    'HitRobotEvent',
-    'HitWallEvent',
-    'KeyEvent',
-    'MessageEvent',
-    'MouseEvent',
-    'PaintEvent',
-    'RobotDeathEvent',
-    'RoundEndedEvent',
-    'ScannedRobotEvent',
-    'SkippedTurnEvent',
-    'StatusEvent',
-    'WinEvent',
+    "BattleEndedEvent",
+    "BulletHitBulletEvent",
+    "BulletHitEvent",
+    "BulletMissedEvent",
+    "CustomEvent",
+    "DeathEvent",
+    "HitByBulletEvent",
+    "HitRobotEvent",
+    "HitWallEvent",
+    "KeyEvent",
+    "MessageEvent",
+    "MouseEvent",
+    "PaintEvent",
+    "RobotDeathEvent",
+    "RoundEndedEvent",
+    "ScannedRobotEvent",
+    "SkippedTurnEvent",
+    "StatusEvent",
+    "WinEvent",
 ]
 
 
@@ -96,7 +96,7 @@ class RoundEndedEvent(Event):
 
 class ScannedRobotEvent(Event):
     def __init__(self, scanner, robot):
-        d = (robot.center - scanner.center)
+        d = robot.center - scanner.center
         h = np.sqrt(np.sum(d ** 2))
         self.direction = d / h
         self.distance = h

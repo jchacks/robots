@@ -20,4 +20,4 @@ class TestRobot(AdvancedRobot):
     def draw(self, surface):
         for pos, scan in self.scans:
             print(scan)
-            circle(surface, (255, 255, 0), pos + (scan.direction * (scan.distance/2)).astype(int), 2)
+            circle(surface, (255, 255, 0), pos + (scan.direction * (scan.distance / 2)).astype(int), 2)

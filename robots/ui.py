@@ -5,7 +5,7 @@ from abc import abstractmethod
 
 from robots.renderers import BulletRenderer, RobotRenderer
 
-__all__ = ['Overlay', 'Console', 'BattleWindow']
+__all__ = ["Overlay", "Console", "BattleWindow", "MultiBattleWindow"]
 
 
 class Overlay(object):
@@ -34,7 +34,9 @@ class Overlay(object):
             offset = self.draw(screen, robot, offset)
 
     def draw(self, screen, robot, offset):
-        color = robot.base.color if robot.base.color is not None else (255, 255, 255)
+        color = robot.base.color if robot.base.color is not None else "white"
+        color = pygame.Color(color)
+        
         text = self.font.render(str(robot.__class__.__name__), 1, color)
         textpos = text.get_rect(left=0, top=offset)
         screen.blit(text, textpos)
@@ -79,7 +81,7 @@ class Console(object):
         self.surface.blit(self.bg, (0, 0))
 
     def put_text(self, text):
-        self.buffer = self.buffer + '\n' + text
+        self.buffer = self.buffer + "\n" + text
 
     def on_resize(self, size):
         pass
@@ -87,8 +89,8 @@ class Console(object):
     def on_render(self, screen):
         if self.active:
             self.surface.blit(self.bg, (0, 0))
-            lines = self.buffer.split('\n')
-            lines.append('> ' + self.input)
+            lines = self.buffer.split("\n")
+            lines.append("> " + self.input)
             for i, line in enumerate(lines[::-1]):
                 text = self.font_object.render(line, True, (255, 255, 255))
                 textpos = text.get_rect(left=0, bottom=self.surface.get_height() - i * (self.font_size + 2))
@@ -101,15 +103,15 @@ class Console(object):
                 self.active = False
             # self.cursor_visible = True  # So the user sees where he writes
             elif event.key == pl.K_BACKSPACE:
-                self.input = self.input[:max(self.cursor_pos - 1, 0)] + self.input[self.cursor_pos:]
+                self.input = self.input[: max(self.cursor_pos - 1, 0)] + self.input[self.cursor_pos :]
                 self.cursor_pos = max(self.cursor_pos - 1, 0)
             elif event.key == pl.K_DELETE:
-                self.input = self.input[:self.cursor_pos] + self.input[self.cursor_pos + 1:]
+                self.input = self.input[: self.cursor_pos] + self.input[self.cursor_pos + 1 :]
             elif event.key == pl.K_RETURN:
                 command, self.input = self.input, ""
                 if len(command) > 0:
                     self.put_text(command)
-                    self.handle_command(command.split(' '))
+                    self.handle_command(command.split(" "))
                 self.cursor_pos = 0
                 return command
             elif event.key == pl.K_RIGHT:
@@ -125,13 +127,13 @@ class Console(object):
                 self.cursor_pos = 0
 
             else:
-                self.input = self.input[:self.cursor_pos] + event.unicode + self.input[self.cursor_pos:]
+                self.input = self.input[: self.cursor_pos] + event.unicode + self.input[self.cursor_pos :]
                 self.cursor_pos += len(event.unicode)
 
     def handle_command(self, command):
         command, *args = command
-        if command in ['h', 'help']:
-            self.put_text("HELP:\n" + '\n\t'.join('%s: %s' % (c, h) for c, h in self.help.items()))
+        if command in ["h", "help"]:
+            self.put_text("HELP:\n" + "\n\t".join("%s: %s" % (c, h) for c, h in self.help.items()))
         else:
             try:
                 res = self.commands[command](*args)
@@ -219,10 +221,27 @@ class BattleWindow(Canvas):
         super(BattleWindow, self).on_resize(size)
         self.overlay.on_resize(size)
 
+    def handle_event(self, event):
+        if event.key == pygame.K_w:
+            self.battle.sim_rate += 10
+            self.battle.sim_interval = 1.0 / self.battle.sim_rate
+            print(self.battle.sim_rate, self.battle.sim_interval)
+        elif event.key == pygame.K_s:
+            self.battle.sim_rate = max(1, self.battle.sim_rate - 10)
+            self.battle.sim_interval = 1.0 / self.battle.sim_rate
+            print(self.battle.sim_rate, self.battle.sim_interval)
+        elif event.key == pygame.K_p:
+            self.battle.simulate = not self.battle.simulate
+            print("Simulate", self.battle.simulate)
+        elif event.key == pygame.K_l:
+            self.battle.step()
+        else:
+            print(f"Ignoring event '{event}'")
+
 
 class MultiBattleWindow(Canvas):
-    def __init__(self, screen, multibattle, *, rows=None, columns=None):
-        Canvas.__init__(self, screen=screen, size=screen.get_size(), background_color="black")
+    def __init__(self, screen, multibattle, *, background_color="black", rows=None, columns=None):
+        Canvas.__init__(self, screen=screen, size=screen.get_size(), background_color=background_color)
         self.multibattle = multibattle
         self.battle_windows = None
         self.overlay = None
@@ -232,7 +251,7 @@ class MultiBattleWindow(Canvas):
 
     def init_grid(self):
         c, r = self.c, self.r
-        assert (bool(c) ^ bool(r))
+        assert bool(c) ^ bool(r)
         self.battle_windows = []
         tw, th = self.size
         bw, bh = self.multibattle.size
@@ -247,8 +266,7 @@ class MultiBattleWindow(Canvas):
 
         for i in range(min(c * r, len(self.multibattle.battles))):
             shape = (int((i * w) % (w * c)), int(i // c * h), int(w), int(h))
-            self.battle_windows.append(
-                BattleWindow(self.screen.subsurface(shape), self.multibattle.battles[i]))
+            self.battle_windows.append(BattleWindow(self.screen.subsurface(shape), self.multibattle.battles[i]))
 
     def on_render(self, screen=None):
         for i, window in enumerate(self.battle_windows):
@@ -258,7 +276,7 @@ class MultiBattleWindow(Canvas):
         self.size = size
         self.init_grid()
 
-    def on_event(self, event):
+    def handle_event(self, event):
         if event.key == pygame.K_w:
             self.sim_rate += 10
             self.sim_interval = 1.0 / self.sim_rate

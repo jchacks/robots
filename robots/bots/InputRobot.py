@@ -4,6 +4,7 @@ from robots import AdvancedRobot
 class InputRobot(AdvancedRobot):
     def do(self):
         pass
+
     #     pg.mouse.get_pos()
     #     if pg.KEYDOWN
 
