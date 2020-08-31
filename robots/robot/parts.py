@@ -2,8 +2,14 @@ import os
 
 from robots.robot.utils import LogicalObject, Rotatable
 
-__all__ = ['Bullet', 'Radar', 'Gun', 'Base', ]
-data_dir = os.path.join(os.path.dirname(__file__), '../../data/')
+__all__ = [
+    "Bullet",
+    "Radar",
+    "Gun",
+    "Base",
+]
+
+data_dir = os.path.join(os.path.dirname(__file__), "../../data/")
 
 
 class Bullet(LogicalObject):
@@ -30,6 +36,7 @@ class Bullet(LogicalObject):
 
     def __repr__(self):
         return f"{self.__class__.__name__}<{self.robot}, {self.center}, {self.bearing}, {self.power}>"
+
 
 class Gun(Rotatable):
     def __init__(self, robot):
@@ -68,7 +75,12 @@ class Radar(Rotatable):
         if self.locked:
             self.bearing = self.robot.gun.bearing
         else:
-            self.bearing = (self.bearing + self.get_bearing_delta() + self.robot.get_bearing_delta() + self.robot.gun.get_bearing_delta()) % 360
+            self.bearing = (
+                self.bearing
+                + self.get_bearing_delta()
+                + self.robot.get_bearing_delta()
+                + self.robot.gun.get_bearing_delta()
+            ) % 360
 
     @property
     def scan_endpoint(self):

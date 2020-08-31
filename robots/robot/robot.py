@@ -154,10 +154,10 @@ class Robot(LogicalObject, ABC):
     def fire(self, firepower):
         if self.gun.heat == 0:
             b = Bullet(self, firepower)
-            self.battle.bullets.add(b)
             b.center = self.gun.tip_location
             self.gun.heat = 1 + firepower / 5
             self.energy -= firepower
+            self.battle.bullets.add(b)
             self.should_fire = False
 
     @property

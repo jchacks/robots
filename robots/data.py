@@ -5,7 +5,11 @@ from robots.robot.utils import Vector
 
 class BulletData(object):
     def __init__(self):
-        self.reset()
+        self.centers = Vector((2,))
+        self.radii = Vector((1,), mask=self.centers._mask)
+        self.velocity = Vector((2,), mask=self.centers._mask)
+        self.power = Vector((1,), mask=self.centers._mask)
+        self.robot = Vector((1,), dtype='int16', mask=self.centers._mask)
 
     def add_bullet(self, owner, power, bearing):
         speed = 20 - (3 * power)
@@ -22,8 +26,8 @@ class BulletData(object):
         pass
 
     def reset(self):
-        self.centers = Vector((2,))
-        self.radii = Vector((1,))
-        self.velocity = Vector((2,))
-        self.power = Vector((1,))
-        self.robot = Vector((1,), dtype='int16')
+       pass
+
+
+if __name__ == "__main__":
+    v = Vector((2,))

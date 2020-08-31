@@ -6,7 +6,8 @@ from robots.bots.RandomRobot import RandomRobot
 import tornado.ioloop
 import tornado.web
 
-DATA_DIR = '../../data/'
+DATA_DIR = "../../data/"
+
 
 class ApiApp(object):
     def __init__(self):
@@ -43,10 +44,8 @@ class WebSocket(tornado.websocket.WebSocketHandler):
 
 
 def make_app():
-    return tornado.web.Application([
-        (r"/", MainHandler),
-        (r"/ws", WebSocket)
-    ])
+    return tornado.web.Application([(r"/", MainHandler), (r"/ws", WebSocket)])
+
 
 if __name__ == "__main__":
     battle = ApiApp()
@@ -55,5 +54,3 @@ if __name__ == "__main__":
     app = make_app()
     app.listen(8888)
     tornado.ioloop.IOLoop.current().start()
-
-
