@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <canvas id="game-screen" width="1280" height="960"></canvas>
+    <script>
+      var canvas = document.getElementById("game-screen");
+      var ctx = canvas.getContext("2d");
+
+      class RobotRenderer {
+        static side = 40;
+        static gun_length = 30;
+        static gun_width = 8;
+
+        static draw({ center, bearing, gun_bearing }) {
+          ctx.save();
+          // Robot center
+          ctx.translate(center[0], center[1]);
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.rotate((-bearing * Math.PI) / 180);
+          ctx.rect(-this.side / 2, -this.side / 2, this.side, this.side);
+          ctx.fillStyle = "red";
+          ctx.fill();
+          ctx.restore();
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.rotate((gun_bearing * Math.PI) / 180);
+          ctx.rect(0, -this.gun_width/2, this.gun_length, this.gun_width);
+          ctx.fillStyle = "blue";
+          ctx.fill();
+
+          ctx.restore();
+          ctx.restore();
+        }
+      }
+
+      class BulletRenderer {
+        static side = 6;
+
+        static draw( [power, center, direction] ) {
+          ctx.save();
+          // Bullet center
+          ctx.translate(center[0], center[1]);
+          ctx.beginPath();
+          ctx.rect(-this.side / 2, -this.side / 2, this.side, this.side);
+          ctx.fillStyle = "orange";
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      function draw({ robots, bullets }) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'green';
+        ctx.fillRect(0, 0, 600, 400);
+
+        for (var r in robots) {
+          RobotRenderer.draw(robots[r]);
+        }
+        for (var b in bullets) {
+          BulletRenderer.draw(bullets[b]);
+        }
+      }
+      var ws = new WebSocket(`ws://${window.location.host}/connect`);
+      ws.onmessage = (event) => {
+        data = JSON.parse(event.data);
+        console.log(data);
+        draw(data);
+      };
+    </script>
+  </body>
+</html>

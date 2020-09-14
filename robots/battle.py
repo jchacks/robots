@@ -101,7 +101,7 @@ class Battle(Simable):
         return {
             "tick": self.tick,
             "robots": [r.to_dict() for r in self.robots],
-            "bullets": [(b.radius, b.center, b.direction) for b in list(self.bullets)],
+            "bullets": [(b.radius, list(b.center), list(b.direction)) for b in list(self.bullets)],
         }
 
 
