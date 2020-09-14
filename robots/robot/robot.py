@@ -219,7 +219,7 @@ class Robot(LogicalObject, ABC):
                     if test_circle_circle(self.center, robot.center, self.radius, robot.radius):
                         self.energy -= 0.6
                         robot.energy -= 0.6
-                        norm = (self.center - robot.center)
+                        norm = self.center - robot.center
                         if np.sum(norm) == 0:
                             norm = np.array([0.0, 1.0])
                         norm = (norm / np.sum(norm ** 2)) * 15
@@ -234,22 +234,22 @@ class Robot(LogicalObject, ABC):
 
     def to_dict(self):
         return {
-            'center': list(self.center),
-            'energy': float(self.energy),
-            'bearing': float(self.bearing),
-            'gun_bearing': float(self.gun.bearing),
-            'gun_heat': float(self.gun.heat),
-            'radar_bearing': float(self.radar.bearing)
+            "center": list(self.center),
+            "energy": float(self.energy),
+            "bearing": float(self.bearing),
+            "gun_bearing": float(self.gun.bearing),
+            "gun_heat": float(self.gun.heat),
+            "radar_bearing": float(self.radar.bearing),
         }
 
     def collide_scan(self, robots):
         scanned = []
         for robot in robots:
             if robot is not self and not robot.dead:
-                # scanned.append(ScannedRobotEvent(self, robot))
+                scanned.append(ScannedRobotEvent(self, robot))
                 # TODO change back
-                if test_segment_circle(self.center, self.radar.scan_endpoint, robot.center, robot.radius):
-                    scanned.append(ScannedRobotEvent(self, robot))
+                # if test_segment_circle(self.center, self.radar.scan_endpoint, robot.center, robot.radius):
+                #     scanned.append(ScannedRobotEvent(self, robot))
 
         if scanned:
             logger.debug("%s scanned events %s." % (self, scanned))
