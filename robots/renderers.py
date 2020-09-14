@@ -49,7 +49,8 @@ class BulletRenderer(Renderer):
             try:
                 if self.draw_trajectories:
                     pygame.draw.line(surface, Colors.Y, item.center, item.center + item.direction * 1000)
-                surface.blit(self._image, item.center - item.radius)
+                    pygame.draw.circle(surface, item.color, item.int_center, 3, 0)
+                # surface.blit(self._image, item.center - item.radius)
             except Exception as e:
                 print(f"Error {e}, for bullet {item}")
 

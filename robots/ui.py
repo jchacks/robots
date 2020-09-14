@@ -13,10 +13,13 @@ class Overlay(object):
         self._robots = battle.robots
         w, h = size
         self.bar_dims = (100, 4)
-        self.bar_dims = min(100, int(w * 100 / 400)), min(4, int(h * 4 / 400))
+        self.bar_dims = (
+            max(50, min(100, int(w * self.bar_dims[0] / 400))),
+            max(2, min(4, int(h * self.bar_dims[1] / 400))),
+        )
         if pygame.font:
             self.font_size = 36
-            self.font_size = min(36, int(h * 36 / 400))
+            self.font_size = max(12, min(36, int(h * self.font_size / 400)))
             self.font = pygame.font.Font(None, self.font_size)
 
     def set_battle(self, battle):
@@ -24,8 +27,8 @@ class Overlay(object):
 
     def on_resize(self, size):
         w, h = size
-        self.bar_dims = min(100, int(w * 100 / 400)), min(4, int(h * 4 / 400))
-        self.font_size = min(36, int(h * 36 / 400))
+        self.bar_dims = max(25, min(100, int(w * 100 / 400))), max(1, min(4, int(h * 4 / 400)))
+        self.font_size = max(12, min(36, int(h * 36 / 400)))
         self.font = pygame.font.Font(None, self.font_size)
 
     def on_render(self, screen):
@@ -36,7 +39,7 @@ class Overlay(object):
     def draw(self, screen, robot, offset):
         color = robot.base.color if robot.base.color is not None else "white"
         color = pygame.Color(color)
-        
+
         text = self.font.render(str(robot.__class__.__name__), 1, color)
         textpos = text.get_rect(left=0, top=offset)
         screen.blit(text, textpos)
@@ -44,9 +47,9 @@ class Overlay(object):
         backgr = pygame.Surface(self.bar_dims)
         backgr.fill((255, 0, 0))
         if robot.energy > 0:
-            energy = pygame.Surface((robot.energy * self.bar_dims[0] / 100, 2))
+            energy = pygame.Surface((robot.energy * self.bar_dims[0] / 100, 4))
             energy.fill((0, 255, 0))
-            backgr.blit(energy, (0, 1))
+            backgr.blit(energy, (0, 0))
 
         backgrpos = backgr.get_rect(left=0, top=textpos.bottom + 2)
         screen.blit(backgr, backgrpos)
@@ -58,7 +61,7 @@ class Console(object):
         self.active = False
         self.font_size = font_size
         self.font_family = font_family
-        self.buffer = "PyRoboCode console: v1.0\nType 'help' for detailed commands..."
+        self.buffer = "PyRoboCode console: v0.1\nType 'help' for detailed commands..."
         self.input = ""
         self.cursor_pos = 0
         self.commands = {}
@@ -208,7 +211,7 @@ class BattleWindow(Canvas):
         self.battle = battle
         for robot in battle.robots:
             self.robot_r.track(robot)
-        self.overlay = Overlay(battle.size, self.battle)
+        self.overlay = Overlay(self.screen.get_size(), self.battle)
         self.bullet_r.items = self.battle.bullets
         self.on_resize(self.screen.get_size())
 
@@ -235,8 +238,6 @@ class BattleWindow(Canvas):
             print("Simulate", self.battle.simulate)
         elif event.key == pygame.K_l:
             self.battle.step()
-        else:
-            print(f"Ignoring event '{event}'")
 
 
 class MultiBattleWindow(Canvas):
@@ -277,18 +278,15 @@ class MultiBattleWindow(Canvas):
         self.init_grid()
 
     def handle_event(self, event):
-        if event.key == pygame.K_w:
-            self.sim_rate += 10
-            self.sim_interval = 1.0 / self.sim_rate
-            print(self.sim_rate, self.sim_interval)
-        elif event.key == pygame.K_s:
-            self.sim_rate = max(1, self.sim_rate - 10)
-            self.sim_interval = 1.0 / self.sim_rate
-            print(self.sim_rate, self.sim_interval)
-        elif event.key == pygame.K_p:
-            self.simulate = not self.simulate
-            print("Simulate", self.simulate)
-        elif event.key == pygame.K_l:
-            self.step()
         for b in self.multibattle.battles:
-            b.on_event(event)
+            if event.key == pygame.K_w:
+                b.sim_rate += 10
+                b.sim_interval = 1.0 / b.sim_rate
+                print(b.sim_rate, b.sim_interval)
+            elif event.key == pygame.K_s:
+                b.sim_rate = max(1, b.sim_rate - 10)
+                b.sim_interval = 1.0 / b.sim_rate
+                print(b.sim_rate, b.sim_interval)
+            elif event.key == pygame.K_p:
+                b.simulate = not b.simulate
+                print("Simulate", b.simulate)

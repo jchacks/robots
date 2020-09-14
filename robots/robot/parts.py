@@ -13,15 +13,25 @@ data_dir = os.path.join(os.path.dirname(__file__), "../../data/")
 
 
 class Bullet(LogicalObject):
+    MAX_POWER = 3.0
+    MIN_POWER = 0.1
+
     def __init__(self, robot, power):
-        LogicalObject.__init__(self, robot.gun.bearing, (10, 10))
+        LogicalObject.__init__(self, robot.gun.bearing)
         self.robot = robot
-        self.power = power
+        self.power: float = max(min(self.MAX_POWER, power), self.MIN_POWER)
         self.radius = 3
         self.speed = 20 - (3 * self.power)
         self.damage = 4 * self.power
         if self.power > 1:
             self.damage += 2 * (self.power - 1)
+
+        color_level = int(255 * (1 - (self.power / self.MAX_POWER)))
+        self.color = (255, color_level, color_level)
+
+    @property
+    def int_center(self):
+        return self.center.astype("int16")
 
     @property
     def rotation_speed(self):
@@ -35,7 +45,7 @@ class Bullet(LogicalObject):
         return self.direction * self.speed
 
     def __repr__(self):
-        return f"{self.__class__.__name__}<{self.robot}, {self.center}, {self.bearing}, {self.power}>"
+        return f"{self.__class__.__name__}<{self.robot}, {self.center}, {self.bearing}, {self.power}, {self.color}>"
 
 
 class Gun(Rotatable):

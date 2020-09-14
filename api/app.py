@@ -8,6 +8,7 @@ import tornado
 import asyncio
 from tornado.web import Application, RequestHandler
 from tornado.websocket import WebSocketHandler
+
 tornado.ioloop.IOLoop.configure("tornado.platform.asyncio.AsyncIOLoop")
 io_loop = tornado.ioloop.IOLoop.current()
 asyncio.set_event_loop(io_loop.asyncio_loop)
@@ -34,14 +35,14 @@ def broadcast(message):
 
 class WSHandler(WebSocketHandler):
     def open(self):
-        print('new connection')
+        print("new connection")
         clients.append(self)
 
     def on_message(self, message):
-        print('message received:  %s' % message)
+        print("message received:  %s" % message)
 
     def on_close(self):
-        print('connection closed')
+        print("connection closed")
         clients.remove(self)
 
     def check_origin(self, origin):
@@ -49,7 +50,7 @@ class WSHandler(WebSocketHandler):
 
 
 class BattleHandler(RequestHandler):
-    def initialize(self,game):
+    def initialize(self, game):
         self.game = game
 
     def get(self):
@@ -57,18 +58,18 @@ class BattleHandler(RequestHandler):
         self.write(json.dumps(list(self.game.battle.size)))
 
 
-
-game = HeadlessApp((600, 400), battle=Battle(size=(600, 400), robots=[
-    MyFirstRobot.MyFirstRobot, RandomRobot.RandomRobot]))
+game = HeadlessApp(
+    (600, 400), battle=Battle(size=(600, 400), robots=[MyFirstRobot.MyFirstRobot, RandomRobot.RandomRobot])
+)
 game.set_sim_rate(30)
 
-app = Application([
-    (r"/battle", BattleHandler, dict(game=game)),
-    (r"/connect", WSHandler),
-    (r"/(.*)", tornado.web.StaticFileHandler,
-        {"path": './', "default_filename": "index.html"}),
-])
-
+app = Application(
+    [
+        (r"/battle", BattleHandler, dict(game=game)),
+        (r"/connect", WSHandler),
+        (r"/(.*)", tornado.web.StaticFileHandler, {"path": "./", "default_filename": "index.html"}),
+    ]
+)
 
 
 def thread():
@@ -81,7 +82,7 @@ def thread():
         time.sleep(0.001)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     th = Thread(target=game.run, daemon=True)
     th.start()
 

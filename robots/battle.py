@@ -2,7 +2,7 @@ import numpy as np
 import time
 from random import randint
 
-from robots.robot.events import BattleEndedEvent
+from robots.robot.events import BattleEndedEvent, WinEvent
 from robots.robot.utils import test_circles, Simable
 
 
@@ -62,9 +62,12 @@ class Battle(Simable):
 
     def on_round_end(self):
         for robot in self.robots:
+            if not robot.dead:
+                robot.on_win(WinEvent())
             robot.on_battle_ended(BattleEndedEvent(self))
 
-    def step(self, *args):
+    def _step(self):
+        self.is_finished = False
         self.last_sim = time.time()
         self.collide_walls()
         for robot in self.alive_robots:
@@ -80,6 +83,9 @@ class Battle(Simable):
             self.is_finished = True
             self.on_round_end()
             self.reset()
+
+    def step(self, *args):
+        self._step()
         self.delta(*args)
         self.dirty = True
 
@@ -120,18 +126,7 @@ class MultiBattle(Simable):
 
     def step(self, *args, **kwargs):
         for battle in self.battles:
-            battle.is_finished = False
-            battle.last_sim = time.time()
-            battle.collide_walls()
-            for robot in battle.alive_robots:
-                robot.collide_robots(battle.robots)
-            for robot in battle.alive_robots:
-                robot.collide_scan(battle.alive_robots)
-            battle.collide_bullets()
-            for bullet in battle.bullets.copy():
-                bullet.delta(battle.tick)
-            for robot in battle.alive_robots:
-                robot.collide_bullets()
+            battle._step()
             if battle.check_round_over():
                 battle.is_finished = True
                 battle.on_round_end()
