@@ -205,7 +205,7 @@ class Robot(LogicalObject, ABC):
 
     def collided_wall(self, battle_size):
         self.center = self.center - self.velocity
-        offset = self.radius // 2 + 4
+        offset = self.radius + 4
         bounds = (offset, offset), (battle_size[0] - offset, battle_size[1] - offset)
         self.center = np.clip(self.center + self.velocity, *bounds)
         self.energy -= max(abs(self._speed) * 0.5 - 1, 0)
@@ -234,11 +234,12 @@ class Robot(LogicalObject, ABC):
 
     def to_dict(self):
         return {
-            'energy': self.energy,
-            'bearing': self.bearing,
-            'gun_bearing': self.gun.bearing,
-            'gun_heat': self.gun.heat,
-            'radar_bearing': self.radar.bearing
+            'center': list(self.center),
+            'energy': float(self.energy),
+            'bearing': float(self.bearing),
+            'gun_bearing': float(self.gun.bearing),
+            'gun_heat': float(self.gun.heat),
+            'radar_bearing': float(self.radar.bearing)
         }
 
     def collide_scan(self, robots):

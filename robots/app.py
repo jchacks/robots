@@ -28,8 +28,10 @@ class App(object):
         self.battle = battle if battle is not None else self.create_default_battle()
         self.console = con = Console("consolas", font_size=14)
 
-        con.add_command("sim", self.set_sim_rate, help="Sets the simulation rate to given integer, -1 for unlimited")
-        con.add_command("fps", self.set_frame_rate, help="Sets the FPS to given integer, -1 for unlimited")
+        con.add_command("sim", self.set_sim_rate,
+                        help="Sets the simulation rate to given integer, -1 for unlimited")
+        con.add_command("fps", self.set_frame_rate,
+                        help="Sets the FPS to given integer, -1 for unlimited")
         con.add_command("close", None, help="Closes the application")
 
     def create_default_battle(self):
@@ -49,7 +51,8 @@ class App(object):
         pygame.init()
         pygame.font.init()
         self._running = True
-        self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
+        self.screen = pygame.display.set_mode(
+            self.size, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
         self.rect = self.screen.get_rect()
         self.bg = pygame.Surface(self.screen.get_size())
         self.bg = self.bg.convert()
@@ -83,7 +86,6 @@ class App(object):
                     self.render = not self.render
                 else:
                     self.battle_display.handle_event(event)
-                    
 
     def on_command(self, command):
         command, *args = command.split(" ")
@@ -104,7 +106,8 @@ class App(object):
     def on_resize(self, size):
         print("resize")
         self.size = size
-        self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
+        self.screen = pygame.display.set_mode(
+            self.size, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
         self.rect = self.screen.get_rect()
         self.bg = pygame.Surface(self.screen.get_size())
         self.bg = self.bg.convert()
@@ -145,7 +148,8 @@ class MultiBattleApp(App):
         self.columns = columns
 
     def init_window(self):
-        self.battle_display = MultiBattleWindow(self.screen, self.battle, rows=self.rows, columns=self.columns)
+        self.battle_display = MultiBattleWindow(
+            self.screen, self.battle, rows=self.rows, columns=self.columns)
 
     def create_default_battle(self):
         return MultiBattle(size=(400, 400), robots=[TestRobot, TestRobot], num_battles=2)
@@ -158,22 +162,29 @@ class MultiBattleApp(App):
             pygame.display.flip()
 
 
-class HeadlessApp(object):
-    def __init__(self):
+class HeadlessApp(object):  
+    def __init__(self, dimensions=(600, 400), battle=None, simulate=True, fps_target=30):
         self._running = True
-        self.console = Console()
-        self.battle = Battle(size=(1280, 720), robots=[MyFirstRobot, RandomRobot])
-        self.battle.reset()
+        self.screen = None
+        self.rect = None
+        self.size = dimensions
+        self.battle_display = None
 
-    def on_loop(self):
-        if self.battle:
-            self.battle.on_loop()
-            for robot in self.battle.robots:
-                print(robot.__class__, robot.energy, end="")
-            print()
+        self.simulate = simulate
+        self.battle = battle
 
     def run(self):
         while self._running:
-            self.on_loop()
+            if self.simulate:
+                self.battle.on_loop()
+            # if self.render and self.battle.dirty:
+            #     self.battle.dirty = False
+            #     self.on_render()
             if not self.battle.simulate:
                 time.sleep(0.1)
+
+    def set_sim_rate(self, r):
+        if r == 0:
+            return "Cannot set sim rate to 0"
+        self.battle.sim_rate = int(r)
+        self.battle.sim_interval = 1 / self.battle.sim_rate
