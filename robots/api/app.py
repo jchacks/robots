@@ -1,56 +1,64 @@
 import time
-from robots.battle import Battle
-from robots.bots.MyFirstRobot import MyFirstRobot
-from robots.bots.RandomRobot import RandomRobot
+from threading import Thread
 
-import tornado.ioloop
-import tornado.web
-
-DATA_DIR = "../../data/"
-
-
-class ApiApp(object):
-    def __init__(self):
-        self._running = True
-        self.battle = Battle(size=(1280, 720), robots=[MyFirstRobot, RandomRobot])
-        self.battle.reset()
-        self.last_data = 0
-        self.data_interval = 1 / 1
-        self.data = None
-
-    def run(self):
-        while self._running:
-            s = time.time()
-            if (s - self.last_data) >= self.data_interval:
-                self.battle.on_loop()
-                self.last_data = s
-                self.battle.to_dict()
+import tornado
+import asyncio
+from tornado.web import Application, RequestHandler
+from tornado.websocket import WebSocketHandler
+tornado.ioloop.IOLoop.configure("tornado.platform.asyncio.AsyncIOLoop")
+io_loop = tornado.ioloop.IOLoop.current()
+asyncio.set_event_loop(io_loop.asyncio_loop)
 
 
-class MainHandler(tornado.web.RequestHandler):
-    def get(self):
-        self.write("Hello, world")
+FPS = 5
+interval = 1 / FPS
+last_sent = 0
+clients = []
 
 
-class WebSocket(tornado.websocket.WebSocketHandler):
+def bcint(message):
+    for client in clients:
+        client.write_message(message)
+        print("broadcasted")
+
+
+def broadcast(message):
+    global last_sent
+    if time.time() - last_sent > interval and len(clients) > 0:
+        io_loop.asyncio_loop.call_soon_threadsafe(bcint, message)
+        last_sent = time.time()
+
+
+class WSHandler(WebSocketHandler):
     def open(self):
-        print("WebSocket opened")
+        print('new connection')
+        clients.append(self)
 
     def on_message(self, message):
-        self.write_message(u"You said: " + message)
+        print('message received:  %s' % message)
 
     def on_close(self):
-        print("WebSocket closed")
+        print('connection closed')
+        clients.remove(self)
+
+    def check_origin(self, origin):
+        return True
 
 
-def make_app():
-    return tornado.web.Application([(r"/", MainHandler), (r"/ws", WebSocket)])
+app = Application([
+    (r"/connect", WSHandler),
+    (r"/(.*)", tornado.web.StaticFileHandler,
+        {"path": './', "default_filename": "index.html"}),
+])
 
+if __name__ == '__main__':
+    def thread():
+        while True:
+            broadcast('abc')
+            time.sleep(1)
 
-if __name__ == "__main__":
-    battle = ApiApp()
-    battle.run()
+    th = Thread(target=thread)
+    th.start()
 
-    app = make_app()
-    app.listen(8888)
-    tornado.ioloop.IOLoop.current().start()
+    app.listen(6000)
+    io_loop.start()

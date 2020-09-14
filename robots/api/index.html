@@ -6,7 +6,7 @@
     </head>
     <body>
         <script>
-            var ws = new WebSocket("ws://127.0.0.1:5000/");
+            var ws = new WebSocket(`ws://${window.location.host}/connect`);
             ws.onmessage = function (event) {
                 console.log(event);
                 data = JSON.parse(event.data);

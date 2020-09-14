@@ -1,5 +1,6 @@
 .idea/
 .vscode/
+.devcontainer/
 *.pyc
 /dist/
 /*.egg-info
