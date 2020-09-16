@@ -16,27 +16,27 @@
         static gun_width = 8;
 
         static draw({ center, bearing, gun_bearing }) {
-          ctx.save();
+          ctx.save();//0
           // Robot center
           ctx.translate(center[0], center[1]);
 
-          ctx.save();
+          ctx.save();//1
           ctx.beginPath();
           ctx.rotate((-bearing * Math.PI) / 180);
           ctx.rect(-this.side / 2, -this.side / 2, this.side, this.side);
           ctx.fillStyle = "red";
           ctx.fill();
-          ctx.restore();
+          ctx.restore();//1
 
-          ctx.save();
           ctx.beginPath();
-          ctx.rotate((gun_bearing * Math.PI) / 180);
+          ctx.rotate(((90-gun_bearing ) * Math.PI) / 180);
           ctx.rect(0, -this.gun_width/2, this.gun_length, this.gun_width);
           ctx.fillStyle = "blue";
           ctx.fill();
+          ctx.restore();//0
 
-          ctx.restore();
-          ctx.restore();
+
+
         }
       }
 
@@ -69,9 +69,7 @@
       }
       var ws = new WebSocket(`ws://${window.location.host}/connect`);
       ws.onmessage = (event) => {
-        data = JSON.parse(event.data);
-        console.log(data);
-        draw(data);
+        draw(JSON.parse(event.data));
       };
     </script>
   </body>
