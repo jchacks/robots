@@ -1,8 +1,7 @@
-import os
-from abc import abstractmethod
-
 import numpy as np
+import os
 import pygame
+from abc import abstractmethod
 
 from robots.robot.utils import load_image, Colors, rot_center
 
@@ -40,9 +39,9 @@ class BulletRenderer(Renderer):
     def __init__(self):
         super(BulletRenderer, self).__init__()
         self.draw_trajectories = True
-        self._image, self._rect = load_image(data_dir + "blast.png")
-        self._image = self._image.convert()
-        self._image.set_colorkey(self._image.get_at((0, 0)), pygame.RLEACCEL)
+        # self._image, self._rect = load_image(data_dir + "blast.png")
+        # self._image = self._image.convert()
+        # self._image.set_colorkey(self._image.get_at((0, 0)), pygame.RLEACCEL)
 
     def render(self, surface):
         for item in self.items.copy():
@@ -58,9 +57,23 @@ class BulletRenderer(Renderer):
 class RobotRenderer(Renderer):
     def __init__(self):
         super(RobotRenderer, self).__init__()
-        self._radar = load_image(data_dir + "radar.png")
-        self._gun = load_image(data_dir + "gunGrey.png")
-        self._base = load_image(data_dir + "baseGrey.png")
+        image, rect = load_image(data_dir + "radar.png")
+        image = image.convert_alpha()
+        image.set_colorkey(image.get_at((0, 0)), pygame.RLEACCEL)
+        image = image.convert_alpha()
+        self._radar = image, rect
+
+        image, rect = load_image(data_dir + "gun.png")
+        image = image.convert()
+        image.set_colorkey(image.get_at((0, 0)), pygame.RLEACCEL)
+        image = image.convert_alpha()
+        self._gun = image, rect
+
+        image, rect = load_image(data_dir + "base.png")
+        image = image.convert_alpha()
+        image.set_colorkey(image.get_at((0, 0)), pygame.RLEACCEL)
+        image = image.convert_alpha()
+        self._base = image, rect
 
     def change_color(self, image, color):
         if isinstance(color, str):
@@ -72,7 +85,7 @@ class RobotRenderer(Renderer):
 
         if color:
             grey = image.convert()
-            grey.set_colorkey((0, 255, 255))  # Image color key
+            grey.set_colorkey((0, 162, 232))  # Image color key
 
             base_color = pygame.Surface(image.get_size()).convert_alpha()
             base_color.fill(color)

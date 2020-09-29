@@ -200,7 +200,7 @@ class Canvas(object):
 
 class BattleWindow(Canvas):
     def __init__(self, screen, battle):
-        Canvas.__init__(self, screen=screen, size=battle.size, background_color="black")
+        Canvas.__init__(self, screen=screen, size=battle.size, background_color="grey")
         self.bullet_r = BulletRenderer()
         self.robot_r = RobotRenderer()
         self.battle = None

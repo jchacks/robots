@@ -3,8 +3,6 @@ import pygame
 import time
 
 from robots.battle import Battle, MultiBattle
-from robots.bots.MyFirstRobot import MyFirstRobot
-from robots.bots.RandomRobot import RandomRobot
 from robots.bots.TestRobot import TestRobot
 from robots.ui import Console, BattleWindow, MultiBattleWindow
 
