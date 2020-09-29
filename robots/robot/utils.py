@@ -187,7 +187,7 @@ def test_circle_to_circles(c, r, cs, rs):
     return distances <= radius_diffs
 
 
-def load_image(name, colorkey=None):
+def load_image(name):
     """
     Load an image for pygame
     :param name: Filename in data folder
