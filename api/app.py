@@ -1,5 +1,10 @@
 import asyncio
 import json
+<<<<<<< HEAD
+=======
+from robots.bots import MyFirstRobot, RandomRobot
+from robots.app import HeadlessApp, App, Battle
+>>>>>>> Updated api
 import time
 from threading import Thread
 
@@ -67,7 +72,8 @@ app = Application(
     [
         (r"/battle", BattleHandler, dict(game=game)),
         (r"/connect", WSHandler),
-        (r"/(.*)", tornado.web.StaticFileHandler, {"path": "./", "default_filename": "index.html"}),
+        (r"/(.*)", tornado.web.StaticFileHandler,
+         {"path": "./", "default_filename": "index.html"}),
     ]
 )
 
