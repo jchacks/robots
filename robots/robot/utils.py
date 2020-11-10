@@ -1,14 +1,14 @@
-import os
-import time
-from abc import ABC, abstractmethod
 from collections import deque
 from enum import Enum
-from typing import Union
 
 import numba as nb
 import numpy as np
+import os
 import pygame
+import time
+from abc import ABC, abstractmethod
 from pygame.sprite import Sprite
+from typing import Union
 
 __all__ = [
     "Turn",
@@ -35,7 +35,7 @@ class Vector(object):
         dtype="float32",
         mask=None,
     ):
-        if mask is None:
+        if mask is True:
             self.initial_size = initial_size
             self._mask = np.zeros(initial_size, dtype="bool")
         else:
@@ -303,9 +303,9 @@ class Simable(object):
 
 
 class GroupedLogicalObject(object):
-    centers = Vector((2,))
-    bearings = Vector((1,))
-    speeds = Vector((1,))
+    centers = Vector((2,), mask=True)
+    bearings = Vector((1,), mask=centers._mask)
+    speeds = Vector((1,), mask=centers._mask)
 
     def __init__(self, center, speed, bearing):
         self._center = self.centers.append(*center)
