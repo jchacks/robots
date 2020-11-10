@@ -1,16 +1,11 @@
 import asyncio
 import json
-<<<<<<< HEAD
-=======
-from robots.bots import MyFirstRobot, RandomRobot
-from robots.app import HeadlessApp, App, Battle
->>>>>>> Updated api
 import time
 from threading import Thread
 
 asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
-from robots.app import App, HeadlessApp, Battle
+from robots.app import App, Battle
 from robots.bots import MyFirstRobot, RandomRobot
 
 import tornado
@@ -31,13 +26,6 @@ clients = []
 def bcint(message):
     for client in clients:
         client.write_message(message)
-
-
-def broadcast(message):
-    global last_sent
-    if time.time() - last_sent > interval and len(clients) > 0:
-        io_loop.asyncio_loop.call_soon_threadsafe(bcint, message)
-        last_sent = time.time()
 
 
 class WSHandler(WebSocketHandler):
@@ -72,8 +60,7 @@ app = Application(
     [
         (r"/battle", BattleHandler, dict(game=game)),
         (r"/connect", WSHandler),
-        (r"/(.*)", tornado.web.StaticFileHandler,
-         {"path": "./", "default_filename": "index.html"}),
+        (r"/(.*)", tornado.web.StaticFileHandler, {"path": "./", "default_filename": "index.html"}),
     ]
 )
 
