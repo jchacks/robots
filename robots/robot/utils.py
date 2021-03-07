@@ -158,7 +158,7 @@ def test_circle_circle(c1, c2, r1, r2):
     return np.sum((c1 - c2) ** 2) <= (r1 + r2) ** 2
 
 
-@nb.njit
+@nb.njit(parallel=True)
 def test_circles(cs, rs):
     """
     Test collision of all circles against each other.
@@ -172,7 +172,7 @@ def test_circles(cs, rs):
     return bool_in ^ np.identity(len(cs), nb.bool_)
 
 
-@nb.njit
+@nb.njit(parallel=True)
 def test_circle_to_circles(c, r, cs, rs):
     """
     Test collision of a 'single' circle to multiple 'other' circles.
