@@ -1,10 +1,12 @@
+import random
 from robots.robot.utils import test_circle_to_circles
 import numpy as np
 from typing import List
 from abc import ABC
-from robots.robot import Turn, Move
+from robots.robot.utils import Turn, Move
 from robots.config import BULLET_RADIUS, MAX_SPEED, ROBOT_RADIUS
 import numba as nb
+
 
 class Robot(ABC):
     def __init__(self, base_color, turret_color=None, radar_color=None) -> None:
@@ -24,7 +26,7 @@ class Robot(ABC):
         self.radar_color = radar_color if radar_color is not None else base_color
 
         self.should_fire = False
-        self.fire_power
+        self.fire_power = 3
         self.moving = Move.NONE
         self.base_turning = Turn.NONE
         self.turret_turning = Turn.NONE
@@ -33,22 +35,25 @@ class Robot(ABC):
     def run(self):
         pass
 
+    def fire(self, power):
+        print("pew pew")
+
 
 class BattleSpec(object):
     def __init__(self, robots: list, size, rounds) -> None:
         self.robots = robots
 
 
-class Engine():
+class Engine(object):
     """Tracks robots for simulation"""
 
-    def __init__(self, num_robots) -> None:
+    def __init__(self, robots) -> None:
         self.size = (400, 400)
         offset = ROBOT_RADIUS + 4
         self.bounds = (offset, offset), (self.size[0] - offset, self.size[1] - offset)
 
-        self.num_robots = num_robots
-        self.robots: List[Robot] = []
+        self.num_robots = num_robots = len(robots)
+        self.robots: List[Robot] = robots
         self.bullets: List[tuple] = []
 
         # Desired actions
@@ -74,6 +79,11 @@ class Engine():
         self.bullet_power = np.zeros((1000, ), np.float32)
         self.bullet_owner = np.zeros((1000, ), np.uint8)
 
+    def init(self):
+        self.energy[:] = 100
+        self.position[:] = np.random.random((self.num_robots, 2)) * self.bounds
+        self.base_rotation[:] = np.random.random((self.num_robots, )) * 2
+
     @property
     def acceleration(self):
         a = np.zeros((self.num_robots,))
@@ -88,7 +98,6 @@ class Engine():
         a[decel_mask] = 2 * sign_move[decel_mask]
         return a
 
-    @nb.jit
     def update(self):
         """
         Tick update:
@@ -100,7 +109,7 @@ class Engine():
         """
 
         # Update dead
-        dead_mask = [self.energy < 0.0]
+        dead_mask = self.energy < 0.0
         where_dead = np.where(dead_mask)[0]
         where_alive = np.where(~dead_mask)[0]
 
@@ -121,7 +130,7 @@ class Engine():
                 self.base_turning[i] = robot.base_turning.value
                 self.turret_turning[i] = robot.turret_turning.value
                 self.radar_turning[i] = robot.radar_turning.value
-                self.fire_power[i] = robot.should_fire * robot.fire_power
+                self.fire_power[i] = robot.should_fire * np.clip(robot.fire_power, 0.1, 3.0)
             else:
                 robot.dead = True
 
@@ -174,11 +183,11 @@ class Engine():
         power = self.fire_power[fire_mask]
 
         # Assigning bullets to store
-        number_bullets = sum(fire_mask)
+        number_bullets = np.sum(fire_mask)
         free_slots = ~self.bullet_mask
         free_slots[number_bullets:] = False
 
-        if sum(free_slots) < number_bullets:
+        if np.sum(free_slots) < number_bullets:
             raise RuntimeError("Need more bullet slots")
 
         self.bullet_mask[free_slots] = True
@@ -205,16 +214,15 @@ class Engine():
             colls = colls & not_owned
             self.bullet_mask[colls] = False
             self.energy[i] -= np.sum(4 * self.bullet_power[colls])
-            
-            # np.arr with positions of owners who hit 
+
+            # np.arr with positions of owners who hit
             self.energy[self.bullet_owner[colls]] += 3 * self.bullet_power[colls]
-            
+
             # Reset bullet data
             self.bullet_power[colls] = 0
             self.bullet_owner[colls] = 0
             self.bullet_positions[colls] = 0
             self.bullet_direction[colls] = 0
-
 
         for i, (robot, dead) in enumerate(zip(self.robots, dead_mask)):
             if not dead:
@@ -232,5 +240,17 @@ class Engine():
             self.robots[i].on_hit_wall()
 
 
+
 if __name__ == "__main__":
-    Engine()
+    class RandomRobot(Robot):
+        def run(self):
+            self.moving = Move.FORWARD
+            self.base_turning = Turn.LEFT
+            if random.randint(0, 1):
+                self.fire(random.randint(1, 3))
+
+
+
+    eng = Engine([RandomRobot((255, 0, 0)), RandomRobot((0, 255, 0))])
+    eng.init()
+    eng.update()
