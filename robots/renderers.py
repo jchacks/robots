@@ -16,17 +16,17 @@ class Renderer(object):
     def __init__(self):
         self.items = set()
         self.orig_sprites = dict()
-        self.curr_sprites = dict()
         self.scale_factor = None
 
-    def track(self, item):
+    def track(self, item, sprites=None):
         self.items.add(item)
+        if sprites:
+            self.orig_sprites[item] = sprites
 
     def untrack(self, item):
         self.items.remove(item)
         try:
             del self.orig_sprites[item]
-            del self.curr_sprites[item]
         except KeyError:
             pass
 
@@ -54,6 +54,56 @@ class BulletRenderer(Renderer):
                 print(f"Error {e}, for bullet {item}")
 
 
+def change_image_color(image, color):
+    if isinstance(color, str):
+        color = pygame.Color(color)
+    elif isinstance(color, tuple):
+        color = pygame.Color(*color)
+    else:
+        color = None
+
+    if color:
+        grey = image.convert()
+        grey.set_colorkey((0, 162, 232))  # Image color key
+
+        base_color = pygame.Surface(image.get_size()).convert_alpha()
+        base_color.fill(color)
+
+        mask = pygame.Surface(image.get_size()).convert_alpha()
+        mask.fill((255, 255, 255, 0))
+        mask.blit(image, (0, 0), special_flags=pygame.BLEND_RGBA_ADD)
+
+        base_color.blit(grey, (0, 0))
+        base_color.blit(mask, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+        image = base_color
+    else:
+        image = image.convert_alpha()
+
+    return image
+
+
+def draw_rect(surface, rect, color=(255, 0, 0), alpha=255):
+    r = pygame.Surface((rect.w, rect.h))  # the size of your rect
+    r.set_alpha(alpha)  # alpha level
+    r.fill(color)  # this fills the entire surface
+    surface.blit(r, (rect.left, rect.top))
+
+
+def draw_robot_debug(surface, robot):
+    """
+    Draw debug graphics with bounding boxes and direction.
+    :param surface: The surface upon which to draw
+    :return: None
+    """
+    middle = (robot.rect.w // 2, robot.rect.h // 2)
+    debug_overlay = pygame.Surface((robot.rect.w, robot.rect.h))
+    debug_overlay.set_colorkey((0, 0, 0))
+    debug_overlay.set_alpha(128)
+    pygame.draw.circle(debug_overlay, (0, 0, 255), middle, robot.radius)
+    pygame.draw.line(debug_overlay, (255, 0, 255), middle, (middle + (robot.direction * 10)).astype(int), 1)
+    surface.blit(debug_overlay, (robot.rect.left, robot.rect.top))
+
+
 class RobotRenderer(Renderer):
     def __init__(self):
         super(RobotRenderer, self).__init__()
@@ -75,57 +125,10 @@ class RobotRenderer(Renderer):
         image = image.convert_alpha()
         self._base = image, rect
 
-    def change_color(self, image, color):
-        if isinstance(color, str):
-            color = pygame.Color(color)
-        elif isinstance(color, tuple):
-            color = pygame.Color(*color)
-        else:
-            color = None
-
-        if color:
-            grey = image.convert()
-            grey.set_colorkey((0, 162, 232))  # Image color key
-
-            base_color = pygame.Surface(image.get_size()).convert_alpha()
-            base_color.fill(color)
-
-            mask = pygame.Surface(image.get_size()).convert_alpha()
-            mask.fill((255, 255, 255, 0))
-            mask.blit(image, (0, 0), special_flags=pygame.BLEND_RGBA_ADD)
-
-            base_color.blit(grey, (0, 0))
-            base_color.blit(mask, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
-            image = base_color
-        else:
-            image = image.convert_alpha()
-
-        return image
-
-    def draw_rect(self, surface, robot):
-        r = pygame.Surface((robot.rect.w, robot.rect.h))  # the size of your rect
-        r.set_alpha(128)  # alpha level
-        r.fill((255, 0, 0))  # this fills the entire surface
-        surface.blit(r, (robot.rect.left, robot.rect.top))
-
-    def draw_debug(self, surface, robot):
-        """
-        Draw debug graphics with bounding boxes and direction.
-        :param surface: The surface upon which to draw
-        :return: None
-        """
-        middle = (robot.rect.w // 2, robot.rect.h // 2)
-        debug_overlay = pygame.Surface((robot.rect.w, robot.rect.h))
-        debug_overlay.set_colorkey((0, 0, 0))
-        debug_overlay.set_alpha(128)
-        pygame.draw.circle(debug_overlay, (0, 0, 255), middle, robot.radius)
-        pygame.draw.line(debug_overlay, (255, 0, 255), middle, (middle + (robot.direction * 10)).astype(int), 1)
-        surface.blit(debug_overlay, (robot.rect.left, robot.rect.top))
-
     def track(self, item):
-        radar = self.change_color(self._radar[0], item.radar.color), self._radar[1]
-        gun = self.change_color(self._gun[0], item.gun.color), self._radar[1]
-        base = self.change_color(self._base[0], item.base.color), self._radar[1]
+        radar = change_image_color(self._radar[0], item.radar.color), self._radar[1]
+        gun = change_image_color(self._gun[0], item.gun.color), self._radar[1]
+        base = change_image_color(self._base[0], item.base.color), self._radar[1]
         self.orig_sprites[item] = (radar, gun, base)
         super(RobotRenderer, self).track(item)
 
