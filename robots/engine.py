@@ -6,6 +6,7 @@ from abc import ABC
 from robots.robot.utils import Turn, Move
 from robots.config import BULLET_RADIUS, MAX_SPEED, ROBOT_RADIUS
 from robots.robot.events import *
+import numba as nb
 
 
 class Robot(ABC):
@@ -98,6 +99,34 @@ class BattleSpec(object):
         self.robots = robots
 
 
+@nb.extending.overload(np.clip)
+def np_clip(a, a_min, a_max, out=None):
+    def np_clip_impl(a, a_min, a_max, out=None):
+        shape = a.shape
+        if out is None:
+            out = np.empty_like(a)
+        a = a.flatten()
+        for i in range(len(a)):
+            if a[i] < a_min:
+                out[i] = a_min
+            elif a[i] > a_max:
+                out[i] = a_max
+            else:
+                out[i] = a[i]
+        out = out.reshape(shape)
+        return out
+    return np_clip_impl
+
+
+@nb.njit
+def wall_collision_check(size, position):
+    min_size = np.array((20, 20), np.float32)
+    max_size = size - min_size
+    comp = np.less_equal(min_size, position) & np.less_equal(position, max_size)
+    return ~(comp[:, 0] & comp[:, 1])
+
+
+@nb.njit
 def update(
     size,
     bounds,
@@ -129,38 +158,40 @@ def update(
     :return: None
     """
     # Calculate acceleration
-    a = np.zeros_like(speed)
+    a = np.zeros_like(speed, np.float32)
 
     sign_move = np.sign(moving)
     sign_speed = np.sign(speed)
     sign = sign_move * sign_speed
-    accel_mask = [sign > 0]
-    decel_mask = [sign < 0]
+    accel_mask = sign > 0
+    decel_mask = sign < 0
 
     a[accel_mask] = 1 * sign_move[accel_mask]
     a[decel_mask] = 2 * sign_move[decel_mask]
 
     # Only for alive robots
     # Update speed with acceleration and 0 energy cant move
-    speed[~dead_mask] = np.clip(speed[~dead_mask] + a[~dead_mask], *MAX_SPEED)
+    speed[~dead_mask] = speed[~dead_mask] + a[~dead_mask]
+    speed = np.clip(speed, MAX_SPEED[0], MAX_SPEED[1])
     speed[energy == 0.0] = 0.0
 
     # Calculate velocity vec and apply to center
     base_rotation_rads = base_rotation[~dead_mask] * np.pi
-    velocity = np.stack([np.sin(base_rotation_rads), np.cos(base_rotation_rads)], axis=-1) * speed[~dead_mask]
+    velocity = np.column_stack((np.sin(base_rotation_rads), np.cos(base_rotation_rads))) * speed[~dead_mask]
     position[~dead_mask] = position[~dead_mask] + velocity
 
     # Wall collision
-    collided = ~np.all(((20, 20) <= position) & (position <= np.array(size) - (20, 20)), axis=1)
+    collided = wall_collision_check(size, position)
     collided = collided & (~dead_mask)
 
-    position = np.clip(position, *bounds)
+    position[:, 0] = np.clip(position[:, 0], bounds[0][0], bounds[1][0])
+    position[:, 1] = np.clip(position[:, 1], bounds[0][1], bounds[1][1])
     energy[collided] -= np.maximum(np.abs(speed[collided]) * 0.5 - 1, 0)
     speed[collided] = 0
     collided_robots_idx = np.where(collided)[0]
 
     # Caclulate rotation (in rads excluding pi)
-    base_rotation_speed = (10 - 0.75 * abs(speed[~dead_mask])) / 180
+    base_rotation_speed = (10 - 0.75 * np.abs(speed[~dead_mask])) / 180
     base_rotation_delta = base_rotation_speed * base_turning[~dead_mask]
     base_rotation[~dead_mask] = (base_rotation[~dead_mask] + base_rotation_delta) % 2
 
@@ -184,7 +215,7 @@ def update(
     energy[fire_mask] = np.maximum(0.0, energy[fire_mask] - fire_power[fire_mask])
 
     turret_rotation_rads = turret_rotation[fire_mask] * np.pi
-    turret_direction = np.stack([np.sin(turret_rotation_rads), np.cos(turret_rotation_rads)], axis=-1)
+    turret_direction = np.stack((np.sin(turret_rotation_rads), np.cos(turret_rotation_rads)), axis=-1)
     bullet_position = position[fire_mask] + (turret_direction * 28)
     power = fire_power[fire_mask]
 
@@ -193,9 +224,6 @@ def update(
     free_slots = ~bullet_mask
     free_slots[number_bullets:] = False
 
-    if np.sum(free_slots) < number_bullets:
-        raise RuntimeError("Need more bullet slots")
-
     bullet_mask[free_slots] = True
     bullet_owner[free_slots] = robot_idx
     bullet_power[free_slots] = power
@@ -203,13 +231,13 @@ def update(
     bullet_direction[free_slots] = turret_direction
 
     # Move bullets TODO move before the creation of new bullets
-    bullet_positions[bullet_mask] += bullet_direction[bullet_mask] * \
-        (20 - (3 * bullet_power[bullet_mask]))[:, np.newaxis]
+    bullet_speeds = np.expand_dims((20 - (3 * bullet_power[bullet_mask])), 1)
+    bullet_positions[bullet_mask] += bullet_direction[bullet_mask] * bullet_speeds
 
     # Collide bullets and robots
     # position[~dead_mask]
 
-    bullet_idx = np.where(bullet_mask)[0]
+    # bullet_idx = np.where(bullet_mask)[0]
     bullet_positions = bullet_positions[bullet_mask]
 
     where_alive = np.where(~dead_mask)[0]
@@ -231,16 +259,17 @@ def update(
         bullet_positions[colls] = 0
         bullet_direction[colls] = 0
 
-    return (collided_robots_idx,)
+    return collided_robots_idx
 
 
 class Engine(object):
     """Tracks robots for simulation"""
 
     def __init__(self, robots) -> None:
-        self.size = (400, 400)
+        self.size = np.array((400, 400))
         offset = ROBOT_RADIUS + 4
-        self.bounds = (offset, offset), (self.size[0] - offset, self.size[1] - offset)
+        self.bounds = (np.array([offset, offset]),
+                       np.array([self.size[0] - offset, self.size[1] - offset]))
 
         self.num_robots = num_robots = len(robots)
         self.robots: List[Robot] = robots
@@ -273,10 +302,10 @@ class Engine(object):
 
     def init(self):
         self.energy[:] = 100
-        self.position[:] = np.random.random((self.num_robots, 2)) * self.bounds
+        self.position[:] = np.random.random((self.num_robots, 2)) * self.size
         self.base_rotation[:] = np.random.random((self.num_robots, )) * 2
 
-    @property
+    @ property
     def where_alive(self):
         return np.where(~self.dead_mask)[0]
 
@@ -321,6 +350,7 @@ class Engine(object):
 
     def step(self):
         self.update_data()
+        print("Running update")
         data = update(
             self.size,
             self.bounds,
@@ -343,7 +373,8 @@ class Engine(object):
             self.bullet_power,
             self.bullet_owner
         )
-        self.update_robots(*data)
+        print(self.position[0], self.speed)
+        self.update_robots(data)
 
 
 if __name__ == "__main__":
@@ -358,5 +389,6 @@ if __name__ == "__main__":
 
     eng = Engine([RandomRobot((255, 0, 0)), RandomRobot((0, 255, 0))])
     eng.init()
-    while True:
-        eng.step()  
+    for i in range(10000):
+        print(i)
+        eng.step()
