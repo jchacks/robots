@@ -5,7 +5,7 @@ from typing import List
 from abc import ABC
 from robots.robot.utils import Turn, Move
 from robots.config import BULLET_RADIUS, MAX_SPEED, ROBOT_RADIUS
-import numba as nb
+from robots.robot.events import *
 
 
 class Robot(ABC):
@@ -38,10 +38,200 @@ class Robot(ABC):
     def fire(self, power):
         print("pew pew")
 
+    def on_battle_ended(self, event: BattleEndedEvent):
+        pass
+
+    def on_bullet_hit_bullet(self, event: BulletHitBulletEvent):
+        pass
+
+    def on_bullet_hit(self, event: BulletHitEvent):
+        pass
+
+    def on_bullet_missed(self, event: BulletMissedEvent):
+        pass
+
+    def on_custom_event(self, event: CustomEvent):
+        pass
+
+    def on_death(self, event: DeathEvent):
+        pass
+
+    def on_hit_by_bullet(self, event: List[HitByBulletEvent]):
+        pass
+
+    def on_hit_robot(self, event: HitRobotEvent):
+        pass
+
+    def on_hit_wall(self, event: HitWallEvent):
+        pass
+
+    def on_key(self, event: KeyEvent):
+        pass
+
+    def on_message(self, event: MessageEvent):
+        pass
+
+    def on_paint(self, event: PaintEvent):
+        pass
+
+    def on_robot_death(self, event: RobotDeathEvent):
+        pass
+
+    def on_round_ended(self, event: RoundEndedEvent):
+        pass
+
+    def on_scanned_robot(self, event: List[ScannedRobotEvent]):
+        pass
+
+    def on_skipped_turn(self, event: SkippedTurnEvent):
+        pass
+
+    def on_status(self, event: StatusEvent):
+        pass
+
+    def on_win(self, event: WinEvent):
+        pass
+
 
 class BattleSpec(object):
     def __init__(self, robots: list, size, rounds) -> None:
         self.robots = robots
+
+
+def update(
+    size,
+    bounds,
+    dead_mask,
+    moving,
+    base_turning,
+    turret_turning,
+    radar_turning,
+    fire_power,
+    energy,
+    position,
+    speed,
+    base_rotation,
+    turret_rotation,
+    radar_rotation,
+    turret_heat,
+    bullet_mask,
+    bullet_positions,
+    bullet_direction,
+    bullet_power,
+    bullet_owner,
+):
+    """
+    Tick update:
+        * Position
+        * Speed
+        * Rotation
+    :param tick: Tick of the simulation
+    :return: None
+    """
+    # Calculate acceleration
+    a = np.zeros_like(speed)
+
+    sign_move = np.sign(moving)
+    sign_speed = np.sign(speed)
+    sign = sign_move * sign_speed
+    accel_mask = [sign > 0]
+    decel_mask = [sign < 0]
+
+    a[accel_mask] = 1 * sign_move[accel_mask]
+    a[decel_mask] = 2 * sign_move[decel_mask]
+
+    # Only for alive robots
+    # Update speed with acceleration and 0 energy cant move
+    speed[~dead_mask] = np.clip(speed[~dead_mask] + a[~dead_mask], *MAX_SPEED)
+    speed[energy == 0.0] = 0.0
+
+    # Calculate velocity vec and apply to center
+    base_rotation_rads = base_rotation[~dead_mask] * np.pi
+    velocity = np.stack([np.sin(base_rotation_rads), np.cos(base_rotation_rads)], axis=-1) * speed[~dead_mask]
+    position[~dead_mask] = position[~dead_mask] + velocity
+
+    # Wall collision
+    collided = ~np.all(((20, 20) <= position) & (position <= np.array(size) - (20, 20)), axis=1)
+    collided = collided & (~dead_mask)
+
+    position = np.clip(position, *bounds)
+    energy[collided] -= np.maximum(np.abs(speed[collided]) * 0.5 - 1, 0)
+    speed[collided] = 0
+    collided_robots_idx = np.where(collided)[0]
+
+    # Caclulate rotation (in rads excluding pi)
+    base_rotation_speed = (10 - 0.75 * abs(speed[~dead_mask])) / 180
+    base_rotation_delta = base_rotation_speed * base_turning[~dead_mask]
+    base_rotation[~dead_mask] = (base_rotation[~dead_mask] + base_rotation_delta) % 2
+
+    # Turret delta
+    # Turret rotation (in rads excluding pi)
+    turret_rotation_speed = 20/180
+    # TODO add locked turret
+    turret_rotation_delta = turret_rotation_speed * turret_turning[~dead_mask] + base_rotation_delta
+    turret_rotation[~dead_mask] = (turret_rotation[~dead_mask] + turret_rotation_delta) % 2
+    turret_heat[~dead_mask] = np.maximum(0.0, turret_heat[~dead_mask] - 0.1)
+
+    # Radar rotation (in rads excluding pi)
+    radar_rotation_speed = 5/180
+    # TODO add locked turret
+    radar_rotation_delta = radar_rotation_speed * radar_turning[~dead_mask] + turret_rotation_delta
+    radar_rotation[~dead_mask] = (radar_rotation[~dead_mask] + radar_rotation_delta) % 2
+
+    # Fire
+    fire_mask = (fire_power > 0) & (~dead_mask) & (turret_heat <= 0.0)
+    robot_idx = np.where(fire_mask)[0]
+    energy[fire_mask] = np.maximum(0.0, energy[fire_mask] - fire_power[fire_mask])
+
+    turret_rotation_rads = turret_rotation[fire_mask] * np.pi
+    turret_direction = np.stack([np.sin(turret_rotation_rads), np.cos(turret_rotation_rads)], axis=-1)
+    bullet_position = position[fire_mask] + (turret_direction * 28)
+    power = fire_power[fire_mask]
+
+    # Assigning bullets to store
+    number_bullets = np.sum(fire_mask)
+    free_slots = ~bullet_mask
+    free_slots[number_bullets:] = False
+
+    if np.sum(free_slots) < number_bullets:
+        raise RuntimeError("Need more bullet slots")
+
+    bullet_mask[free_slots] = True
+    bullet_owner[free_slots] = robot_idx
+    bullet_power[free_slots] = power
+    bullet_positions[free_slots] = bullet_position
+    bullet_direction[free_slots] = turret_direction
+
+    # Move bullets TODO move before the creation of new bullets
+    bullet_positions[bullet_mask] += bullet_direction[bullet_mask] * \
+        (20 - (3 * bullet_power[bullet_mask]))[:, np.newaxis]
+
+    # Collide bullets and robots
+    # position[~dead_mask]
+
+    bullet_idx = np.where(bullet_mask)[0]
+    bullet_positions = bullet_positions[bullet_mask]
+
+    where_alive = np.where(~dead_mask)[0]
+    # Vectorise this?
+    for i, center in zip(where_alive, position[~dead_mask]):
+        not_owned = (bullet_owner != i)[bullet_mask]
+        colls = test_circle_to_circles(center, ROBOT_RADIUS, bullet_positions[not_owned], BULLET_RADIUS)
+        # Update date the masks to just collisions
+        colls = colls & not_owned
+        bullet_mask[colls] = False
+        energy[i] -= np.sum(4 * bullet_power[colls])
+
+        # np.arr with positions of owners who hit
+        energy[bullet_owner[colls]] += 3 * bullet_power[colls]
+
+        # Reset bullet data
+        bullet_power[colls] = 0
+        bullet_owner[colls] = 0
+        bullet_positions[colls] = 0
+        bullet_direction[colls] = 0
+
+    return (collided_robots_idx,)
 
 
 class Engine(object):
@@ -54,7 +244,9 @@ class Engine(object):
 
         self.num_robots = num_robots = len(robots)
         self.robots: List[Robot] = robots
+
         self.bullets: List[tuple] = []
+        self.dead_mask = np.zeros((num_robots,), np.bool)
 
         # Desired actions
         self.moving = np.zeros((num_robots, ), np.int8)
@@ -85,34 +277,11 @@ class Engine(object):
         self.base_rotation[:] = np.random.random((self.num_robots, )) * 2
 
     @property
-    def acceleration(self):
-        a = np.zeros((self.num_robots,))
+    def where_alive(self):
+        return np.where(~self.dead_mask)[0]
 
-        sign_move = np.sign(self.moving)
-        sign_speed = np.sign(self.speed)
-        sign = sign_move * sign_speed
-        accel_mask = [sign > 0]
-        decel_mask = [sign < 0]
-
-        a[accel_mask] = 1 * sign_move[accel_mask]
-        a[decel_mask] = 2 * sign_move[decel_mask]
-        return a
-
-    def update(self):
-        """
-        Tick update:
-            * Position
-            * Speed
-            * Rotation
-        :param tick: Tick of the simulation
-        :return: None
-        """
-
-        # Update dead
-        dead_mask = self.energy < 0.0
-        where_dead = np.where(dead_mask)[0]
-        where_alive = np.where(~dead_mask)[0]
-
+    def update_data(self):
+        self.dead_mask = dead_mask = self.energy < 0.0
         self.speed[dead_mask] = 0.0
         self.moving[dead_mask] = 0
         self.base_turning[dead_mask] = 0
@@ -134,97 +303,8 @@ class Engine(object):
             else:
                 robot.dead = True
 
-        # Only for alive robots
-        # Update speed with acceleration and 0 energy cant move
-        self.speed[~dead_mask] = np.clip(self.speed[~dead_mask] + self.acceleration[~dead_mask], *MAX_SPEED)
-        self.speed[self.energy == 0.0] = 0.0
-
-        # Calculate velocity vec and apply to center
-        base_rotation_rads = self.base_rotation[~dead_mask] * np.pi
-        velocity = np.stack([np.sin(base_rotation_rads), np.cos(base_rotation_rads)], axis=-1) * self.speed[~dead_mask]
-        self.position[~dead_mask] = self.position[~dead_mask] + velocity
-
-        # Wall collision
-        collided = ~np.all(((20, 20) <= self.position) & (self.position <= np.array(self.size) - (20, 20)), axis=1)
-        collided = collided & (~dead_mask)
-
-        self.position = np.clip(self.position, *self.bounds)
-        self.energy[collided] -= np.maximum(np.abs(self.speed[collided]) * 0.5 - 1, 0)
-        self.speed[collided] = 0
-        collided_robots_idx = np.where(collided)[0]
-
-        # Caclulate rotation (in rads excluding pi)
-        base_rotation_speed = (10 - 0.75 * abs(velocity)) / 180
-        base_rotation_delta = base_rotation_speed * self.base_turning[~dead_mask]
-        self.base_rotation[~dead_mask] = (self.base_rotation[~dead_mask] + base_rotation_delta) % 2
-
-        # Turret delta
-        # Turret rotation (in rads excluding pi)
-        turret_rotation_speed = 20/180
-        # TODO add locked turret
-        turret_rotation_delta = turret_rotation_speed * self.turret_turning[~dead_mask] + base_rotation_delta
-        self.turret_rotation[~dead_mask] = (self.turret_rotation[~dead_mask] + turret_rotation_delta) % 2
-        self.turret_heat[~dead_mask] = np.maximum(0.0, self.turret_heat[~dead_mask] - 0.1)
-
-        # Radar rotation (in rads excluding pi)
-        radar_rotation_speed = 5/180
-        # TODO add locked turret
-        radar_rotation_delta = radar_rotation_speed * self.radar_turning[~dead_mask] + turret_rotation_delta
-        self.radar_rotation[~dead_mask] = (self.radar_rotation[~dead_mask] + radar_rotation_delta) % 2
-
-        # Fire
-        fire_mask = (self.fire_power > 0) & (~dead_mask) & (self.turret_heat <= 0.0)
-        robot_idx = np.where(fire_mask)[0]
-        self.energy[fire_mask] = np.maximum(0.0, self.energy[fire_mask] - self.fire_power)
-
-        turret_rotation_rads = self.turret_rotation[fire_mask] * np.pi
-        turret_direction = np.stack([np.sin(turret_rotation_rads), np.cos(turret_rotation_rads)], axis=-1)
-        bullet_position = self.position[fire_mask] + (turret_direction * 28)
-        power = self.fire_power[fire_mask]
-
-        # Assigning bullets to store
-        number_bullets = np.sum(fire_mask)
-        free_slots = ~self.bullet_mask
-        free_slots[number_bullets:] = False
-
-        if np.sum(free_slots) < number_bullets:
-            raise RuntimeError("Need more bullet slots")
-
-        self.bullet_mask[free_slots] = True
-        self.bullet_owner[free_slots] = robot_idx
-        self.bullet_power[free_slots] = power
-        self.bullet_positions[free_slots] = bullet_position
-        self.bullet_direction[free_slots] = turret_direction
-
-        # Move bullets TODO move before the creation of new bullets
-        self.bullet_positions[self.bullet_mask] += self.bullet_direction[self.bullet_mask] * \
-            (20 - (3 * self.bullet_power[self.bullet_mask]))
-
-        # Collide bullets and robots
-        self.position[~dead_mask]
-
-        bullet_idx = np.where(self.bullet_mask)[0]
-        bullet_positions = self.bullet_positions[self.bullet_mask]
-
-        # Vectorise this?
-        for i, center in zip(where_alive, self.position[~dead_mask]):
-            not_owned = (self.bullet_owner != i) & self.bullet_mask
-            colls = test_circle_to_circles(center, ROBOT_RADIUS, bullet_positions[not_owned], BULLET_RADIUS)
-            # Update date the masks to just collisions
-            colls = colls & not_owned
-            self.bullet_mask[colls] = False
-            self.energy[i] -= np.sum(4 * self.bullet_power[colls])
-
-            # np.arr with positions of owners who hit
-            self.energy[self.bullet_owner[colls]] += 3 * self.bullet_power[colls]
-
-            # Reset bullet data
-            self.bullet_power[colls] = 0
-            self.bullet_owner[colls] = 0
-            self.bullet_positions[colls] = 0
-            self.bullet_direction[colls] = 0
-
-        for i, (robot, dead) in enumerate(zip(self.robots, dead_mask)):
+    def update_robots(self, collided_robots_idx):
+        for i, (robot, dead) in enumerate(zip(self.robots, self.dead_mask)):
             if not dead:
                 # Assign into objects the outcomes
                 robot.energy = self.energy[i]
@@ -237,11 +317,38 @@ class Engine(object):
 
         # Call events
         for i in collided_robots_idx:
-            self.robots[i].on_hit_wall()
+            self.robots[i].on_hit_wall(HitWallEvent())
 
+    def step(self):
+        self.update_data()
+        data = update(
+            self.size,
+            self.bounds,
+            self.dead_mask,
+            self.moving,
+            self.base_turning,
+            self.turret_turning,
+            self.radar_turning,
+            self.fire_power,
+            self.energy,
+            self.position,
+            self.speed,
+            self.base_rotation,
+            self.turret_rotation,
+            self.radar_rotation,
+            self.turret_heat,
+            self.bullet_mask,
+            self.bullet_positions,
+            self.bullet_direction,
+            self.bullet_power,
+            self.bullet_owner
+        )
+        self.update_robots(*data)
 
 
 if __name__ == "__main__":
+    from robots.renderers import RobotRenderer
+
     class RandomRobot(Robot):
         def run(self):
             self.moving = Move.FORWARD
@@ -249,8 +356,7 @@ if __name__ == "__main__":
             if random.randint(0, 1):
                 self.fire(random.randint(1, 3))
 
-
-
     eng = Engine([RandomRobot((255, 0, 0)), RandomRobot((0, 255, 0))])
     eng.init()
-    eng.update()
+    while True:
+        eng.step()  
