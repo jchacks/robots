@@ -20,7 +20,8 @@ class Renderer(object):
 
     def track(self, item, sprites=None):
         self.items.add(item)
-        self.orig_sprites[item] = sprites
+        if sprites:
+            self.orig_sprites[item] = sprites
 
     def untrack(self, item):
         self.items.remove(item)
