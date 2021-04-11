@@ -84,20 +84,6 @@ class Engine(object):
         self.position[:] = np.random.random((self.num_robots, 2)) * self.bounds
         self.base_rotation[:] = np.random.random((self.num_robots, )) * 2
 
-    @property
-    def acceleration(self):
-        a = np.zeros((self.num_robots,))
-
-        sign_move = np.sign(self.moving)
-        sign_speed = np.sign(self.speed)
-        sign = sign_move * sign_speed
-        accel_mask = [sign > 0]
-        decel_mask = [sign < 0]
-
-        a[accel_mask] = 1 * sign_move[accel_mask]
-        a[decel_mask] = 2 * sign_move[decel_mask]
-        return a
-
     def update(self):
         """
         Tick update:
@@ -110,7 +96,6 @@ class Engine(object):
 
         # Update dead
         dead_mask = self.energy < 0.0
-        where_dead = np.where(dead_mask)[0]
         where_alive = np.where(~dead_mask)[0]
 
         self.speed[dead_mask] = 0.0
@@ -136,7 +121,17 @@ class Engine(object):
 
         # Only for alive robots
         # Update speed with acceleration and 0 energy cant move
-        self.speed[~dead_mask] = np.clip(self.speed[~dead_mask] + self.acceleration[~dead_mask], *MAX_SPEED)
+
+        a = np.zeros((self.num_robots,))
+        sign_move = np.sign(self.moving)
+        sign_speed = np.sign(self.speed)
+        sign = sign_move * sign_speed
+        accel_mask = sign > 0
+        decel_mask = sign < 0
+        a[accel_mask] = 1 * sign_move[accel_mask]
+        a[decel_mask] = 2 * sign_move[decel_mask]
+
+        self.speed[~dead_mask] = np.clip(self.speed[~dead_mask] + a[~dead_mask], *MAX_SPEED)
         self.speed[self.energy == 0.0] = 0.0
 
         # Calculate velocity vec and apply to center
@@ -240,7 +235,6 @@ class Engine(object):
             self.robots[i].on_hit_wall()
 
 
-
 if __name__ == "__main__":
     class RandomRobot(Robot):
         def run(self):
@@ -248,8 +242,6 @@ if __name__ == "__main__":
             self.base_turning = Turn.LEFT
             if random.randint(0, 1):
                 self.fire(random.randint(1, 3))
-
-
 
     eng = Engine([RandomRobot((255, 0, 0)), RandomRobot((0, 255, 0))])
     eng.init()
