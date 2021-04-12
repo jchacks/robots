@@ -97,16 +97,28 @@ class Bullets(object):
     pass
 
 
-class BattleSpec(object):
+class Battle(object):
     def __init__(self, robots: list, size, rounds) -> None:
         self.robots = robots
+        self.engine = None
+        self.size = size
+        self.rounds = rounds
+
+    def init(self):
+        self.engine = Engine(self.robots, self.size)
+
+    def run(self):
+        if self.engine is None:
+            raise RuntimeError("Run init first!")
+        while True:
+            self.engine.update()
 
 
 class Engine(object):
     """Tracks robots for simulation"""
 
-    def __init__(self, robots) -> None:
-        self.size = (400, 400)
+    def __init__(self, robots, size) -> None:
+        self.size = size
         offset = ROBOT_RADIUS + 4
         self.bounds = (offset, offset), (self.size[0] - offset, self.size[1] - offset)
 
@@ -157,7 +169,6 @@ class Engine(object):
         dead_mask = self.energy < 0.0
         where_alive = np.where(~dead_mask)[0]
 
-        self.speed[dead_mask] = 0.0
         self.moving[dead_mask] = 0
         self.base_turning[dead_mask] = 0
         self.turret_turning[dead_mask] = 0
@@ -186,7 +197,7 @@ class Engine(object):
         sign_speed = np.sign(self.speed)
         sign = sign_move * sign_speed
         accel_mask = sign > 0
-        decel_mask = sign < 0
+        decel_mask = sign <= 0
         a[accel_mask] = 1 * sign_move[accel_mask]
         a[decel_mask] = 2 * sign_move[decel_mask]
 
@@ -305,6 +316,9 @@ if __name__ == "__main__":
             if random.randint(0, 1):
                 self.fire(random.randint(1, 3))
 
-    eng = Engine([RandomRobot((255, 0, 0)), RandomRobot((0, 255, 0))])
-    eng.init()
-    eng.update()
+    battle = Battle([
+        RandomRobot((255, 0, 0)),
+        RandomRobot((0, 255, 0))],
+        (400, 400))
+    battle.init()
+    battle.run()
