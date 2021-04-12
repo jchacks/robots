@@ -5,6 +5,7 @@ from typing import List
 from abc import ABC
 from robots.robot.utils import Turn, Move
 from robots.config import BULLET_RADIUS, MAX_SPEED, ROBOT_RADIUS
+from robots.robot.events import *
 
 
 class Robot(ABC):
@@ -37,6 +38,59 @@ class Robot(ABC):
         self.fire_power = power
         print("pew pew")
 
+    def on_battle_ended(self, event: BattleEndedEvent):
+        pass
+
+    def on_bullet_hit_bullet(self, event: BulletHitBulletEvent):
+        pass
+
+    def on_bullet_hit(self, event: BulletHitEvent):
+        pass
+
+    def on_bullet_missed(self, event: BulletMissedEvent):
+        pass
+
+    def on_custom_event(self, event: CustomEvent):
+        pass
+
+    def on_death(self, event: DeathEvent):
+        pass
+
+    def on_hit_by_bullet(self, event: List[HitByBulletEvent]):
+        pass
+
+    def on_hit_robot(self, event: HitRobotEvent):
+        pass
+
+    def on_hit_wall(self, event: HitWallEvent):
+        pass
+
+    def on_key(self, event: KeyEvent):
+        pass
+
+    def on_message(self, event: MessageEvent):
+        pass
+
+    def on_paint(self, event: PaintEvent):
+        pass
+
+    def on_robot_death(self, event: RobotDeathEvent):
+        pass
+
+    def on_round_ended(self, event: RoundEndedEvent):
+        pass
+
+    def on_scanned_robot(self, event: List[ScannedRobotEvent]):
+        pass
+
+    def on_skipped_turn(self, event: SkippedTurnEvent):
+        pass
+
+    def on_status(self, event: StatusEvent):
+        pass
+
+    def on_win(self, event: WinEvent):
+        pass
 
 
 class Bullets(object):
@@ -77,11 +131,12 @@ class Engine(object):
         self.turret_heat = np.zeros((num_robots,), np.float32)
 
         # Bullets
-        self.bullet_mask = np.zeros((1000, ), np.bool)
-        self.bullet_positions = np.zeros((1000, 2), np.float32)
-        self.bullet_direction = np.zeros((1000, 2), np.float32)
-        self.bullet_power = np.zeros((1000, ), np.float32)
-        self.bullet_owner = np.zeros((1000, ), np.uint8)
+        num_bullets = 1000
+        self.bullet_mask = np.zeros((num_bullets, ), np.bool)
+        self.bullet_positions = np.zeros((num_bullets, 2), np.float32)
+        self.bullet_direction = np.zeros((num_bullets, 2), np.float32)
+        self.bullet_power = np.zeros((num_bullets, ), np.float32)
+        self.bullet_owner = np.zeros((num_bullets, ), np.uint8)
 
     def init(self):
         self.energy[:] = 100
@@ -167,7 +222,7 @@ class Engine(object):
 
         # Radar rotation (in rads excluding pi)
         radar_rotation_speed = 5/180
-        # TODO add locked turret
+        # TODO add locked radar
         radar_rotation_delta = radar_rotation_speed * self.radar_turning[~dead_mask] + turret_rotation_delta
         self.radar_rotation[~dead_mask] = (self.radar_rotation[~dead_mask] + radar_rotation_delta) % 2
 
@@ -183,8 +238,11 @@ class Engine(object):
 
         # Assigning bullets to store
         number_bullets = np.sum(fire_mask)
+
         free_slots = ~self.bullet_mask
-        free_slots[number_bullets:] = False
+        s = free_slots[free_slots]
+        s[:number_bullets] = False
+        free_slots[~self.bullet_mask] = s
 
         if np.sum(free_slots) < number_bullets:
             raise RuntimeError("Need more bullet slots")
