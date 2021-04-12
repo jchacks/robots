@@ -4,7 +4,7 @@ import numpy as np
 from typing import List
 from abc import ABC
 from robots.robot.utils import Turn, Move
-from robots.config import BULLET_RADIUS, MAX_SPEED, ROBOT_RADIUS
+from robots.config import BULLET_RADIUS, MAX_velocity, ROBOT_RADIUS
 from robots.robot.events import *
 
 
@@ -16,7 +16,7 @@ class Robot(ABC):
         self.bearing = None
         self.turret_bearing = None
         self.radar_bearing = None
-        self.speed = 0.0
+        self.velocity = 0.0
         self.dead = False
 
         # Set by user and read by engine.
@@ -106,11 +106,13 @@ class Battle(object):
 
     def init(self):
         self.engine = Engine(self.robots, self.size)
+        self.engine.init()
 
     def run(self):
         if self.engine is None:
             raise RuntimeError("Run init first!")
-        while True:
+        print(self.engine.num_alive)
+        while self.engine.num_alive > 1:
             self.engine.update()
 
 
@@ -136,7 +138,7 @@ class Engine(object):
         # Physical quantities
         self.energy = np.zeros((num_robots,), np.float32)
         self.position = np.zeros((num_robots, 2), np.float32)
-        self.speed = np.zeros((num_robots,), np.float32)
+        self.velocity = np.zeros((num_robots,), np.float32)
         self.base_rotation = np.zeros((num_robots,), np.float32)
         self.turret_rotation = np.zeros((num_robots,), np.float32)
         self.radar_rotation = np.zeros((num_robots,), np.float32)
@@ -155,18 +157,22 @@ class Engine(object):
         self.position[:] = np.random.random((self.num_robots, 2)) * self.size
         self.base_rotation[:] = np.random.random((self.num_robots, )) * 2
 
+    @property
+    def num_alive(self):
+        return np.sum(self.energy > 0.0)
+
     def update(self):
         """
         Tick update:
             * Position
-            * Speed
+            * velocity
             * Rotation
         :param tick: Tick of the simulation
         :return: None
         """
 
         # Update dead
-        dead_mask = self.energy < 0.0
+        dead_mask = self.energy <= 0.0
         where_alive = np.where(~dead_mask)[0]
 
         self.moving[dead_mask] = 0
@@ -190,51 +196,51 @@ class Engine(object):
                 robot.dead = True
 
         # Only for alive robots
-        # Update speed with acceleration and 0 energy cant move
+        # Update velocity with acceleration and 0 energy cant move
 
         a = np.zeros((self.num_robots,))
         sign_move = np.sign(self.moving)
-        sign_speed = np.sign(self.speed)
-        sign = sign_move * sign_speed
+        sign_velocity = np.sign(self.velocity)
+        sign = sign_move * sign_velocity
         accel_mask = sign > 0
-        decel_mask = sign <= 0
+        decel_mask = sign < 0 
         a[accel_mask] = 1 * sign_move[accel_mask]
         a[decel_mask] = 2 * sign_move[decel_mask]
 
-        self.speed[~dead_mask] = np.clip(self.speed[~dead_mask] + a[~dead_mask], *MAX_SPEED)
-        self.speed[self.energy == 0.0] = 0.0
+        self.velocity[~dead_mask] = np.clip(self.velocity[~dead_mask] + a[~dead_mask], *MAX_velocity)
+        self.velocity[self.energy == 0.0] = 0.0
 
         # Calculate velocity vec and apply to center
         base_rotation_rads = self.base_rotation[~dead_mask] * np.pi
-        velocity = np.stack([np.sin(base_rotation_rads), np.cos(base_rotation_rads)], axis=-1) * self.speed[~dead_mask]
-        self.position[~dead_mask] = self.position[~dead_mask] + velocity
+        direction = np.stack([np.sin(base_rotation_rads), np.cos(base_rotation_rads)], axis=-1)
+        self.position[~dead_mask] = self.position[~dead_mask] + (direction * self.velocity[~dead_mask])
 
         # Wall collision
         collided = ~np.all(((20, 20) <= self.position) & (self.position <= np.array(self.size) - (20, 20)), axis=1)
         collided = collided & (~dead_mask)
 
         self.position = np.clip(self.position, *self.bounds)
-        self.energy[collided] -= np.maximum(np.abs(self.speed[collided]) * 0.5 - 1, 0)
-        self.speed[collided] = 0
+        self.energy[collided] -= np.maximum(np.abs(self.velocity[collided]) * 0.5 - 1, 0)
+        self.velocity[collided] = 0
         collided_robots_idx = np.where(collided)[0]
 
         # Caclulate rotation (in rads excluding pi)
-        base_rotation_speed = (10 - 0.75 * abs(velocity)) / 180
-        base_rotation_delta = base_rotation_speed * self.base_turning[~dead_mask]
+        base_rotation_velocity = (10 - 0.75 * abs(velocity)) / 180
+        base_rotation_delta = base_rotation_velocity * self.base_turning[~dead_mask]
         self.base_rotation[~dead_mask] = (self.base_rotation[~dead_mask] + base_rotation_delta) % 2
 
         # Turret delta
         # Turret rotation (in rads excluding pi)
-        turret_rotation_speed = 20/180
+        turret_rotation_velocity = 20/180
         # TODO add locked turret
-        turret_rotation_delta = turret_rotation_speed * self.turret_turning[~dead_mask] + base_rotation_delta
+        turret_rotation_delta = turret_rotation_velocity * self.turret_turning[~dead_mask] + base_rotation_delta
         self.turret_rotation[~dead_mask] = (self.turret_rotation[~dead_mask] + turret_rotation_delta) % 2
         self.turret_heat[~dead_mask] = np.maximum(0.0, self.turret_heat[~dead_mask] - 0.1)
 
         # Radar rotation (in rads excluding pi)
-        radar_rotation_speed = 5/180
+        radar_rotation_velocity = 5/180
         # TODO add locked radar
-        radar_rotation_delta = radar_rotation_speed * self.radar_turning[~dead_mask] + turret_rotation_delta
+        radar_rotation_delta = radar_rotation_velocity * self.radar_turning[~dead_mask] + turret_rotation_delta
         self.radar_rotation[~dead_mask] = (self.radar_rotation[~dead_mask] + radar_rotation_delta) % 2
 
         # Fire
@@ -300,7 +306,7 @@ class Engine(object):
                 robot.bearing = self.base_rotation[i]
                 robot.turret_bearing = self.turret_rotation[i]
                 robot.radar_bearing = self.radar_rotation[i]
-                robot.speed = self.speed[i]
+                robot.velocity = self.velocity[i]
                 robot.should_fire = False
 
         # Call events
@@ -319,6 +325,7 @@ if __name__ == "__main__":
     battle = Battle([
         RandomRobot((255, 0, 0)),
         RandomRobot((0, 255, 0))],
-        (400, 400))
+        (400, 400),
+        3)
     battle.init()
     battle.run()
