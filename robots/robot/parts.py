@@ -13,8 +13,7 @@ data_dir = os.path.join(os.path.dirname(__file__), "../../data/")
 
 
 class Bullet(LogicalObject):
-    MAX_POWER = 3.0
-    MIN_POWER = 0.1
+  
 
     def __init__(self, robot, power):
         LogicalObject.__init__(self, robot.gun.bearing)
