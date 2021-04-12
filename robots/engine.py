@@ -5,12 +5,10 @@ from typing import List
 from abc import ABC
 from robots.robot.utils import Turn, Move
 from robots.config import BULLET_RADIUS, MAX_SPEED, ROBOT_RADIUS
-import numba as nb
 
 
 class Robot(ABC):
     def __init__(self, base_color, turret_color=None, radar_color=None) -> None:
-        super(Robot, self).__init__()
         # Attributes are set by engine.
         self.energy = 100
         self.position = None
@@ -36,7 +34,13 @@ class Robot(ABC):
         pass
 
     def fire(self, power):
+        self.fire_power = power
         print("pew pew")
+
+
+
+class Bullets(object):
+    pass
 
 
 class BattleSpec(object):
@@ -81,7 +85,7 @@ class Engine(object):
 
     def init(self):
         self.energy[:] = 100
-        self.position[:] = np.random.random((self.num_robots, 2)) * self.bounds
+        self.position[:] = np.random.random((self.num_robots, 2)) * self.size
         self.base_rotation[:] = np.random.random((self.num_robots, )) * 2
 
     def update(self):
