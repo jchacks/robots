@@ -34,11 +34,19 @@ class Robot(ABC):
         self.turret_turning = Turn.NONE
         self.radar_turning = Turn.NONE
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}<\n"\
+            f"Velocity: {self.velocity}\n" \
+            f"Bearing:  {self.bearing}\n" \
+            f"Position: {self.position}\n"\
+            f"Energy:   {self.energy}\n>"
+
     def run(self):
         pass
 
     def fire(self, power):
         self.fire_power = power
+        self.should_fire = True
         print("pew pew")
 
     def on_battle_ended(self, event: BattleEndedEvent):
@@ -103,6 +111,7 @@ class RobotData(object):
         self.base_turning = Turn.NONE
         self.turret_turning = Turn.NONE
         self.radar_turning = Turn.NONE
+        self.should_fire = False
         self.fire_power = 0
 
         # Physical quantities
@@ -114,6 +123,22 @@ class RobotData(object):
         self.turret_rotation = 0
         self.radar_rotation = 0
         self.turret_heat = 0
+
+    def flush_state(self):
+        self.robot.energy = self.energy
+        self.robot.position = self.position
+        self.robot.velocity = self.velocity
+        self.robot.bearing = self.base_rotation
+        self.robot.turret_bearing = self.turret_rotation
+        self.robot.radar_bearing = self.radar_rotation
+
+    def read_actions(self):
+        self.moving = self.robot.moving
+        self.base_turning = self.robot.base_turning
+        self.turret_turning = self.robot.base_turning
+        self.radar_turning = self.robot.radar_turning
+        self.should_fire = self.robot.should_fire
+        self.fire_power = self.robot.fire_power
 
 
 @dataclass
@@ -136,7 +161,6 @@ def acceleration(r):
         else:
             return 2.0
     elif r.moving is not Move.NONE:
-        print("Shouldnt happen", r.moving, r.velocity)
         return 1.0
     else:
         return 0.0
@@ -157,15 +181,32 @@ class Engine(object):
             r.energy = 100
             r.alive = True
 
+    def run(self):
+        self.read_robot_actions()
+        self.update()
+        self.flush_robot_state()
+
     def add_bullet(self, robot, position, velocity, power):
         self.bullets.add(Bullet(robot, position, velocity, power))
 
+    def read_robot_actions(self):
+        for data in self.data:
+            data.read_actions()
+
+    def flush_robot_state(self):
+        for data in self.data:
+            data.flush_state()
+
     def update(self):
+        for data in self.data:
+            data.robot.run()
+
         robots = np.array([r for r in self.data if r.alive])
         cs = np.stack([r.position for r in self.data if r.alive])
         rs = np.ones(len(cs)) * ROBOT_RADIUS
         wall_colisions = ~np.all(((20, 20) <= cs) & (cs <= np.array(self.size) - (20, 20)), 1)
         for r in robots[wall_colisions]:
+            print(f"{r.robot} hit the wall.")
             r.energy -= max(abs(r.velocity) * 0.5 - 1, 0)
             r.velocity = 0.0
             r.position = np.clip(r.position + r.velocity, *self.bounds)
@@ -212,7 +253,7 @@ class Engine(object):
                 colls = test_circle_to_circles(r.center, r.radius, cs, rs)
                 for bullet in bs[colls]:
                     # Damage calculation
-                    damage = 4 * bullet.power 
+                    damage = 4 * bullet.power
                     if bullet.power > 1:
                         damage += 2 * (bullet.power - 1)
 
@@ -222,7 +263,6 @@ class Engine(object):
                     events.append(HitByBulletEvent(bullet))
                 if events:
                     r.robot.on_hit_by_bullet(events)
-
 
         for i, r in enumerate(robots):
             r.velocity = np.clip(r.velocity + acceleration(r), -8.0, 8.0)
@@ -243,8 +283,9 @@ class Engine(object):
             r.radar_rotation = (r.radar_rotation + radar_rotation_delta) % 2
 
             # Should fire and can fire
-            if (r.fire_power > 0) and (r.turret_heat <= 0.0):
+            if r.should_fire and (r.turret_heat <= 0.0):
                 r.energy = np.maximum(0.0, r.energy - r.fire_power)
+                r.should_fire = False
                 turret_rotation_rads = r.turret_rotation * np.pi
                 turret_direction = np.concatenate([np.sin(turret_rotation_rads), np.cos(turret_rotation_rads)])
                 bullet_position = r.position + (turret_direction * 28)
@@ -261,11 +302,14 @@ if __name__ == "__main__":
             self.base_turning = Turn.LEFT
             if random.randint(0, 1):
                 self.fire(random.randint(1, 3))
-
+    r1 = RandomRobot((255, 0, 0))
     battle = Engine([
-        RandomRobot((255, 0, 0)),
+        r1,
         RandomRobot((0, 255, 0))],
         (400, 400))
     battle.init()
-    battle.update()
-    print(battle.data)
+    print(r1)
+    battle.run()
+    print(r1)
+    battle.run()
+    print(r1)
