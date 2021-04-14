@@ -56,14 +56,14 @@ class DeathEvent(Event):
 
 
 class HitByBulletEvent(Event):
-    def __init__(self, bullet):
-        self.damage = bullet.damage
+    def __init__(self, damage):
+        self.damage = damage
 
 
 class HitRobotEvent(Event):
     def __init__(self, robot):
         self.energy = robot.energy
-        self.position = robot.center
+        self.position = robot.position
 
 
 class HitWallEvent(Event):
