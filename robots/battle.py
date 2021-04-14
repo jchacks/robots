@@ -7,8 +7,9 @@ from robots.robot.utils import test_circles, Simable
 
 
 class BattleSettings(object):
-    pass
-
+    def __init__(self, robots, size=(600, 400)) -> None:
+        self.robots = robots
+        self.size = size
 
 class Battle(Simable):
     def __init__(self, *, size=(600, 400), robots):

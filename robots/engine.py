@@ -119,6 +119,7 @@ class RobotData(object):
         self.turret_heat = 0
 
     def flush_state(self):
+        """Push read only values back to the Robot class"""
         self.robot.energy = self.energy
         self.robot.position = self.position
         self.robot.velocity = self.velocity
@@ -184,6 +185,7 @@ class Engine(object):
 
     def update(self):
         for data in self.data:
+            data.turret_heat = max(data.turret_heat - 0.1, 0)
             data.robot.run()
 
         robots = np.array([r for r in self.data if r.alive])
@@ -191,7 +193,7 @@ class Engine(object):
         rs = np.ones(len(cs)) * ROBOT_RADIUS
         wall_colisions = ~np.all(((20, 20) <= cs) & (cs <= np.array(self.size) - (20, 20)), 1)
         for r in robots[wall_colisions]:
-            print(f"{r.robot} hit the wall.")
+            # print(f"{r.robot} hit the wall.")
             r.energy -= max(abs(r.velocity) * 0.5 - 1, 0)
             r.velocity = 0.0
             r.position = np.clip(r.position + r.velocity, *self.bounds)
@@ -280,18 +282,21 @@ class Engine(object):
 
 
 if __name__ == "__main__":
+
+    from robots.battle import BattleSettings
+    from robots.ui import BattleWindow
+    from robots.app import App
+
     class RandomRobot(Robot):
         def run(self):
             self.moving = Move.FORWARD
             self.base_turning = Turn.LEFT
             if random.randint(0, 1):
                 self.fire(random.randint(1, 3))
-    r1 = RandomRobot((255, 0, 0))
-    battle = Engine([
-        r1,
-        RandomRobot((0, 255, 0))],
-        (400, 400))
-    battle.init()
+    battle_settings = BattleSettings([RandomRobot((255, 0, 0)),RandomRobot((0, 255, 0))])
+    app = App(battle=battle_settings)
+    window = BattleWindow(battle_settings)
+    eng = Engine(*battle_settings)
+    eng.init()
     for i in range(1000):
-        print(i, r1)
-        battle.run()
+        eng.run()
