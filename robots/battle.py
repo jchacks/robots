@@ -3,7 +3,7 @@ import time
 from random import randint
 
 from robots.robot.events import BattleEndedEvent, WinEvent
-from robots.robot.utils import test_circles, Simable
+from robots.engine.utils import test_circles
 
 
 class BattleSettings(object):
@@ -11,9 +11,8 @@ class BattleSettings(object):
         self.robots = robots
         self.size = size
 
-class Battle(Simable):
+class Battle(object):
     def __init__(self, *, size=(600, 400), robots):
-        Simable.__init__(self)
         self.robots = [rc(self) for rc in robots]
         self.dirty = True
         self.size = size
@@ -25,22 +24,6 @@ class Battle(Simable):
     @property
     def alive_robots(self):
         return [r for r in self.robots if not r.dead]
-
-    def initial_bearing(self, index):
-        return randint(0, 360)
-
-    def initial_position(self, index):
-        w, h = self.size
-        return randint(20, w - 20), randint(20, h - 20)
-
-    def reset(self):
-        self.bullets.clear()
-        for i, robot in enumerate(self.robots):
-            robot.set_bearing(self.initial_bearing(0))
-            robot.gun.set_bearing(self.initial_bearing(0))
-            robot.radar.set_bearing(self.initial_bearing(0))
-            robot.set_position(self.initial_position(0))
-            robot.reset()
 
     def check_round_over(self):
         alive = sum(not robot.dead for robot in self.robots)
@@ -112,9 +95,8 @@ class Battle(Simable):
         }
 
 
-class MultiBattle(Simable):
+class MultiBattle(object):
     def __init__(self, size, robots, num_battles=4):
-        Simable.__init__(self)
         self.robots = robots
         self.dirty = True
         self.size = size

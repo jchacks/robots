@@ -37,7 +37,7 @@ class Overlay(object):
             offset = self.draw(screen, robot, offset)
 
     def draw(self, screen, robot, offset):
-        color = robot.base.color if robot.base.color is not None else "white"
+        color = robot.base_color if robot.base_color is not None else "white"
         color = pygame.Color(color)
 
         text = self.font.render(str(robot.__class__.__name__), 1, color)
