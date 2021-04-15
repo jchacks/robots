@@ -63,17 +63,19 @@ def acceleration(r):
 
 
 class Engine(object):
-    def __init__(self, battle_settings):
+    def __init__(self, battle_settings, rate=20):
         self.robots = battle_settings.robots
-        self.data = [RobotData(robot) for robot in self.robots]
+        self.data = None
         self.bullets = set()
         self.size = battle_settings.size
-        self.interval = 1/1000
+        self.interval = 1/rate
         self.last_sim = time.time()
         offset = ROBOT_RADIUS + 4
         self.bounds = (offset, offset), (self.size[0] - offset, self.size[1] - offset)
 
     def init(self):
+        self.data = [RobotData(robot) for robot in self.robots]
+        self.bullets.clear()
         for r in self.data:
             r.position = np.random.random(2) * self.size
             r.base_rotation = random.random() * 360
@@ -85,12 +87,15 @@ class Engine(object):
 
     def run(self):
         while not self.is_finished():
-            time_since = time.time() - self.last_sim
-            if time_since > self.interval:
-                self.last_sim = time.time()
-                self.update()
-                self.flush_robot_state()
-                print(1/(time.time()-self.last_sim))
+            self.step()
+
+    def step(self):
+        time_since = time.time() - self.last_sim
+        if time_since > self.interval:
+            self.last_sim = time.time()
+            self.update_robots()
+            self.flush_robot_state()
+            return self.is_finished()
 
     def add_bullet(self, robot_data, position, velocity, power):
         self.bullets.add(Bullet(robot_data, position, velocity, power))
@@ -102,7 +107,7 @@ class Engine(object):
         for data in self.data:
             data.flush_state()
 
-    def update(self):
+    def update_robots(self):
         robots = np.array([r for r in self.data if r.alive])
         cs = np.stack([r.position for r in self.data if r.alive])
         rs = np.ones(len(cs)) * ROBOT_RADIUS

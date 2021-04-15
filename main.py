@@ -1,7 +1,4 @@
-import time
-from robots.battle import BattleSettings
-from robots.ui.ui import BattleWindow
-from robots.engine import Engine
+from robots.config import BattleSettings
 from robots.app import App
 from robots.robot import Robot
 from robots.robot.utils import *
@@ -17,23 +14,5 @@ class RandomRobot(Robot):
 
 
 battle_settings = BattleSettings([RandomRobot((255, 0, 0)), RandomRobot((0, 255, 0))])
-
-
-app = App()
-bw = BattleWindow(app.screen, battle_settings.size)
-app.children = [bw]
-
-
-import threading as th
-
-def do():
-    while True:
-        eng = Engine(battle_settings)
-        eng.init()
-        bw.set_battle(eng)
-        eng.run()
-        del eng
-
-thread = th.Thread(target=do)
-thread.start()
+app = App(battle_settings)
 app.run()
