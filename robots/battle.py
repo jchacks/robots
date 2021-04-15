@@ -31,25 +31,6 @@ class Battle(object):
             return False
         return True
 
-    def collide_bullets(self):
-        """
-        Collide bullets with all other bullets.
-        :return:
-        """
-        bullets = list(self.bullets)
-        if len(bullets) > 1:
-            c = np.array([b.center for b in bullets])
-            r = np.array([b.radius for b in bullets])
-            where = np.argwhere(np.any(test_circles(c, r), 0))
-            to_remove = [bullets[idx] for idx in where.flatten().tolist()]
-            self.bullets.difference_update(to_remove)
-
-    def on_round_end(self):
-        for robot in self.robots:
-            if not robot.dead:
-                robot.on_win(WinEvent())
-            robot.on_battle_ended(BattleEndedEvent(self))
-
     def _step(self):
         self.is_finished = False
         self.last_sim = time.time()
@@ -93,6 +74,31 @@ class Battle(object):
             "robots": [r.to_dict() for r in self.robots],
             "bullets": [(b.radius, list(b.center), list(b.direction)) for b in list(self.bullets)],
         }
+
+
+# class MultiBattle(App):
+#     """
+#     Class that extends the Normal App class to render a multi Battle window
+#     for when a multibattle is being used instead of a normal `Battle`
+#     """
+
+#     def __init__(self, *args, rows=None, columns=None, **kwargs):
+#         super(MultiBattleApp, self).__init__(*args, **kwargs)
+#         self.rows = rows
+#         self.columns = columns
+
+#     def init_window(self):
+#         self.battle_display = MultiBattleWindow(self.screen, self.battle, rows=self.rows, columns=self.columns)
+
+#     def create_default_battle(self):
+#         return MultiBattle(size=(400, 400), robots=[TestRobot, TestRobot], num_battles=2)
+
+#     def on_render(self):
+#         if (time.time() - self.last_render) >= self.render_interval:
+#             self.last_render = time.time()
+#             self.battle_display.on_render(self.screen)
+#             self.console.on_render(self.screen)
+#             pygame.display.flip()
 
 
 class MultiBattle(object):

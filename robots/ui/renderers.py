@@ -5,7 +5,7 @@ from abc import abstractmethod
 
 from robots.ui.utils import load_image, Colors, rot_center
 
-data_dir = os.path.join(os.path.dirname(__file__), "../data/")
+data_dir = os.path.join(os.path.dirname(__file__), "../../data/")
 
 
 class Renderer(object):

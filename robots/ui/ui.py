@@ -3,7 +3,7 @@ import pygame
 import pygame.locals as pl
 from abc import abstractmethod
 
-from robots.renderers import BulletRenderer, RobotRenderer
+from robots.ui.renderers import BulletRenderer, RobotRenderer
 
 __all__ = ["Overlay", "Console", "BattleWindow", "MultiBattleWindow"]
 
@@ -57,7 +57,7 @@ class Overlay(object):
 
 
 class Console(object):
-    def __init__(self, font_family=None, font_size=20):
+    def __init__(self, screen, font_family=None, font_size=20):
         self.active = False
         self.font_size = font_size
         self.font_family = font_family
@@ -67,7 +67,6 @@ class Console(object):
         self.commands = {}
         self.help = {}
 
-    def on_init(self, screen):
         if self.font_family is not None and not os.path.isfile(self.font_family):
             self.font_family = pygame.font.match_font(self.font_family)
             print(self.font_family)
@@ -199,13 +198,12 @@ class Canvas(object):
 
 
 class BattleWindow(Canvas):
-    def __init__(self, screen, battle):
-        Canvas.__init__(self, screen=screen, size=battle.size, background_color="grey")
+    def __init__(self, screen, size):
+        Canvas.__init__(self, screen=screen, size=size, background_color="grey")
         self.bullet_r = BulletRenderer()
         self.robot_r = RobotRenderer()
         self.battle = None
         self.overlay = None
-        self.set_battle(battle)
 
     def set_battle(self, battle):
         self.battle = battle
@@ -216,9 +214,10 @@ class BattleWindow(Canvas):
         self.on_resize(self.screen.get_size())
 
     def render(self):
-        self.robot_r.render(self.canvas)
-        self.bullet_r.render(self.canvas)
-        self.overlay.on_render(self.canvas)
+        if self.battle:
+            self.robot_r.render(self.canvas)
+            self.bullet_r.render(self.canvas)
+            self.overlay.on_render(self.canvas)
 
     def on_resize(self, size):
         super(BattleWindow, self).on_resize(size)

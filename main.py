@@ -17,18 +17,23 @@ class RandomRobot(Robot):
 
 
 battle_settings = BattleSettings([RandomRobot((255, 0, 0)), RandomRobot((0, 255, 0))])
-eng = Engine(battle_settings)
-eng.init()
+
 
 app = App()
-app.on_init()
-app.children.append(BattleWindow(app.screen, eng))
+bw = BattleWindow(app.screen, battle_settings.size)
+app.children = [bw]
 
-app.on_render()
-for i in range(1000):
-    eng.run()
-    app.on_render()
-    for event in app.get_events():
-        app.on_event(event)
-    app.on_render()
-    time.sleep(0.1)
+
+import threading as th
+
+def do():
+    while True:
+        eng = Engine(battle_settings)
+        eng.init()
+        bw.set_battle(eng)
+        eng.run()
+        del eng
+
+thread = th.Thread(target=do)
+thread.start()
+app.run()

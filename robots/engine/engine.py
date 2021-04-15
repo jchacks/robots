@@ -7,6 +7,8 @@ import numpy as np
 from robots.robot.utils import Turn, Move
 from robots.config import *
 from robots.robot.events import *
+import time
+
 
 class RobotData(object):
     def __init__(self, robot):
@@ -66,6 +68,8 @@ class Engine(object):
         self.data = [RobotData(robot) for robot in self.robots]
         self.bullets = set()
         self.size = battle_settings.size
+        self.interval = 1/1000
+        self.last_sim = time.time()
         offset = ROBOT_RADIUS + 4
         self.bounds = (offset, offset), (self.size[0] - offset, self.size[1] - offset)
 
@@ -80,27 +84,30 @@ class Engine(object):
         self.flush_robot_state()
 
     def run(self):
-        self.update()
-        self.flush_robot_state()
+        while not self.is_finished():
+            time_since = time.time() - self.last_sim
+            if time_since > self.interval:
+                self.last_sim = time.time()
+                self.update()
+                self.flush_robot_state()
+                print(1/(time.time()-self.last_sim))
 
     def add_bullet(self, robot_data, position, velocity, power):
         self.bullets.add(Bullet(robot_data, position, velocity, power))
+
+    def is_finished(self):
+        return sum(r.alive for r in self.data) <= 1
 
     def flush_robot_state(self):
         for data in self.data:
             data.flush_state()
 
     def update(self):
-        for data in self.data:
-            data.turret_heat = max(data.turret_heat - 0.1, 0)
-            data.robot.run()
-
         robots = np.array([r for r in self.data if r.alive])
         cs = np.stack([r.position for r in self.data if r.alive])
         rs = np.ones(len(cs)) * ROBOT_RADIUS
         wall_colisions = ~np.all(((20, 20) <= cs) & (cs <= np.array(self.size) - (20, 20)), 1)
         for r in robots[wall_colisions]:
-            # print(f"{r.robot} hit the wall.")
             r.energy -= max(abs(r.velocity) * 0.5 - 1, 0)
             r.velocity = 0.0
             r.position = np.clip(r.position + r.velocity, *self.bounds)
@@ -110,7 +117,6 @@ class Engine(object):
             colls = test_circle_to_circles(r1.position, ROBOT_RADIUS, cs, rs)
             colls = np.delete(robots, i)[np.delete(colls, i)]
             for r2 in colls:
-                print("Bang")
                 r1.energy -= 0.6
                 r2.energy -= 0.6
                 norm = r1.position - r2.position
@@ -134,7 +140,7 @@ class Engine(object):
             to_remove = [bullets[idx] for idx in where.flatten().tolist()]
             self.bullets.difference_update(to_remove)
 
-        for bullet in self.bullets.copy():
+        for bullet in self.bullets:
             bullet.position += bullet.velocity
 
         # Collide bullets
@@ -190,3 +196,9 @@ class Engine(object):
                                 turret_direction * (20 - (3 * fire_power)),
                                 max(min(MAX_POWER, fire_power), MIN_POWER))
 
+        for r in self.data:
+            r.turret_heat = max(r.turret_heat - 0.1, 0)
+            if r.energy > 0:
+                r.robot.run()
+            else:
+                r.alive = False
