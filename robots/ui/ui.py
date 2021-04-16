@@ -18,8 +18,7 @@ class Overlay(object):
             max(2, min(4, int(h * self.bar_dims[1] / 400))),
         )
         if pygame.font:
-            self.font_size = 36
-            self.font_size = max(12, min(36, int(h * self.font_size / 400)))
+            self.font_size = max(12, min(36, int(h * 36 / 500)))
             self.font = pygame.font.Font(None, self.font_size)
 
     def set_battle(self, battle):
@@ -28,7 +27,7 @@ class Overlay(object):
     def on_resize(self, size):
         w, h = size
         self.bar_dims = max(25, min(100, int(w * 100 / 400))), max(1, min(4, int(h * 4 / 400)))
-        self.font_size = max(12, min(36, int(h * 36 / 400)))
+        self.font_size = max(12, min(36, int(h * 36 / 500)))
         self.font = pygame.font.Font(None, self.font_size)
 
     def on_render(self, screen):

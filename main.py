@@ -9,6 +9,7 @@ class RandomRobot(Robot):
     def run(self):
         self.moving = Move.FORWARD
         self.base_turning = Turn.LEFT
+        self.turret_turning = Turn.RIGHT
         if random.randint(0, 1):
             self.fire(random.randint(1, 3))
 
