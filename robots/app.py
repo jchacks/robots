@@ -11,6 +11,30 @@ os.environ["SDL_VIDEO_CENTERED"] = "0"
 os.environ["DISPLAY"] = ":0"
 
 
+class Battle(object):
+    def __init__(self, app, settings) -> None:
+        self.settings = settings
+        self.eng = Engine(settings)
+        self.eng.init()
+        self.bw = BattleWindow(app.screen, settings.size)    
+        self.bw.set_battle(self.eng)
+
+    def step(self):
+        self.eng.step()
+        if self.eng.is_finished():
+            self.eng.init()
+    
+    def on_render(self, screen):
+        self.bw.on_render(screen)
+
+    def on_command(self, command, args):
+        if command == "sim":
+            self.eng.set_rate(args[0])
+        print("Battle", command)
+
+    def handle_event(self, event):
+        print("Battle", event)
+
 class App(object):
     """Root rendering class"""
 
@@ -35,11 +59,7 @@ class App(object):
         self.bg = pygame.Surface(self.screen.get_size())
         self.bg = self.bg.convert()
 
-        self.eng = Engine(settings)
-        self.eng.init()
-        self.bw = BattleWindow(self.screen, settings.size)    
-        self.bw.set_battle(self.eng)
-
+        self.child = None
         self.console = con = Console(self.screen, "'Fira Code'", font_size=14)
 
         con.add_command("fps", self.set_frame_rate, help="Sets the FPS to given integer, -1 for unlimited")
@@ -71,6 +91,8 @@ class App(object):
                     self.console.active = True
                 elif event.key == pygame.K_r:
                     self.render = not self.render
+                else:
+                    self.child.handle_event(event)
 
     def on_command(self, command):
         command, *args = command.split(" ")
@@ -78,13 +100,13 @@ class App(object):
             self.render_rate = int(args[0])
             self.render_interval = 1 / self.render_rate
         else:
-            #self.bw.on_command()
-            pass
+            self.child.on_command(command, args)
 
     def on_render(self):
         if (time.time() - self.last_render) >= self.render_interval:
             self.last_render = time.time()
-            self.bw.on_render(self.screen)
+            if self.child:
+                self.child.on_render(self.screen)
             self.console.on_render(self.screen)
             pygame.display.flip()
 
@@ -95,15 +117,11 @@ class App(object):
         self.rect = self.screen.get_rect()
         self.bg = pygame.Surface(self.screen.get_size())
         self.bg = self.bg.convert()
-        for child in self.children:
-            child.on_resize(size)
+        if self.child:
+            self.child.on_resize(size)
 
     def on_cleanup(self):
         pygame.quit()
-
-    @abstractmethod
-    def step(self):
-        pass
 
     def run(self):
         while self._running:
@@ -111,11 +129,5 @@ class App(object):
                 self.on_event(event)
             if self.render:
                 self.on_render()
-            if self.simulate:
-                self.eng.step()
-            if not self.render:
-                time.sleep(0.1)
-
-            if self.eng.is_finished():
-                self.eng.init()
+            self.child.step()
         self.on_cleanup()

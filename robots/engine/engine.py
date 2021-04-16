@@ -24,11 +24,21 @@ class RobotData(object):
         self.radar_rotation = 0
         self.turret_heat = 0
 
+        self.base_rotation_velocity = 0.0
+        self.turret_rotation_velocity = 0.0
+        self.radar_rotation_velocity = 0.0
+
+
     def flush_state(self):
         """Push read only values back to the Robot class"""
         self.robot.energy = self.energy
         self.robot.position = self.position
         self.robot.velocity = self.velocity
+
+        self.robot.base_rotation_velocity = self.base_rotation_velocity
+        self.robot.turret_rotation_velocity = self.turret_rotation_velocity
+        self.robot.radar_rotation_velocity = self.radar_rotation_velocity
+
         self.robot.bearing = self.base_rotation
         self.robot.turret_bearing = self.turret_rotation
         self.robot.radar_bearing = self.radar_rotation
@@ -63,7 +73,7 @@ def acceleration(r):
 
 
 class Engine(object):
-    def __init__(self, battle_settings, rate=20):
+    def __init__(self, battle_settings, rate=-1):
         self.robots = battle_settings.robots
         self.data = None
         self.bullets = set()
@@ -72,6 +82,9 @@ class Engine(object):
         self.last_sim = time.time()
         offset = ROBOT_RADIUS + 4
         self.bounds = (offset, offset), (self.size[0] - offset, self.size[1] - offset)
+
+    def set_rate(self, rate):
+        self.interval = 1/rate
 
     def init(self):
         self.data = [RobotData(robot) for robot in self.robots]
@@ -170,23 +183,24 @@ class Engine(object):
                     r.robot.on_hit_by_bullet(events)
 
         for i, r in enumerate(robots):
+            # Update robots actions
             base_rotation_rads = r.base_rotation * np.pi / 180
             direction = np.array([np.sin(base_rotation_rads), np.cos(base_rotation_rads)])
             r.velocity = np.clip(r.velocity + acceleration(r), -8.0, 8.0)
             r.position = r.position + (r.velocity * direction)
 
-            base_rotation_velocity = (10 - 0.75 * abs(r.velocity)) * r.robot.base_turning.value
-            r.base_rotation = (r.base_rotation + base_rotation_velocity) % 360
+            r.base_rotation_velocity = (10 - 0.75 * abs(r.velocity)) * r.robot.base_turning.value
+            r.base_rotation = (r.base_rotation + r.base_rotation_velocity) % 360
 
             # TODO add locked turret
             turret_rotation_rads = r.turret_rotation * np.pi / 180
-            turret_rotation_velocity = 20 * r.robot.turret_turning.value + base_rotation_velocity
-            r.turret_rotation = (r.turret_rotation + turret_rotation_velocity) % 360
+            r.urret_rotation_velocity = 20 * r.robot.turret_turning.value + r.base_rotation_velocity
+            r.turret_rotation = (r.turret_rotation + r.turret_rotation_velocity) % 360
             r.turret_heat = np.maximum(0.0, r.turret_heat - 0.1)
 
             # TODO add locked radar
-            radar_rotation_velocity = 5 * r.robot.radar_turning.value + turret_rotation_velocity
-            r.radar_rotation = (r.radar_rotation + radar_rotation_velocity) % 360
+            r.radar_rotation_velocity = 5 * r.robot.radar_turning.value + r.turret_rotation_velocity
+            r.radar_rotation = (r.radar_rotation + r.radar_rotation_velocity) % 360
 
             # Should fire and can fire
             if r.robot.should_fire and (r.turret_heat <= 0.0):

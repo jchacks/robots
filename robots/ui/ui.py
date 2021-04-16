@@ -150,8 +150,7 @@ class Console(object):
 
 
 class Canvas(object):
-    def __init__(self, *, screen, size=None, background_color=None):
-        self.screen = screen
+    def __init__(self, *, size=None, background_color=None):
         self.size = size
         self.ratio = self.size[0] / self.size[1]
         self.scale_size = None
@@ -183,10 +182,8 @@ class Canvas(object):
     def render(self):
         pass
 
-    def on_render(self, screen=None):
+    def on_render(self, screen):
         self.canvas.blit(self.bg, (0, 0))
-        if screen is None:
-            screen = self.screen
         self.render()
         if self.scale_size and self.scale_size != self.size:
             resized = pygame.transform.smoothscale(self.canvas, self.scale_size)
@@ -197,8 +194,8 @@ class Canvas(object):
 
 
 class BattleWindow(Canvas):
-    def __init__(self, screen, size):
-        Canvas.__init__(self, screen=screen, size=size, background_color="grey")
+    def __init__(self, size):
+        Canvas.__init__(self, size=size, background_color="grey")
         self.bullet_r = BulletRenderer()
         self.robot_r = RobotRenderer()
         self.battle = None

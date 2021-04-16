@@ -17,7 +17,12 @@ class Robot(ABC):
         self.turret_bearing = None
         self.radar_bearing = None
         self.velocity = 0.0
-        self.dead = False
+
+        self.base_turning_velocity = 0.0
+        self.turret_turning_velocity = 0.0
+        self.radar_turning_velocity = 0.0
+
+        self.alive = False
 
         # Set by user and read by engine.
         self.base_color = base_color
@@ -100,41 +105,15 @@ class Robot(ABC):
         pass
 
 
-# TODO old style to reimplement in engines
-class AdvancedRobot(Robot):
-    """
-    Subclasses Robot allowing for simultaneous movement of all parts (Base, Turret, Radar).
-    """
+class AdvancedRobot(Robot, ABC):
+    """Allows for queuing of commands."""
+    def turn(self, angle):
+        self.left_to_turn
+        self.bearing
 
-    def delta(self, tick):
-        if not self.dead:
-            if self.energy < 0.0:
-                self.dead = True
-            else:
-                # TODO check that the order of operations executes correctly i.e. velocity updated then self.rotation_speed
-                if not self.commands:
-                    self.do(tick)
-                    self.commands = True
-
-                self._speed = np.clip(self._speed + self.acceleration, -8.0, 8.0)
-                self.left_to_move = max(0, self.left_to_move - self._speed)
-
-                self.center = self.center + self.velocity
-                self.bearing = (self.bearing + self.get_bearing_delta()) % 360
-                self.left_to_turn = max(0, self.left_to_turn - self.rotation_speed)
-                self.base.delta()
-                self.gun.delta()
-                self.radar.delta()
-                if self.should_fire:
-                    self.fire(self.fire_power)
-
-        if self.moving is Move.NONE and self.turning is Turn.NONE:
-            self.commands = False
-
-    def reset(self):
-        super(AdvancedRobot, self).reset()
-        self.left_to_move = 0.0
-        self.left_to_turn = 0.0
+    def run(self):
+        self.left_to_move -= self.velocity
+        self.left_to_turn -= self.base_turning_velocity
 
     @property
     def moving(self):
@@ -167,3 +146,6 @@ class AdvancedRobot(Robot):
 
     def turn_left(self, angle: float):
         self.left_to_turn = angle
+
+    def turn_right(self, angle:float):
+        self.left_to_turn = -angle
