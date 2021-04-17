@@ -80,7 +80,7 @@ class Engine(object):
         self.bullets = set()
         self.size = settings.size
         self.interval = 1/rate
-        self.last_sim = time.time()
+        self.next_sim = 0
         offset = ROBOT_RADIUS + 4
         self.bounds = (offset, offset), (self.size[0] - offset, self.size[1] - offset)
 
@@ -101,9 +101,8 @@ class Engine(object):
 
     def run(self):
         while not self.is_finished():
-            time_since = time.time() - self.last_sim
-            if time_since > self.interval:
-                self.last_sim = time.time()
+            if time.time() > self.next_sim:
+                self.next_sim = time.time() + self.interval
                 self.step()
 
     def step(self):
