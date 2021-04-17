@@ -101,15 +101,14 @@ class Engine(object):
 
     def run(self):
         while not self.is_finished():
-            self.step()
+            time_since = time.time() - self.last_sim
+            if time_since > self.interval:
+                self.last_sim = time.time()
+                self.step()
 
     def step(self):
-        time_since = time.time() - self.last_sim
-        if time_since > self.interval:
-            self.last_sim = time.time()
-            self.update_robots()
-            self.flush_robot_state()
-            return self.is_finished()
+        self.update_robots()
+        self.flush_robot_state()
 
     def add_bullet(self, robot_data, position, velocity, power):
         self.bullets.add(Bullet(robot_data, position, velocity, power))

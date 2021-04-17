@@ -19,13 +19,15 @@ class Battle(object):
         self.bw = BattleWindow(settings.size)    
         self.bw.set_battle(self.eng)
         self.running = True
+        self.next_sim = 0
 
     def set_tick_rate(self, rate):
         self.eng.set_rate(rate)
 
     def step(self):
         if self.running:
-            if not self.eng.is_finished():
+            if not self.eng.is_finished() and time.time() >= self.next_sim:
+                self.next_sim = time.time() + self.interval
                 self.eng.step()
             # If finished do something
             elif self.eng.is_finished():
