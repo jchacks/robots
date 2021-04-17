@@ -1,9 +1,11 @@
+from robots.robot.events import BattleEndedEvent
 from robots.config import BattleSettings
-from robots.app import App
+from robots.app import App, Battle
 from robots.robot import Robot
 from robots.robot.utils import *
 import random
 
+app = App()
 
 class RandomRobot(Robot):
     def run(self):
@@ -15,5 +17,5 @@ class RandomRobot(Robot):
 
 
 battle_settings = BattleSettings([RandomRobot((255, 0, 0)), RandomRobot((0, 255, 0))])
-app = App(battle_settings)
+app.child = Battle(battle_settings)
 app.run()

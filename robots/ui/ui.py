@@ -9,8 +9,7 @@ __all__ = ["Overlay", "Console", "BattleWindow", "MultiBattleWindow"]
 
 
 class Overlay(object):
-    def __init__(self, size, battle):
-        self._robots = battle.robots
+    def __init__(self, size):
         w, h = size
         self.bar_dims = (100, 4)
         self.bar_dims = (
@@ -73,7 +72,7 @@ class Console(object):
         self.font_object = pygame.font.Font(self.font_family, self.font_size)
 
         self.surface = pygame.Surface(screen.get_size())
-        self.surface.convert()
+        self.surface.convert_alpha()
         self.surface.set_alpha(128)
 
         self.bg = pygame.Surface(screen.get_size())
@@ -196,18 +195,19 @@ class Canvas(object):
 class BattleWindow(Canvas):
     def __init__(self, size):
         Canvas.__init__(self, size=size, background_color="grey")
+        self.size = size
         self.bullet_r = BulletRenderer()
         self.robot_r = RobotRenderer()
         self.battle = None
-        self.overlay = None
+        self.overlay = Overlay(self.size)
 
     def set_battle(self, battle):
         self.battle = battle
+        self.overlay.set_battle(battle)
         for robot in battle.robots:
             self.robot_r.track(robot)
-        self.overlay = Overlay(self.screen.get_size(), self.battle)
         self.bullet_r.items = self.battle.bullets
-        self.on_resize(self.screen.get_size())
+        self.on_resize(self.size)
 
     def render(self):
         if self.battle:

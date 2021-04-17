@@ -12,20 +12,36 @@ os.environ["DISPLAY"] = ":0"
 
 
 class Battle(object):
-    def __init__(self, app, settings) -> None:
+    def __init__(self, settings) -> None:
         self.settings = settings
         self.eng = Engine(settings)
         self.eng.init()
-        self.bw = BattleWindow(app.screen, settings.size)    
+        self.bw = BattleWindow(settings.size)    
         self.bw.set_battle(self.eng)
+        self.running = True
+
+    def set_tick_rate(self, rate):
+        self.eng.set_rate(rate)
 
     def step(self):
-        self.eng.step()
-        if self.eng.is_finished():
-            self.eng.init()
-    
+        if self.running:
+            if not self.eng.is_finished():
+                self.eng.step()
+            # If finished do something
+            elif self.eng.is_finished():
+                if self.settings.num_rounds > 0:
+                    self.settings.num_rounds -= 1
+                    self.eng.init()
+                elif self.settings.num_rounds < 0:
+                    self.eng.init()
+                elif self.settings.num_rounds == 0:
+                    self.running = False
+
     def on_render(self, screen):
         self.bw.on_render(screen)
+
+    def on_resize(self, size):
+        self.bw.on_resize(size)
 
     def on_command(self, command, args):
         if command == "sim":
@@ -38,12 +54,11 @@ class Battle(object):
 class App(object):
     """Root rendering class"""
 
-    def __init__(self, settings, size=(600, 400), fps_target=30):
+    def __init__(self, size=(600, 400), fps_target=30):
         self._running = True
         self.screen = None
         self.rect = None
         self.size = size
-        self.settings = settings
 
         self.render = True
         self.simulate = True
@@ -60,7 +75,7 @@ class App(object):
         self.bg = self.bg.convert()
 
         self.child = None
-        self.console = con = Console(self.screen, "'Fira Code'", font_size=14)
+        self.console = con = Console(self.screen, "consolas", font_size=14)
 
         con.add_command("fps", self.set_frame_rate, help="Sets the FPS to given integer, -1 for unlimited")
         con.add_command("close", None, help="Closes the application")

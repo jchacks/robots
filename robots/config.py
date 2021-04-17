@@ -6,7 +6,7 @@ MAX_POWER = 3.0
 MIN_POWER = 0.1
 
 class BattleSettings(object):
-    def __init__(self, robots, size=(600, 400), rounds=-1) -> None:
+    def __init__(self, robots, size=(600, 400), rounds=200) -> None:
         self.robots = robots
         self.size = size
         self.num_rounds = rounds

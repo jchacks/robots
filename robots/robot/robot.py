@@ -1,6 +1,6 @@
 import logging
 import numpy as np
-from abc import ABC
+from abc import ABC, abstractmethod
 from robots.robot.events import *
 from robots.robot.utils import Move, Turn
 from typing import List
@@ -114,6 +114,12 @@ class AdvancedRobot(Robot, ABC):
     def run(self):
         self.left_to_move -= self.velocity
         self.left_to_turn -= self.base_turning_velocity
+        if self.left_to_turn == 0 and self.left_to_move == 0:
+            self.do()
+
+    @abstractmethod
+    def do(self):
+        pass
 
     @property
     def moving(self):
