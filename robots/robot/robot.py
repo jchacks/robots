@@ -39,7 +39,7 @@ class Robot(ABC):
     def __repr__(self):
         return f"{self.__class__.__name__}<"\
             f"Velocity: {self.velocity}, " \
-            f"Bearing:  {self.bearing/np.pi}pi rads, " \
+            f"Bearing:  {self.bearing} degs, " \
             f"Position: {self.position}, "\
             f"Energy:   {self.energy}>"
 
