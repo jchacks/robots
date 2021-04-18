@@ -37,6 +37,7 @@ class Battle(object):
                     self.eng.init()
                 elif self.settings.num_rounds == 0:
                     self.running = False
+        return self.running
 
     def on_render(self, screen):
         self.bw.on_render(screen)
@@ -61,6 +62,7 @@ class App(object):
         self.rect = None
         self.size = size
 
+        self.quit_on_finish = True
         self.render = True
         self.simulate = True
         self.last_render = 0
@@ -145,5 +147,8 @@ class App(object):
                 self.on_event(event)
             if self.render:
                 self.on_render()
-            self.child.step()
+            if self.child.running:
+                self.child.step()
+            elif self.quit_on_finish:
+                self._running = False
         self.on_cleanup()
