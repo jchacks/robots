@@ -12,12 +12,12 @@ os.environ["DISPLAY"] = ":0"
 
 
 class Battle(object):
-    def __init__(self, settings) -> None:
-        self.settings = settings
-        self.eng = Engine(settings)
+    def __init__(self, robots, size, num_rounds=-1) -> None:
+        self.eng = Engine(robots, size)
         self.eng.init()
-        self.bw = BattleWindow(settings.size)    
+        self.bw = BattleWindow(size)    
         self.bw.set_battle(self.eng)
+        self.num_rounds = num_rounds
         self.running = True
 
     def set_tick_rate(self, rate):
@@ -30,12 +30,12 @@ class Battle(object):
                 self.eng.step()
             # If finished do something
             elif self.eng.is_finished():
-                if self.settings.num_rounds > 0:
-                    self.settings.num_rounds -= 1
+                if self.num_rounds > 0:
+                    self.num_rounds -= 1
                     self.eng.init()
-                elif self.settings.num_rounds < 0:
+                elif self.num_rounds < 0:
                     self.eng.init()
-                elif self.settings.num_rounds == 0:
+                elif self.num_rounds == 0:
                     self.running = False
         return self.running
 
@@ -141,14 +141,17 @@ class App(object):
     def on_cleanup(self):
         pygame.quit()
 
+    def step(self):
+        for event in pygame.event.get():
+            self.on_event(event)
+        if self.render:
+            self.on_render()
+        if self.child.running:
+            self.child.step()
+        elif self.quit_on_finish:
+            self._running = False
+
     def run(self):
         while self._running:
-            for event in pygame.event.get():
-                self.on_event(event)
-            if self.render:
-                self.on_render()
-            if self.child.running:
-                self.child.step()
-            elif self.quit_on_finish:
-                self._running = False
+            self.step()
         self.on_cleanup()

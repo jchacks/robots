@@ -16,6 +16,6 @@ class RandomRobot(Robot):
             self.fire(random.randint(1, 3))
 
 
-battle_settings = BattleSettings([RandomRobot((255, 0, 0)), RandomRobot((0, 255, 0))])
-app.child = Battle(battle_settings)
+robots = [RandomRobot((255, 0, 0)), RandomRobot((0, 255, 0))]
+app.child = Battle(robots)
 app.run()

@@ -73,12 +73,17 @@ def acceleration(r):
 
 
 class Engine(object):
-    def __init__(self, settings, rate=-1):
-        self.settings = settings
-        self.robots = settings.robots
+    def __init__(self, robots, size, bullet_self_collisions=True, rate=-1):
+        self.robots = robots
+        self.size = size
+
+        # Collision settings
+        self.bullet_self_collisions = bullet_self_collisions
+        self.robot_collisions = True
+
+        # Stores
         self.data = None
         self.bullets = set()
-        self.size = settings.size
         self.interval = 1/rate
         self.next_sim = 0
         offset = ROBOT_RADIUS + 4
