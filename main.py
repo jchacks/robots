@@ -1,5 +1,3 @@
-from robots.robot.events import BattleEndedEvent
-from robots.config import BattleSettings
 from robots.app import App, Battle
 from robots.robot import Robot
 from robots.robot.utils import *
