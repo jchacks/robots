@@ -17,6 +17,7 @@ class Robot(ABC):
         self.turret_bearing = None
         self.radar_bearing = None
         self.velocity = 0.0
+        self.turret_heat = 0.0
 
         self.base_turning_velocity = 0.0
         self.turret_turning_velocity = 0.0
@@ -155,3 +156,6 @@ class AdvancedRobot(Robot, ABC):
 
     def turn_right(self, angle:float):
         self.left_to_turn = -angle
+
+    def __hash__(self):
+        return id(self)

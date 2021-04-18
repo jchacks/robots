@@ -34,6 +34,7 @@ class RobotData(object):
         self.robot.energy = self.energy
         self.robot.position = self.position
         self.robot.velocity = self.velocity
+        self.robot.turret_heat = self.turret_heat
 
         self.robot.base_rotation_velocity = self.base_rotation_velocity
         self.robot.turret_rotation_velocity = self.turret_rotation_velocity
@@ -198,7 +199,7 @@ class Engine(object):
 
             # TODO add locked turret
             turret_rotation_rads = r.turret_rotation * np.pi / 180
-            r.urret_rotation_velocity = 20 * r.robot.turret_turning.value + r.base_rotation_velocity
+            r.turret_rotation_velocity = 20 * r.robot.turret_turning.value + r.base_rotation_velocity
             r.turret_rotation = (r.turret_rotation + r.turret_rotation_velocity) % 360
             r.turret_heat = np.maximum(0.0, r.turret_heat - 0.1)
 
