@@ -1,9 +1,11 @@
+from robots.ui.ui import Console, BattleWindow
+from robots.engine.engine import Engine
+import pygame
 import os
 import time
-import pygame
 
-from robots.engine.engine import Engine
-from robots.ui.ui import Console, BattleWindow
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+
 
 os.environ["SDL_VIDEO_CENTERED"] = "0"
 os.environ["DISPLAY"] = ":0"
@@ -13,7 +15,7 @@ class Battle(object):
     def __init__(self, robots, size, num_rounds=-1) -> None:
         self.eng = Engine(robots, size)
         self.eng.init()
-        self.bw = BattleWindow(size)    
+        self.bw = BattleWindow(size)
         self.bw.set_battle(self.eng)
         self.num_rounds = num_rounds
         self.running = True
@@ -51,6 +53,7 @@ class Battle(object):
     def handle_event(self, event):
         print("Battle", event)
 
+
 class App(object):
     """Root rendering class"""
 
@@ -68,6 +71,7 @@ class App(object):
         self.render_interval = 1.0 / self.render_rate
 
         pygame.init()
+        pygame.display.set_caption(f"PyRobo - PID {os.getpid()}")
         pygame.font.init()
         self._running = True
         self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)

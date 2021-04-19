@@ -28,7 +28,6 @@ class RobotData(object):
         self.turret_rotation_velocity = 0.0
         self.radar_rotation_velocity = 0.0
 
-
     def flush_state(self):
         """Push read only values back to the Robot class"""
         self.robot.energy = self.energy
@@ -73,14 +72,26 @@ def acceleration(r):
         return 0.0
 
 
+def bullet_damage(bullet):
+    damage = 4 * bullet.power
+    if bullet.power > 1:
+        damage += 2 * (bullet.power - 1)
+    return damage
+
+
+def energy_on_hit(bullet):
+    return
+
+
 class Engine(object):
-    def __init__(self, robots, size, bullet_self_collisions=True, rate=-1):
+    def __init__(self, robots, size, bullet_collisions_enabled=True, gun_heat_enabled=True, rate=-1):
         self.robots = robots
         self.size = size
 
-        # Collision settings
-        self.bullet_self_collisions = bullet_self_collisions
-        self.robot_collisions = True
+        # Options
+        self.gun_heat_enabled = gun_heat_enabled
+        self.bullet_collisions_enabled = bullet_collisions_enabled
+        self.robot_collisions_enabled = True
 
         # Stores
         self.data = None
@@ -91,6 +102,7 @@ class Engine(object):
         self.bounds = (offset, offset), (self.size[0] - offset, self.size[1] - offset)
 
     def set_rate(self, rate):
+        print(f"Set rate to {rate} sims/s.")
         self.interval = 1/rate
 
     def init(self):
@@ -108,10 +120,10 @@ class Engine(object):
     def run(self):
         while not self.is_finished():
             if time.time() > self.next_sim:
-                self.next_sim = time.time() + self.interval
                 self.step()
 
     def step(self):
+        self.next_sim = time.time() + self.interval
         self.update_robots()
         self.flush_robot_state()
 
@@ -177,9 +189,7 @@ class Engine(object):
                 colls = test_circle_to_circles(r.position, ROBOT_RADIUS, cs, 3)
                 for bullet in bs[colls]:
                     # Damage calculation
-                    damage = 4 * bullet.power
-                    if bullet.power > 1:
-                        damage += 2 * (bullet.power - 1)
+                    damage = bullet_damage(bullet)
                     r.energy -= damage
                     bullet.robot_data.energy += 3 * bullet.power
                     self.bullets.remove(bullet)
@@ -208,7 +218,7 @@ class Engine(object):
             r.radar_rotation = (r.radar_rotation + r.radar_rotation_velocity) % 360
 
             # Should fire and can fire
-            if r.robot.should_fire and (r.turret_heat <= 0.0):
+            if r.robot.should_fire and ((r.turret_heat <= 0.0) or not self.gun_heat_enabled):
                 fire_power = r.robot.fire_power
                 r.turret_heat = 1 + fire_power / 5
                 r.energy = np.maximum(0.0, r.energy - fire_power)
