@@ -36,6 +36,9 @@ class Robot(ABC):
         self.base_turning = Turn.NONE
         self.turret_turning = Turn.NONE
         self.radar_turning = Turn.NONE
+    
+    def init(self):
+        pass
 
     def __repr__(self):
         return f"{self.__class__.__name__}<"\

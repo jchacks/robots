@@ -55,6 +55,8 @@ class Bullet:
         return id(self)
 
 
+# Functions defining rules
+
 def acceleration(r):
     if r.velocity > 0.0:
         if r.robot.moving == Move.FORWARD:
@@ -80,8 +82,14 @@ def bullet_damage(bullet):
 
 
 def energy_on_hit(bullet):
-    return
+    return 3 * bullet.power
 
+
+def initial_position(eng):
+    return np.random.normal(np.array(eng.size)//2, 80)
+
+
+# Main engine class
 
 class Engine(object):
     def __init__(self, robots, size, bullet_collisions_enabled=True, gun_heat_enabled=True, rate=-1):
@@ -106,10 +114,12 @@ class Engine(object):
         self.interval = 1/rate
 
     def init(self):
+        for robot in self.robots:
+            robot.init()
         self.data = [RobotData(robot) for robot in self.robots]
         self.bullets.clear()
         for r in self.data:
-            r.position = np.random.random(2) * self.size
+            r.position = initial_position(self)  # np.random.random(2) * self.size
             r.base_rotation = random.random() * 360
             r.turret_rotation = r.base_rotation
             r.radar_rotation = r.base_rotation
@@ -191,7 +201,7 @@ class Engine(object):
                     # Damage calculation
                     damage = bullet_damage(bullet)
                     r.energy -= damage
-                    bullet.robot_data.energy += 3 * bullet.power
+                    bullet.robot_data.energy += energy_on_hit(bullet)
                     self.bullets.remove(bullet)
                     events.append(HitByBulletEvent(damage))
                 if events:
