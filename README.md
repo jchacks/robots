@@ -4,10 +4,12 @@ Basic clone of Robocode.
 
 __This repo just went through a large rewrite and is currently missing some of the features described below.  It is planned to add them back in.__
 
-To summarise the repo now relies on an `Engine` class that is not _easily_ accessible by user code.  The objects that the engine interacts with are different from those that the 'user' will use to write their AI.
-`Engine -> RobotData`
-`User -> Robot`
-Uni-directional update happens from `RobotData -> Robot`
+To summarise the repo now relies on an `Engine` class that is not _easily_ accessible by user code.  The objects that the engine interacts with are different from those that the 'User' will use to write their AI.
+New concepts:
+* `Engine -> RobotData`
+* `User -> Robot`
+
+The engine reads the users intent from attributes on `Robot` then calculates the environments updates.  Once finished an update happens from `RobotData -> Robot`.  This should make it more difficult for a User to set the position of a Robot, effectively teleporting around the environment.
 
 ***
 
