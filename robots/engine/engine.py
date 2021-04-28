@@ -116,6 +116,7 @@ class Engine(object):
         self.bounds = None
 
     def set_rate(self, rate):
+        rate = float(rate)
         print(f"Set rate to {rate} sims/s.")
         self.interval = 1/rate
 
@@ -226,7 +227,7 @@ class Engine(object):
             r.velocity = np.clip(r.velocity + acceleration(r), -8.0, 8.0)
             r.position = r.position + (r.velocity * direction)
 
-            r.base_rotation_velocity = (10 - 0.75 * abs(r.velocity)) * r.robot.base_turning.value
+            r.base_rotation_velocity = max(0, (10 - 0.75 * abs(r.velocity))) * r.robot.base_turning.value
             r.base_rotation = (r.base_rotation + r.base_rotation_velocity) % 360
 
             # TODO add locked turret

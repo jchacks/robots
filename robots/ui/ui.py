@@ -129,7 +129,7 @@ class Console(object):
                 command, self.input = self.input, ""
                 if len(command) > 0:
                     self.put_text(command)
-                    self.handle_command(command.split(" "))
+                    self.handle_command(command.split())
                 self.cursor_pos = 0
                 return command
             elif event.key == pl.K_RIGHT:
