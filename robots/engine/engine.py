@@ -15,7 +15,7 @@ class RobotData(object):
         self.robot = robot
 
         # Physical quantities
-        self.energy = 0
+        self.energy = 0.0
         self.alive = False
         self.velocity = 0.0
         self.position = None
@@ -92,32 +92,43 @@ def initial_position(eng):
 # Main engine class
 
 class Engine(object):
-    def __init__(self, robots, size, bullet_collisions_enabled=True, gun_heat_enabled=True, rate=-1):
+    def __init__(self, robots, size,
+                 bullet_collisions_enabled=True,
+                 gun_heat_enabled=True,
+                 energy_decay_enabled=False,
+                 rate=-1):
         self.robots = robots
         self.size = size
 
         # Options
-        self.gun_heat_enabled = gun_heat_enabled
-        self.bullet_collisions_enabled = bullet_collisions_enabled
-        self.robot_collisions_enabled = True
+        self.GUN_HEAT_ENABLED = gun_heat_enabled
+        self.BULLET_COLLISIONS_ENABLED = bullet_collisions_enabled
+        self.ROBOT_COLLISIONS_ENABLED = True
+        self.ENERGY_DECAY_ENABLED = energy_decay_enabled
+        self.ENERGY_DECAY_AMOUNT = 0.1
 
         # Stores
+        self.dirty = False
         self.data = None
         self.bullets = set()
         self.interval = 1/rate
         self.next_sim = 0
-        offset = ROBOT_RADIUS + 4
-        self.bounds = (offset, offset), (self.size[0] - offset, self.size[1] - offset)
+        self.bounds = None
 
     def set_rate(self, rate):
         print(f"Set rate to {rate} sims/s.")
         self.interval = 1/rate
 
     def init(self):
+        offset = ROBOT_RADIUS + 4
+        self.bounds = (offset, offset), (self.size[0] - offset, self.size[1] - offset)
+
         for robot in self.robots:
-            robot.init()
+            robot.init(size=self.size)
+        self.dirty = True
         self.data = [RobotData(robot) for robot in self.robots]
         self.bullets.clear()
+        self.next_sim = 0
         for r in self.data:
             r.position = initial_position(self)  # np.random.random(2) * self.size
             r.base_rotation = random.random() * 360
@@ -136,6 +147,7 @@ class Engine(object):
         self.next_sim = time.time() + self.interval
         self.update_robots()
         self.flush_robot_state()
+        self.dirt = True
 
     def add_bullet(self, robot_data, position, velocity, power):
         self.bullets.add(Bullet(robot_data, position, velocity, power))
@@ -177,9 +189,9 @@ class Engine(object):
                 r2.robot.on_hit_robot(HitRobotEvent(r1.robot))
 
         # COLLIDE SCANS HERE
-
         bullets = list(self.bullets)
-        if len(bullets) > 1:
+        if len(bullets) > 1 and self.BULLET_COLLISIONS_ENABLED:
+            # Bullet self collisions
             cs = np.array([b.position for b in bullets])
             where = np.argwhere(np.any(test_circles(cs, np.array([3])), 0))
             to_remove = [bullets[idx] for idx in where.flatten().tolist()]
@@ -228,7 +240,7 @@ class Engine(object):
             r.radar_rotation = (r.radar_rotation + r.radar_rotation_velocity) % 360
 
             # Should fire and can fire
-            if r.robot.should_fire and ((r.turret_heat <= 0.0) or not self.gun_heat_enabled):
+            if r.robot.should_fire and ((r.turret_heat <= 0.0) or not self.GUN_HEAT_ENABLED):
                 fire_power = r.robot.fire_power
                 r.turret_heat = 1 + fire_power / 5
                 r.energy = np.maximum(0.0, r.energy - fire_power)
@@ -239,6 +251,9 @@ class Engine(object):
                                 bullet_position,
                                 turret_direction * (20 - (3 * fire_power)),
                                 max(min(MAX_POWER, fire_power), MIN_POWER))
+
+            if self.ENERGY_DECAY_ENABLED:
+                r.energy = r.energy - self.ENERGY_DECAY_AMOUNT
 
         for r in self.data:
             r.turret_heat = max(r.turret_heat - 0.1, 0)

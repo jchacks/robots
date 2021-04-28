@@ -37,7 +37,7 @@ class Robot(ABC):
         self.turret_turning = Turn.NONE
         self.radar_turning = Turn.NONE
     
-    def init(self):
+    def init(self, *args, **kwargs):
         pass
 
     def __repr__(self):

@@ -8,6 +8,16 @@ from robots.ui.renderers import BulletRenderer, RobotRenderer
 __all__ = ["Overlay", "Console", "BattleWindow", "MultiBattleWindow"]
 
 
+def draw_fillbar(bar_dims, pctg, bg_col=(255, 0, 0), fill_col=(0, 255, 0)):
+    backgr = pygame.Surface(bar_dims)
+    backgr.fill(bg_col)
+    if pctg > 0.0:
+        fill = pygame.Surface((pctg * bar_dims[0], bar_dims[1]))
+        fill.fill(fill_col)
+        backgr.blit(fill, (0, 0))
+    return backgr
+
+
 class Overlay(object):
     def __init__(self, size):
         w, h = size
@@ -34,6 +44,15 @@ class Overlay(object):
         for robot in self._robots:
             offset = self.draw(screen, robot, offset)
 
+    def draw_fillbar(self, bar_dims, pctg):
+        backgr = pygame.Surface(bar_dims)
+        backgr.fill((255, 0, 0))
+        if pctg > 0.0:
+            energy = pygame.Surface((pctg * bar_dims[0], 4))
+            energy.fill((0, 255, 0))
+            backgr.blit(energy, (0, 0))
+        return backgr
+
     def draw(self, screen, robot, offset):
         color = robot.base_color if robot.base_color is not None else "white"
         color = pygame.Color(color)
@@ -42,16 +61,15 @@ class Overlay(object):
         textpos = text.get_rect(left=0, top=offset)
         screen.blit(text, textpos)
 
-        backgr = pygame.Surface(self.bar_dims)
-        backgr.fill((255, 0, 0))
-        if robot.energy > 0:
-            energy = pygame.Surface((robot.energy * self.bar_dims[0] / 100, 4))
-            energy.fill((0, 255, 0))
-            backgr.blit(energy, (0, 0))
+        bar = draw_fillbar(self.bar_dims, robot.energy/100)
+        barpos = bar.get_rect(left=0, top=textpos.bottom + 2)
+        screen.blit(bar, barpos)
 
-        backgrpos = backgr.get_rect(left=0, top=textpos.bottom + 2)
-        screen.blit(backgr, backgrpos)
-        return backgrpos.bottom + 5
+        bar = draw_fillbar(self.bar_dims, robot.turret_heat/(1+3/5), (0, 0, 255), (255, 0, 0))
+        barpos = bar.get_rect(left=0, top=barpos.bottom + 1)
+        screen.blit(bar, barpos)
+
+        return barpos.bottom + 5
 
 
 class Console(object):
@@ -103,10 +121,10 @@ class Console(object):
                 self.active = False
             # self.cursor_visible = True  # So the user sees where he writes
             elif event.key == pl.K_BACKSPACE:
-                self.input = self.input[: max(self.cursor_pos - 1, 0)] + self.input[self.cursor_pos :]
+                self.input = self.input[: max(self.cursor_pos - 1, 0)] + self.input[self.cursor_pos:]
                 self.cursor_pos = max(self.cursor_pos - 1, 0)
             elif event.key == pl.K_DELETE:
-                self.input = self.input[: self.cursor_pos] + self.input[self.cursor_pos + 1 :]
+                self.input = self.input[: self.cursor_pos] + self.input[self.cursor_pos + 1:]
             elif event.key == pl.K_RETURN:
                 command, self.input = self.input, ""
                 if len(command) > 0:
@@ -127,7 +145,7 @@ class Console(object):
                 self.cursor_pos = 0
 
             else:
-                self.input = self.input[: self.cursor_pos] + event.unicode + self.input[self.cursor_pos :]
+                self.input = self.input[: self.cursor_pos] + event.unicode + self.input[self.cursor_pos:]
                 self.cursor_pos += len(event.unicode)
 
     def handle_command(self, command):
