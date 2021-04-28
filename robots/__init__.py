@@ -1,4 +1,4 @@
-from .robot.robot import AdvancedRobot, SimpleRobot, SignalRobot
+from .robot.robot import Robot
 from .app import App
 
 __all__ = ['AdvancedRobot', 'SimpleRobot', 'SignalRobot']

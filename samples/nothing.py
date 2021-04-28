@@ -1,5 +1,3 @@
-from pygame.draw import circle
-
 from robots import AdvancedRobot
 
 

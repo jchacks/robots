@@ -1,9 +1,9 @@
 from pygame.draw import circle
 
-from robots import AdvancedRobot
+from robots import Robot
 
 
-class TestRobot(AdvancedRobot):
+class TestRobot(Robot):
     def reset(self):
         super(TestRobot, self).reset()
         self.radar.locked = True
