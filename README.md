@@ -1,6 +1,16 @@
 # Robocode Python Clone
 
-Basic clone of Robocode focused on simulation speed when rendering is turned off.
+Basic clone of Robocode.
+
+__This repo just went through a large rewrite and is currently missing some of the features described below.  It is planned to add them back in.__
+
+To summarise the repo now relies on an `Engine` class that is not _easily_ accessible by user code.  The objects that the engine interacts with are different from those that the 'user' will use to write their AI.
+`Engine -> RobotData`
+`User -> Robot`
+Uni-directional update happens from `RobotData -> Robot`
+
+***
+
 
 ![Battle Image](/docs/images/battle.png)
 
@@ -76,6 +86,6 @@ app.on_execute()
     * Create robot data containers similar to `Bullets`
     * Refer Robot classes back to these data containers
     * Gracefully handle alive/dead, adding removing 
-* Scale the `Overlay` independently from the battle scaling
+* ~~Scale the `Overlay` independently from the battle scaling~~
 * Implement auto slow down on stacked commands e.g. calculate quickest path to angle without breaking max acceleration by turning remainder of angle in 1 tick.  max_accel = 4 but remainder = 2 in 1 tick, velocity should reach 0 at same time as stopping.
-* Represent the user Robot space as dict of configs passed to the engine.
+* ~~Represent the user Robot space as dict of configs passed to the engine.~~
