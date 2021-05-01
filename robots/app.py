@@ -1,4 +1,4 @@
-from robots.ui.ui import Console, BattleWindow
+from robots.ui.components import Console, BattleWindow
 from robots.engine.engine import Engine
 import pygame
 import os

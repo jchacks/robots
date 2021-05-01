@@ -4,6 +4,7 @@ import pygame.locals as pl
 from abc import abstractmethod
 
 from robots.ui.renderers import BulletRenderer, RobotRenderer
+from robots.ui.utils import Colors
 
 __all__ = ["Overlay", "Console", "BattleWindow", "MultiBattleWindow"]
 
@@ -30,6 +31,8 @@ class Overlay(object):
             self.font_size = max(12, min(36, int(h * 36 / 500)))
             self.font = pygame.font.Font(None, self.font_size)
 
+        self.bars = [('energy_pctg', Colors.G, Colors.R), ('heat_pctg', Colors.R, Colors.B)]
+
     def set_battle(self, battle):
         self._robots = battle.robots
 
@@ -44,32 +47,23 @@ class Overlay(object):
         for robot in self._robots:
             offset = self.draw(screen, robot, offset)
 
-    def draw_fillbar(self, bar_dims, pctg):
-        backgr = pygame.Surface(bar_dims)
-        backgr.fill((255, 0, 0))
-        if pctg > 0.0:
-            energy = pygame.Surface((pctg * bar_dims[0], 4))
-            energy.fill((0, 255, 0))
-            backgr.blit(energy, (0, 0))
-        return backgr
-
     def draw(self, screen, robot, offset):
+        # Draw name
         color = robot.base_color if robot.base_color is not None else "white"
         color = pygame.Color(color)
 
-        text = self.font.render(str(robot.__class__.__name__), 1, color)
-        textpos = text.get_rect(left=0, top=offset)
-        screen.blit(text, textpos)
+        element = self.font.render(str(robot.__class__.__name__), 1, color)
+        position = element.get_rect(left=0, top=offset)
+        screen.blit(element, position)
 
-        bar = draw_fillbar(self.bar_dims, robot.energy/100)
-        barpos = bar.get_rect(left=0, top=textpos.bottom + 2)
-        screen.blit(bar, barpos)
+        # Draw bars
+        for attr, fill_color, bg_color in self.bars:
+            offset = position.bottom + 2
+            element = draw_fillbar(self.bar_dims, getattr(robot, attr), bg_color, fill_color)
+            position = element.get_rect(left=0, top=offset)
+            screen.blit(element, position)
 
-        bar = draw_fillbar(self.bar_dims, robot.turret_heat/(1+3/5), (0, 0, 255), (255, 0, 0))
-        barpos = bar.get_rect(left=0, top=barpos.bottom + 1)
-        screen.blit(bar, barpos)
-
-        return barpos.bottom + 5
+        return position.bottom + 5
 
 
 class Console(object):

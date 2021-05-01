@@ -123,11 +123,13 @@ class Engine(object):
     def init(self):
         offset = ROBOT_RADIUS + 4
         self.bounds = (offset, offset), (self.size[0] - offset, self.size[1] - offset)
+        self.data = [RobotData(robot) for robot in self.robots]
 
         for robot in self.robots:
-            robot.init(size=self.size)
+            opponents = [r.get_state for r in self.robots if r is not robot]
+            robot.init(size=self.size, opponents=opponents)
+
         self.dirty = True
-        self.data = [RobotData(robot) for robot in self.robots]
         self.bullets.clear()
         self.next_sim = 0
         for r in self.data:
@@ -148,7 +150,7 @@ class Engine(object):
         self.next_sim = time.time() + self.interval
         self.update_robots()
         self.flush_robot_state()
-        self.dirt = True
+        self.dirty = True
 
     def add_bullet(self, robot_data, position, velocity, power):
         self.bullets.add(Bullet(robot_data, position, velocity, power))

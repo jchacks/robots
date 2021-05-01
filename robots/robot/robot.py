@@ -39,6 +39,14 @@ class Robot(ABC):
     
     def init(self, *args, **kwargs):
         pass
+    
+    @property
+    def heat_pctg(self):
+        return self.turret_heat/(1+3/5)
+
+    @property
+    def energy_pctg(self):
+        return self.energy/100
 
     def __repr__(self):
         return f"{self.__class__.__name__}<"\
