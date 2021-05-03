@@ -12,9 +12,9 @@ os.environ["DISPLAY"] = ":0"
 
 
 class Battle(object):
-    def __init__(self, robots, size, num_rounds=-1) -> None:
-        self.eng = Engine(robots, size)
-        self.eng.init()
+    # This class isnt needed merge it into BattleWindow or into App or subclass App
+    def __init__(self, robots, size, num_rounds=-1, eng=None) -> None:
+        self.eng = Engine(robots, size) if not eng else eng
         self.bw = BattleWindow(size)
         self.bw.set_battle(self.eng)
         self.num_rounds = num_rounds

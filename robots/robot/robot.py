@@ -10,6 +10,8 @@ logger = logging.getLogger(__name__)
 
 class Robot(ABC):
     def __init__(self, base_color, turret_color=None, radar_color=None) -> None:
+        # Other args useful for storing custom information
+
         # Attributes are set by engine.
         self.energy = 100
         self.position = None
@@ -36,10 +38,29 @@ class Robot(ABC):
         self.base_turning = Turn.NONE
         self.turret_turning = Turn.NONE
         self.radar_turning = Turn.NONE
-    
+
     def init(self, *args, **kwargs):
         pass
+
+    def get_visible_attrs(self):
+        """Used for information available to
+        other robots on scan for instance"""
+        return {
+            "energy": self.energy,
+            "position": self.position.copy(),
+            "direction": self.direction,
+            "turret_direction": self.turret_direction,
+            "velocity": self.velocity
+        }
+
+    @property
+    def direction(self):
+        return np.sin(self.bearing * np.pi / 180), np.cos(self.bearing * np.pi / 180)
     
+    @property
+    def turret_direction(self):
+        return np.sin(self.turret_bearing * np.pi / 180), np.cos(self.turret_bearing * np.pi / 180)
+
     @property
     def heat_pctg(self):
         return self.turret_heat/(1+3/5)
@@ -119,6 +140,7 @@ class Robot(ABC):
 
 class AdvancedRobot(Robot, ABC):
     """Allows for queuing of commands."""
+
     def turn(self, angle):
         self.left_to_turn
         self.bearing
@@ -165,7 +187,7 @@ class AdvancedRobot(Robot, ABC):
     def turn_left(self, angle: float):
         self.left_to_turn = angle
 
-    def turn_right(self, angle:float):
+    def turn_right(self, angle: float):
         self.left_to_turn = -angle
 
     def __hash__(self):

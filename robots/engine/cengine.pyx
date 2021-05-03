@@ -1,4 +1,7 @@
 
+import numpy as np
+cimport numpy as np
+
 from dataclasses import dataclass
 from robots.robot.utils import *
 import random
@@ -10,7 +13,14 @@ from robots.robot.events import *
 import time
 
 
-class RobotData(object):
+cdef class RobotData:
+    cdef float energy, turret_heat
+    cdef float x, y, velocity
+    cdef float base_rotation, turret_rotation, radar_rotation
+    cdef float base_rotation_velocity
+    cdef float turret_rotation_velocity
+    cdef float radar_rotation_velocity
+
     def __init__(self, robot):
         self.robot = robot
 
@@ -18,8 +28,9 @@ class RobotData(object):
         self.energy = 0.0
         self.alive = False
         self.velocity = 0.0
-        self.position = None
-        self.base_rotation = None
+        self.x = 0.0
+        self.y = 0.0
+        self.base_rotation = 0
         self.turret_rotation = 0
         self.radar_rotation = 0
         self.turret_heat = 0
@@ -28,11 +39,13 @@ class RobotData(object):
         self.turret_rotation_velocity = 0.0
         self.radar_rotation_velocity = 0.0
 
+
+
     def flush_state(self):
         """Push read only values back to the Robot class"""
         self.robot.alive = self.alive
         self.robot.energy = self.energy
-        self.robot.position = self.position
+        self.robot.position = np.array([self.x, self.y])
         self.robot.velocity = self.velocity
         self.robot.turret_heat = self.turret_heat
 
@@ -43,6 +56,7 @@ class RobotData(object):
         self.robot.bearing = self.base_rotation
         self.robot.turret_bearing = self.turret_rotation
         self.robot.radar_bearing = self.radar_rotation
+
 
 
 @dataclass
@@ -163,7 +177,7 @@ class Engine(object):
         for data in self.data:
             data.flush_state()
 
-    def update_robots(self):
+    cdef def update_robots(self):
         robots = np.array([r for r in self.data if r.alive])
         cs = np.stack([r.position for r in self.data if r.alive])
         rs = np.ones(len(cs)) * ROBOT_RADIUS
