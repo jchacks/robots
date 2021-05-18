@@ -58,18 +58,18 @@ class Bullet:
 
 # Functions defining rules
 
-def acceleration(r):
-    if r.velocity > 0.0:
-        if r.robot.moving == Move.FORWARD:
+def acceleration(moving: Move, velocity: float):
+    if velocity > 0.0:
+        if moving == Move.FORWARD:
             return 1.0
         else:
             return -2.0
-    elif r.velocity < 0.0:
-        if r.robot.moving == Move.BACK:
+    elif velocity < 0.0:
+        if moving == Move.BACK:
             return -1.0
         else:
             return 2.0
-    elif r.robot.moving is not Move.NONE:
+    elif moving is not Move.NONE:
         return 1.0
     else:
         return 0.0
@@ -84,10 +84,6 @@ def bullet_damage(bullet):
 
 def energy_on_hit(bullet):
     return 3 * bullet.power
-
-
-def initial_position(eng):
-    return np.random.normal(np.array(eng.size)//2, 80)
 
 
 # Main engine class
@@ -106,10 +102,10 @@ class Engine(object):
         self.BULLET_COLLISIONS_ENABLED = bullet_collisions_enabled
         self.ROBOT_COLLISIONS_ENABLED = True
         self.ENERGY_DECAY_ENABLED = energy_decay_enabled
-        self.ENERGY_DECAY_AMOUNT = 0.1
+        self.ENERGY_DECAY_AMOUNT = 0.0
 
         # Stores
-        self.dirty = False # Used for tracking if render should be made
+        self.dirty = False  # Used for tracking if render should be made
         self.data = None
         self.bullets = set()
         self.interval = 1/rate
@@ -134,13 +130,24 @@ class Engine(object):
         self.bullets.clear()
         self.next_sim = 0
         for r in self.data:
-            r.position = initial_position(self)  # np.random.random(2) * self.size
-            r.base_rotation = random.random() * 360
-            r.turret_rotation = r.base_rotation
-            r.radar_rotation = r.base_rotation
-            r.energy = 100
+            self.init_robotdata(r)
             r.alive = True
         self.flush_robot_state()
+
+    def init_robotdata(self, robot):
+        """Robot initialisation hook. 
+        Reimplement but be sure to set:
+            * position
+            * base_rotation
+            * turret_rotation
+            * radar_rotation
+            * energy    
+        """
+        robot.position = np.random.normal(np.array(self.size)//2, 80)
+        robot.base_rotation = random.random() * 360
+        robot.turret_rotation = random.random() * 360
+        robot.radar_rotation = random.random() * 360
+        robot.energy = 100
 
     def run(self):
         while not self.is_finished():
@@ -165,6 +172,7 @@ class Engine(object):
 
     def update_robots(self):
         robots = np.array([r for r in self.data if r.alive])
+        num_robots = len(robots)
         cs = np.stack([r.position for r in self.data if r.alive])
         rs = np.ones(len(cs)) * ROBOT_RADIUS
         wall_colisions = ~np.all(((20, 20) <= cs) & (cs <= np.array(self.size) - (20, 20)), 1)
@@ -227,7 +235,7 @@ class Engine(object):
             # Update robots actions
             base_rotation_rads = r.base_rotation * np.pi / 180
             direction = np.array([np.sin(base_rotation_rads), np.cos(base_rotation_rads)])
-            r.velocity = np.clip(r.velocity + acceleration(r), -8.0, 8.0)
+            r.velocity = np.clip(r.velocity + acceleration(r.robot.moving, r.velocity), -8.0, 8.0)
             r.position = r.position + (r.velocity * direction)
 
             r.base_rotation_velocity = max(0, (10 - 0.75 * abs(r.velocity))) * r.robot.base_turning.value

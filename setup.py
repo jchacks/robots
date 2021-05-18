@@ -1,8 +1,6 @@
 from os import path
 
 from setuptools import setup
-from Cython.Build import cythonize
-import numpy as np
 
 this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
@@ -25,6 +23,4 @@ setup(
     ],
     include_package_data=True,
     zip_safe=False,
-    ext_modules=cythonize('robots/engine/cengine.pyx', language_level="3"),
-    include_dirs=[np.get_include()]
 )
