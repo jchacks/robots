@@ -9,43 +9,65 @@ from robots.config import *
 from robots.robot.events import *
 import time
 
+import numpy as np
+import numba as nb
+from numba.experimental import jitclass
+
+
+@jitclass([
+    ('energy', nb.float32),
+    ('alive', nb.boolean),
+    ('velocity', nb.float32),
+    ('position', nb.float32[:]),
+    ('base_rotation', nb.float32),
+    ('turret_rotation', nb.float32),
+    ('radar_rotation', nb.float32),
+    ('turret_heat', nb.float32),
+    ('base_rotation_velocity', nb.float32),
+    ('turret_rotation_velocity', nb.float32),
+    ('radar_rotation_velocity', nb.float32)
+])
+class RobotStruct(object):
+    def __init__(self):
+        self.energy = 0.0
+        self.alive = False
+        self.velocity = 0.0
+        self.position = np.zeros(2)
+        self.base_rotation = 0.0
+        self.turret_rotation = 0.0
+        self.radar_rotation = 0.0
+        self.turret_heat = 0.0
+
+        self.base_rotation_velocity = 0.0
+        self.turret_rotation_velocity = 0.0
+        self.radar_rotation_velocity = 0.0
+
 
 class RobotData(object):
     def __init__(self, robot):
         self.robot = robot
 
         # Physical quantities
-        self.energy = 0.0
-        self.alive = False
-        self.velocity = 0.0
-        self.position = None
-        self.base_rotation = None
-        self.turret_rotation = 0
-        self.radar_rotation = 0
-        self.turret_heat = 0
-
-        self.base_rotation_velocity = 0.0
-        self.turret_rotation_velocity = 0.0
-        self.radar_rotation_velocity = 0.0
+        self.struct = RobotStruct()
 
     def flush_state(self):
         """Push read only values back to the Robot class"""
-        self.robot.alive = self.alive
-        self.robot.energy = self.energy
-        self.robot.position = self.position
-        self.robot.velocity = self.velocity
-        self.robot.turret_heat = self.turret_heat
+        self.robot.alive = self.struct.alive
+        self.robot.energy = self.struct.energy
+        self.robot.position = self.struct.position
+        self.robot.velocity = self.struct.velocity
+        self.robot.turret_heat = self.struct.turret_heat
 
-        self.robot.base_rotation_velocity = self.base_rotation_velocity
-        self.robot.turret_rotation_velocity = self.turret_rotation_velocity
-        self.robot.radar_rotation_velocity = self.radar_rotation_velocity
+        self.robot.base_rotation_velocity = self.struct.base_rotation_velocity
+        self.robot.turret_rotation_velocity = self.struct.turret_rotation_velocity
+        self.robot.radar_rotation_velocity = self.struct.radar_rotation_velocity
 
-        self.robot.bearing = self.base_rotation
-        self.robot.turret_bearing = self.turret_rotation
-        self.robot.radar_bearing = self.radar_rotation
+        self.robot.bearing = self.struct.base_rotation
+        self.robot.turret_bearing = self.struct.turret_rotation
+        self.robot.radar_bearing = self.struct.radar_rotation
 
 
-@dataclass
+@ dataclass
 class Bullet:
     robot_data: RobotData
     position: np.ndarray
@@ -57,19 +79,18 @@ class Bullet:
 
 
 # Functions defining rules
-
-def acceleration(moving: Move, velocity: float):
+def acceleration(moving: float, velocity: float):
     if velocity > 0.0:
-        if moving == Move.FORWARD:
+        if moving > 0:
             return 1.0
         else:
             return -2.0
     elif velocity < 0.0:
-        if moving == Move.BACK:
+        if moving < 0:
             return -1.0
         else:
             return 2.0
-    elif moving is not Move.NONE:
+    elif abs(moving) > 0:
         return 1.0
     else:
         return 0.0
@@ -135,13 +156,13 @@ class Engine(object):
         self.flush_robot_state()
 
     def init_robotdata(self, robot):
-        """Robot initialisation hook. 
+        """Robot initialisation hook.
         Reimplement but be sure to set:
             * position
             * base_rotation
             * turret_rotation
             * radar_rotation
-            * energy    
+            * energy
         """
         robot.position = np.random.normal(np.array(self.size)//2, 80)
         robot.base_rotation = random.random() * 360
@@ -239,7 +260,7 @@ class Engine(object):
             # Update robots actions
             base_rotation_rads = r.base_rotation * np.pi / 180
             direction = np.array([np.sin(base_rotation_rads), np.cos(base_rotation_rads)])
-            r.velocity = np.clip(r.velocity + acceleration(r.robot.moving, r.velocity), -8.0, 8.0)
+            r.velocity = np.clip(r.velocity + acceleration(r.robot.moving.value, r.velocity), -8.0, 8.0)
             r.position = r.position + (r.velocity * direction)
 
             r.base_rotation_velocity = max(0, (10 - 0.75 * abs(r.velocity))) * r.robot.base_turning.value
