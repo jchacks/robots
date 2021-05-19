@@ -170,16 +170,20 @@ class Engine(object):
         for data in self.data:
             data.flush_state()
 
+    def handle_wall_collisions(self, collided_mask):
+        robots = np.array([r for r in self.data if r.alive])
+        for r in robots[collided_mask]:
+            r.energy -= max(abs(r.velocity) * 0.5 - 1, 0)
+            r.velocity = 0.0
+            r.position = np.clip(r.position + r.velocity, *self.bounds)
+
     def update_robots(self):
         robots = np.array([r for r in self.data if r.alive])
         num_robots = len(robots)
         cs = np.stack([r.position for r in self.data if r.alive])
         rs = np.ones(len(cs)) * ROBOT_RADIUS
-        wall_colisions = ~np.all(((20, 20) <= cs) & (cs <= np.array(self.size) - (20, 20)), 1)
-        for r in robots[wall_colisions]:
-            r.energy -= max(abs(r.velocity) * 0.5 - 1, 0)
-            r.velocity = 0.0
-            r.position = np.clip(r.position + r.velocity, *self.bounds)
+        wall_collisions = ~np.all(((20, 20) <= cs) & (cs <= np.array(self.size) - (20, 20)), 1)
+        self.handle_wall_collisions(wall_collisions)
 
         # Robot to Robot collisions
         for i, r1 in enumerate(robots):
