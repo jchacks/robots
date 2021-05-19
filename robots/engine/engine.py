@@ -102,7 +102,7 @@ class Engine(object):
         self.BULLET_COLLISIONS_ENABLED = bullet_collisions_enabled
         self.ROBOT_COLLISIONS_ENABLED = True
         self.ENERGY_DECAY_ENABLED = energy_decay_enabled
-        self.ENERGY_DECAY_AMOUNT = 0.0
+        self.ENERGY_DECAY_AMOUNT = 0.1
 
         # Stores
         self.dirty = False  # Used for tracking if render should be made
