@@ -14,60 +14,42 @@ import numba as nb
 from numba.experimental import jitclass
 
 
-@jitclass([
-    ('energy', nb.float32),
-    ('alive', nb.boolean),
-    ('velocity', nb.float32),
-    ('position', nb.float32[:]),
-    ('base_rotation', nb.float32),
-    ('turret_rotation', nb.float32),
-    ('radar_rotation', nb.float32),
-    ('turret_heat', nb.float32),
-    ('base_rotation_velocity', nb.float32),
-    ('turret_rotation_velocity', nb.float32),
-    ('radar_rotation_velocity', nb.float32)
-])
-class RobotStruct(object):
-    def __init__(self):
-        self.energy = 0.0
-        self.alive = False
-        self.velocity = 0.0
-        self.position = np.zeros(2)
-        self.base_rotation = 0.0
-        self.turret_rotation = 0.0
-        self.radar_rotation = 0.0
-        self.turret_heat = 0.0
-
-        self.base_rotation_velocity = 0.0
-        self.turret_rotation_velocity = 0.0
-        self.radar_rotation_velocity = 0.0
-
-
 class RobotData(object):
     def __init__(self, robot):
         self.robot = robot
 
         # Physical quantities
-        self.struct = RobotStruct()
+        self.energy = 0.0
+        self.alive = False
+        self.velocity = 0.0
+        self.position = None
+        self.base_rotation = None
+        self.turret_rotation = 0
+        self.radar_rotation = 0
+        self.turret_heat = 0
+
+        self.base_rotation_velocity = 0.0
+        self.turret_rotation_velocity = 0.0
+        self.radar_rotation_velocity = 0.0
 
     def flush_state(self):
         """Push read only values back to the Robot class"""
-        self.robot.alive = self.struct.alive
-        self.robot.energy = self.struct.energy
-        self.robot.position = self.struct.position
-        self.robot.velocity = self.struct.velocity
-        self.robot.turret_heat = self.struct.turret_heat
+        self.robot.alive = self.alive
+        self.robot.energy = self.energy
+        self.robot.position = self.position
+        self.robot.velocity = self.velocity
+        self.robot.turret_heat = self.turret_heat
 
-        self.robot.base_rotation_velocity = self.struct.base_rotation_velocity
-        self.robot.turret_rotation_velocity = self.struct.turret_rotation_velocity
-        self.robot.radar_rotation_velocity = self.struct.radar_rotation_velocity
+        self.robot.base_rotation_velocity = self.base_rotation_velocity
+        self.robot.turret_rotation_velocity = self.turret_rotation_velocity
+        self.robot.radar_rotation_velocity = self.radar_rotation_velocity
 
-        self.robot.bearing = self.struct.base_rotation
-        self.robot.turret_bearing = self.struct.turret_rotation
-        self.robot.radar_bearing = self.struct.radar_rotation
+        self.robot.bearing = self.base_rotation
+        self.robot.turret_bearing = self.turret_rotation
+        self.robot.radar_bearing = self.radar_rotation
 
 
-@ dataclass
+@dataclass
 class Bullet:
     robot_data: RobotData
     position: np.ndarray
@@ -227,7 +209,7 @@ class Engine(object):
 
         # COLLIDE SCANS HERE
         bullets = list(self.bullets)
-        if len(bullets) > 1 and self.BULLET_COLLISIONS_ENABLED:
+        if self.BULLET_COLLISIONS_ENABLED and len(bullets) > 1:
             # Bullet self collisions
             cs = np.array([b.position for b in bullets])
             where = np.argwhere(np.any(test_circles(cs, np.array([3])), 0))
