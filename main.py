@@ -17,5 +17,5 @@ class RandomRobot(Robot):
 
 robots = [RandomRobot((255, 0, 0)), RandomRobot((0, 255, 0))]
 app.child = Battle(robots, (600, 400))
-app.child.set_tick_rate(60)
+app.child.set_tick_rate(-1)
 app.run()

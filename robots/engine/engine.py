@@ -1,4 +1,3 @@
-
 from dataclasses import dataclass
 from robots.robot.utils import *
 import random
@@ -8,6 +7,8 @@ from robots.robot.utils import Turn, Move
 from robots.config import *
 from robots.robot.events import *
 import time
+from collections import defaultdict, deque
+
 
 import numpy as np
 import numba as nb
@@ -88,15 +89,38 @@ def bullet_damage(bullet):
 def energy_on_hit(bullet):
     return 3 * bullet.power
 
+class Timer(object):
+    times = defaultdict(lambda : deque(maxlen=1000))
+    next_print = time.perf_counter() + 1
+    @classmethod
+    def wrap(cls, func):
+        def inner(*args, **kwargs):
+            start = time.perf_counter_ns()
+            res = func(*args, **kwargs)
+            duration = time.perf_counter_ns() - start
+            cls.times[func.__name__].append(duration)
+            cls.print(func.__name__)
+            return res
+        return inner
 
-# Main engine class
+    @classmethod
+    def print(cls, name):
+        if time.perf_counter() > cls.next_print:
+            t = np.mean(cls.times[name])/10e9
+            print(f"\rAVG Time: {t:9.9f}, FPS: {1/t:010.2f}, Len: {len(cls.times[name]):3.0f}",end='', flush=True)
+            cls.next_print = time.perf_counter() + 1
+
 
 class Engine(object):
-    def __init__(self, robots, size,
-                 bullet_collisions_enabled=True,
-                 gun_heat_enabled=True,
-                 energy_decay_enabled=False,
-                 rate=-1):
+    def __init__(
+        self,
+        robots,
+        size,
+        bullet_collisions_enabled=True,
+        gun_heat_enabled=True,
+        energy_decay_enabled=False,
+        rate=-1,
+    ):
         self.robots = robots
         self.size = size
 
@@ -108,17 +132,18 @@ class Engine(object):
         self.ENERGY_DECAY_AMOUNT = 0.1
 
         # Stores
+        self.steps = None
         self.dirty = False  # Used for tracking if render should be made
         self.data = None
         self.bullets = set()
-        self.interval = 1/rate
+        self.interval = 1 / rate
         self.next_sim = 0
         self.bounds = None
 
     def set_rate(self, rate):
         rate = float(rate)
         print(f"Set rate to {rate} sims/s.")
-        self.interval = 1/rate
+        self.interval = 1 / rate
 
     def init(self, robot_kwargs=None):
         robot_kwargs = robot_kwargs if robot_kwargs else {}
@@ -132,6 +157,7 @@ class Engine(object):
         self.dirty = True
         self.bullets.clear()
         self.next_sim = 0
+        self.steps = 0
         for r in self.data:
             self.init_robotdata(r)
             r.alive = True
@@ -146,7 +172,7 @@ class Engine(object):
             * radar_rotation
             * energy
         """
-        robot.position = np.random.normal(np.array(self.size)//2, 80)
+        robot.position = np.random.normal(np.array(self.size) // 2, 80)
         robot.base_rotation = random.random() * 360
         robot.turret_rotation = random.random() * 360
         robot.radar_rotation = random.random() * 360
@@ -157,11 +183,13 @@ class Engine(object):
             if time.time() > self.next_sim:
                 self.step()
 
+    @Timer.wrap
     def step(self):
         self.next_sim = time.time() + self.interval
         self.update_robots()
         self.flush_robot_state()
         self.dirty = True
+        self.steps += 1
 
     def add_bullet(self, robot_data, position, velocity, power):
         self.bullets.add(Bullet(robot_data, position, velocity, power))
@@ -185,7 +213,9 @@ class Engine(object):
         num_robots = len(robots)
         cs = np.stack([r.position for r in self.data if r.alive])
         rs = np.ones(len(cs)) * ROBOT_RADIUS
-        wall_collisions = ~np.all(((20, 20) <= cs) & (cs <= np.array(self.size) - (20, 20)), 1)
+        wall_collisions = ~np.all(
+            ((20, 20) <= cs) & (cs <= np.array(self.size) - (20, 20)), 1
+        )
         self.handle_wall_collisions(wall_collisions)
 
         # Robot to Robot collisions
@@ -241,35 +271,51 @@ class Engine(object):
         for i, r in enumerate(robots):
             # Update robots actions
             base_rotation_rads = r.base_rotation * np.pi / 180
-            direction = np.array([np.sin(base_rotation_rads), np.cos(base_rotation_rads)])
-            r.velocity = np.clip(r.velocity + acceleration(r.robot.moving.value, r.velocity), -8.0, 8.0)
+            direction = np.array(
+                [np.sin(base_rotation_rads), np.cos(base_rotation_rads)]
+            )
+            r.velocity = np.clip(
+                r.velocity + acceleration(r.robot.moving.value, r.velocity), -8.0, 8.0
+            )
             r.position = r.position + (r.velocity * direction)
 
-            r.base_rotation_velocity = max(0, (10 - 0.75 * abs(r.velocity))) * r.robot.base_turning.value
+            r.base_rotation_velocity = (
+                max(0, (5 - 0.75 * abs(r.velocity))) * r.robot.base_turning.value
+            )
             r.base_rotation = (r.base_rotation + r.base_rotation_velocity) % 360
 
             # TODO add locked turret
             turret_rotation_rads = r.turret_rotation * np.pi / 180
-            r.turret_rotation_velocity = 20 * r.robot.turret_turning.value + r.base_rotation_velocity
+            r.turret_rotation_velocity = (
+                5 * r.robot.turret_turning.value + r.base_rotation_velocity
+            )
             r.turret_rotation = (r.turret_rotation + r.turret_rotation_velocity) % 360
             r.turret_heat = np.maximum(0.0, r.turret_heat - 0.1)
 
             # TODO add locked radar
-            r.radar_rotation_velocity = 5 * r.robot.radar_turning.value + r.turret_rotation_velocity
+            r.radar_rotation_velocity = (
+                5 * r.robot.radar_turning.value + r.turret_rotation_velocity
+            )
             r.radar_rotation = (r.radar_rotation + r.radar_rotation_velocity) % 360
 
             # Should fire and can fire
-            if r.robot.should_fire and ((r.turret_heat <= 0.0) or not self.GUN_HEAT_ENABLED):
+            if r.robot.should_fire and (
+                (r.turret_heat <= 0.0) or not self.GUN_HEAT_ENABLED
+            ):
                 fire_power = r.robot.fire_power
                 r.turret_heat = 1 + fire_power / 5
                 r.energy = np.maximum(0.0, r.energy - fire_power)
                 r.robot.should_fire = False
-                turret_direction = np.array([np.sin(turret_rotation_rads), np.cos(turret_rotation_rads)])
+                turret_direction = np.array(
+                    [np.sin(turret_rotation_rads), np.cos(turret_rotation_rads)]
+                )
                 bullet_position = r.position + (turret_direction * 30)
-                self.add_bullet(r,
-                                bullet_position,
-                                turret_direction * (20 - (3 * fire_power)),
-                                max(min(MAX_POWER, fire_power), MIN_POWER))
+                self.add_bullet(
+                    r,
+                    bullet_position,
+                    turret_direction * (20 - (3 * fire_power)),
+                    max(min(MAX_POWER, fire_power), MIN_POWER),
+                )
 
             if self.ENERGY_DECAY_ENABLED:
                 r.energy = r.energy - self.ENERGY_DECAY_AMOUNT
