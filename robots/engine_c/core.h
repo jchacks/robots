@@ -28,7 +28,7 @@ struct Bullet
 
     Bullet()
         : uid(NUMBER_BULLETS += 1),
-          owner_uid(NULL),
+          owner_uid(-1),
           position(Vec2(0.0, 0.0)),
           velocity(Vec2(0.0, 0.0)),
           power(0){};

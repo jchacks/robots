@@ -33,7 +33,7 @@ void Robot::step()
 {
     Vec2 direction = Vec2::from_rads(base_rotation);
     position += direction * velocity;
-
+    velocity = clip(velocity + acceleration(), -8.0f, 8.0f);
     float base_rotation_velocity =
         std::max(0.0f, (BASE_ROTATION_VELOCITY_RADS - BASE_ROTATION_VELOCITY_DEC_RADS * std::abs(velocity))) * base_turning;
     base_rotation += base_rotation_velocity;

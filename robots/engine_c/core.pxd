@@ -45,6 +45,7 @@ cdef extern from "core.h" nogil:
         float power, velocity
         Robot()
         void step()
+        float acceleration()
         Bullet* fire()
 
 
