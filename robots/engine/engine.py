@@ -92,6 +92,8 @@ def energy_on_hit(bullet):
 class Timer(object):
     times = defaultdict(lambda : deque(maxlen=1000))
     next_print = time.perf_counter() + 1
+    should_print = False
+
     @classmethod
     def wrap(cls, func):
         def inner(*args, **kwargs):
@@ -105,7 +107,7 @@ class Timer(object):
 
     @classmethod
     def print(cls, name):
-        if time.perf_counter() > cls.next_print:
+        if cls.should_print & (time.perf_counter() > cls.next_print):
             t = np.mean(cls.times[name])/10e9
             print(f"\rAVG Time: {t:9.9f}, FPS: {1/t:010.2f}, Len: {len(cls.times[name]):3.0f}",end='', flush=True)
             cls.next_print = time.perf_counter() + 1

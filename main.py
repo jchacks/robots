@@ -1,8 +1,11 @@
 from robots.app import App, Battle
 from robots.robot import Robot
 from robots.robot.utils import *
+from robots.engine import engine
 import random
 
+
+engine.Timer.should_print = True
 app = App()
 
 
