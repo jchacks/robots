@@ -1,5 +1,6 @@
 #include <core.h>
 #include <math.h>
+#include <stdio.h>
 
 void Bullet::step()
 {
@@ -23,7 +24,7 @@ Bullet *Robot::fire()
     should_fire = false;
     Vec2 turret_direction = Vec2::from_rads(turret_rotation);
     return new Bullet(
-        uid,
+        this,
         position + turret_direction * 30.0f,
         turret_direction * (20.0f - (3.0f * fire_power)),
         clip(fire_power, BULLET_MIN_POWER, BULLET_MAX_POWER));
@@ -44,7 +45,8 @@ void Robot::step()
 };
 
 float Robot::acceleration()
-{
+{   
+    std::cout << velocity << ',' << moving << std::endl;
     if (velocity > 0.0f)
     {
         if (moving > 0)

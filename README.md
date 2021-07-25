@@ -4,8 +4,25 @@ Basic clone of Robocode.
 
 __This repo just went through a large rewrite and is currently missing some of the features described below.  It is planned to add them back in.__
 
+Recently implemented a engine_c in cython and cpp.
+TODO:
+
+* Consider where the Robot struct/class should be cython or cpp.
+
+* Implement movement as a proper stack of commands that have decreasing amounts.
+* Fully document all methods that are intended to be part of the public API.
+* Decide on whether to use degrees or radians for rotation.
+* Convert to a Data Oriented Programming model (should allow for multi-battle speedup):
+  * Create robot data containers similar to `Bullets`
+  * Refer Robot classes back to these data containers
+  * Gracefully handle alive/dead, adding removing
+* ~~Scale the `Overlay` independently from the battle scaling~~
+* Implement auto slow down on stacked commands e.g. calculate quickest path to angle without breaking max acceleration by turning remainder of angle in 1 tick.  max_accel = 4 but remainder = 2 in 1 tick, velocity should reach 0 at same time as stopping.
+* ~~Represent the user Robot space as dict of configs passed to the engine.~~
+
 To summarise the repo now relies on an `Engine` class that is not _easily_ accessible by user code.  The objects that the engine interacts with are different from those that the 'User' will use to write their AI.
 New concepts:
+
 * `Engine -> RobotData`
 * `User -> Robot`
 
@@ -13,12 +30,12 @@ The engine reads the users intent from attributes on `Robot` then calculates the
 
 ***
 
-
 ![Battle Image](/docs/images/battle.png)
 
-#### How to use:
+#### How to use: ####
 
 To build your own robot:
+
 ```python
 from robots import AdvancedRobot
 
@@ -40,6 +57,7 @@ class MyFirstRobot(AdvancedRobot):
 Simple spin and shoot when a robot is scanned.
 
 To run the application:
+
 ```python
 from robots.app import App, Battle
 # Import the bot from wherever it was located
@@ -74,20 +92,5 @@ app.battle = MultiBattle(app, (600,400), [
 ], 16)
 app.on_execute()
 ```
-![Multi_Battle Image](/docs/images/multi_battle.png)
 
-### Todo
-* ~~Add a `robot.Robot` subclass that uses `moving`, `turing` to move, instead of using allocated amounts.~~
-* Add interrupt current command stack.
-* Implement movement as a proper stack of commands that have decreasing amounts.
-* ~~Remove bullets on round end~~
-* ~~Abstract out the canvas drawable setup and resizing to a canvas class~~
-* Fully document all methods that are intended to be part of the public API.
-* Decide on whether to use degrees or radians for rotation.
-* Convert to a Data Oriented Programming model (should allow for multi-battle speedup):
-    * Create robot data containers similar to `Bullets`
-    * Refer Robot classes back to these data containers
-    * Gracefully handle alive/dead, adding removing 
-* ~~Scale the `Overlay` independently from the battle scaling~~
-* Implement auto slow down on stacked commands e.g. calculate quickest path to angle without breaking max acceleration by turning remainder of angle in 1 tick.  max_accel = 4 but remainder = 2 in 1 tick, velocity should reach 0 at same time as stopping.
-* ~~Represent the user Robot space as dict of configs passed to the engine.~~
+![Multi_Battle Image](/docs/images/multi_battle.png)

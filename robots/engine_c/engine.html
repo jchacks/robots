@@ -373,7 +373,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <pre class="cython line score-0">&#xA0;<span class="">002</span>: </pre>
 <pre class="cython line score-0">&#xA0;<span class="">003</span>: <span class="k">cimport</span> <span class="nn">cython</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">004</span>: <span class="k">cimport</span> <span class="nn">robots.engine_c.core</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">005</span>: <span class="k">from</span> <span class="nn">robots.engine_c.core</span> <span class="k">cimport</span> <span class="n">Vec2</span><span class="p">,</span> <span class="n">Bullet</span><span class="p">,</span> <span class="n">Robot</span></pre>
+<pre class="cython line score-0">&#xA0;<span class="">005</span>: <span class="k">from</span> <span class="nn">robots.engine_c.core</span> <span class="k">cimport</span> <span class="n">Vec2</span><span class="p">,</span> <span class="n">Bullet</span><span class="p">,</span> <span class="n">Robot</span><span class="p">,</span> <span class="n">ROBOT_RADIUS</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">006</span>: </pre>
 <pre class="cython line score-0">&#xA0;<span class="">007</span>: <span class="k">from</span> <span class="nn">libc.math</span> <span class="k">cimport</span> <span class="n">sin</span><span class="p">,</span> <span class="n">cos</span><span class="p">,</span> <span class="nb">abs</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="nb">pow</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">008</span>: <span class="k">from</span> <span class="nn">libcpp.set</span> <span class="k">cimport</span> <span class="nb">set</span></pre>
@@ -532,11 +532,7 @@ static struct __pyx_vtabstruct_6robots_8engine_c_6engine_PyBullet *__pyx_vtabptr
 </pre><pre class="cython line score-0">&#xA0;<span class="">028</span>:     <span class="k">cdef</span> <span class="kt">Bullet</span>* <span class="nf">c_bullet</span></pre>
 <pre class="cython line score-0">&#xA0;<span class="">029</span>: </pre>
 <pre class="cython line score-0">&#xA0;<span class="">030</span>:     <span class="nd">@property</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">031</span>:     <span class="k">def</span> <span class="nf">owner_uid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">032</span>:         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_bullet</span><span class="o">.</span><span class="n">owner_uid</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">033</span>: </pre>
-<pre class="cython line score-0">&#xA0;<span class="">034</span>:     <span class="nd">@property</span></pre>
-<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">035</span>:     <span class="k">def</span> <span class="nf">uid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
+<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">031</span>:     <span class="k">def</span> <span class="nf">uid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
 <pre class='cython code score-3 '>/* Python wrapper */
 static PyObject *__pyx_pw_6robots_8engine_c_6engine_8PyBullet_3uid_1__get__(PyObject *__pyx_v_self); /*proto*/
 static PyObject *__pyx_pw_6robots_8engine_c_6engine_8PyBullet_3uid_1__get__(PyObject *__pyx_v_self) {
@@ -565,54 +561,16 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_8PyBullet_3uid___get__(struc
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">036</span>:         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_bullet</span><span class="o">.</span><span class="n">uid</span></pre>
+</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">032</span>:         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_bullet</span><span class="o">.</span><span class="n">uid</span></pre>
 <pre class='cython code score-3 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
-  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_From_unsigned_long</span>(__pyx_v_self-&gt;c_bullet-&gt;uid);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 36, __pyx_L1_error)</span>
+  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_From_unsigned_long</span>(__pyx_v_self-&gt;c_bullet-&gt;uid);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 32, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
-</pre><pre class="cython line score-0">&#xA0;<span class="">037</span>: </pre>
-<pre class="cython line score-0">&#xA0;<span class="">038</span>:     <span class="nd">@property</span></pre>
-<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">039</span>:     <span class="k">def</span> <span class="nf">owner_uid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
-<pre class='cython code score-3 '>/* Python wrapper */
-static PyObject *__pyx_pw_6robots_8engine_c_6engine_8PyBullet_9owner_uid_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_6robots_8engine_c_6engine_8PyBullet_9owner_uid_1__get__(PyObject *__pyx_v_self) {
-  PyObject *__pyx_r = 0;
-  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
-  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_6robots_8engine_c_6engine_8PyBullet_9owner_uid___get__(((struct __pyx_obj_6robots_8engine_c_6engine_PyBullet *)__pyx_v_self));
-
-  /* function exit code */
-  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_6robots_8engine_c_6engine_8PyBullet_9owner_uid___get__(struct __pyx_obj_6robots_8engine_c_6engine_PyBullet *__pyx_v_self) {
-  PyObject *__pyx_r = NULL;
-  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
-  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__get__", 0);
-/* … */
-  /* function exit code */
-  __pyx_L1_error:;
-  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
-  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("robots.engine_c.engine.PyBullet.owner_uid.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
-  __pyx_L0:;
-  <span class='refnanny'>__Pyx_XGIVEREF</span>(__pyx_r);
-  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
-  return __pyx_r;
-}
-</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">040</span>:         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_bullet</span><span class="o">.</span><span class="n">owner_uid</span></pre>
-<pre class='cython code score-3 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
-  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_From_long</span>(__pyx_v_self-&gt;c_bullet-&gt;owner_uid);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 40, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
-  __pyx_r = __pyx_t_1;
-  __pyx_t_1 = 0;
-  goto __pyx_L0;
-</pre><pre class="cython line score-0">&#xA0;<span class="">041</span>: </pre>
-<pre class="cython line score-0">&#xA0;<span class="">042</span>:     <span class="nd">@staticmethod</span></pre>
-<pre class="cython line score-4" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">043</span>:     <span class="k">cdef</span> <span class="kt">PyBullet</span> <span class="nf">from_c</span><span class="p">(</span><span class="n">Bullet</span><span class="o">*</span> <span class="n">c_bullet</span><span class="p">):</span></pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">033</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">034</span>:     <span class="nd">@staticmethod</span></pre>
+<pre class="cython line score-4" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">035</span>:     <span class="k">cdef</span> <span class="kt">PyBullet</span> <span class="nf">from_c</span><span class="p">(</span><span class="n">Bullet</span><span class="o">*</span> <span class="n">c_bullet</span><span class="p">):</span></pre>
 <pre class='cython code score-4 '>static struct __pyx_obj_6robots_8engine_c_6engine_PyBullet *__pyx_f_6robots_8engine_c_6engine_8PyBullet_from_c(Bullet *__pyx_v_c_bullet) {
   struct __pyx_obj_6robots_8engine_c_6engine_PyBullet *__pyx_v_bullet = 0;
   struct __pyx_obj_6robots_8engine_c_6engine_PyBullet *__pyx_r = NULL;
@@ -630,21 +588,21 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_8PyBullet_9owner_uid___get__
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-</pre><pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">044</span>:         <span class="n">bullet</span><span class="p">:</span><span class="n">PyBullet</span> <span class="o">=</span> <span class="n">PyBullet</span><span class="p">()</span></pre>
-<pre class='cython code score-2 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_CallNoArg</span>(((PyObject *)__pyx_ptype_6robots_8engine_c_6engine_PyBullet));<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 44, __pyx_L1_error)</span>
+</pre><pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">036</span>:         <span class="n">bullet</span><span class="p">:</span><span class="n">PyBullet</span> <span class="o">=</span> <span class="n">PyBullet</span><span class="p">()</span></pre>
+<pre class='cython code score-2 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_CallNoArg</span>(((PyObject *)__pyx_ptype_6robots_8engine_c_6engine_PyBullet));<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 36, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
   __pyx_v_bullet = ((struct __pyx_obj_6robots_8engine_c_6engine_PyBullet *)__pyx_t_1);
   __pyx_t_1 = 0;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">045</span>:         <span class="n">bullet</span><span class="o">.</span><span class="n">c_bullet</span> <span class="o">=</span> <span class="n">c_bullet</span></pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">037</span>:         <span class="n">bullet</span><span class="o">.</span><span class="n">c_bullet</span> <span class="o">=</span> <span class="n">c_bullet</span></pre>
 <pre class='cython code score-0 '>  __pyx_v_bullet-&gt;c_bullet = __pyx_v_c_bullet;
-</pre><pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">046</span>:         <span class="k">return</span> <span class="n">bullet</span></pre>
+</pre><pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">038</span>:         <span class="k">return</span> <span class="n">bullet</span></pre>
 <pre class='cython code score-2 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(((PyObject *)__pyx_r));
   <span class='pyx_macro_api'>__Pyx_INCREF</span>(((PyObject *)__pyx_v_bullet));
   __pyx_r = __pyx_v_bullet;
   goto __pyx_L0;
-</pre><pre class="cython line score-0">&#xA0;<span class="">047</span>: </pre>
-<pre class="cython line score-0">&#xA0;<span class="">048</span>: </pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">049</span>: <span class="k">cdef</span> <span class="k">class</span> <span class="nf">PyRobot</span><span class="p">:</span></pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">039</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">040</span>: </pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">041</span>: <span class="k">cdef</span> <span class="k">class</span> <span class="nf">PyRobot</span><span class="p">:</span></pre>
 <pre class='cython code score-0 '>struct __pyx_obj_6robots_8engine_c_6engine_PyRobot {
   PyObject_HEAD
   struct __pyx_vtabstruct_6robots_8engine_c_6engine_PyRobot *__pyx_vtab;
@@ -653,12 +611,14 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_8PyBullet_9owner_uid___get__
 /* … */
 struct __pyx_vtabstruct_6robots_8engine_c_6engine_PyRobot {
   PyObject *(*step)(struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *);
+  void (*fire)(struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *, float, int __pyx_skip_dispatch);
+  PyObject *(*run)(struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *, int __pyx_skip_dispatch);
 };
 static struct __pyx_vtabstruct_6robots_8engine_c_6engine_PyRobot *__pyx_vtabptr_6robots_8engine_c_6engine_PyRobot;
 
-</pre><pre class="cython line score-0">&#xA0;<span class="">050</span>:     <span class="k">cdef</span> <span class="kt">Robot</span> <span class="nf">c_robot</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">051</span>: </pre>
-<pre class="cython line score-13" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">052</span>:     <span class="k">def</span> <span class="nf">__cinit__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">042</span>:     <span class="k">cdef</span> <span class="kt">Robot</span> <span class="nf">c_robot</span></pre>
+<pre class="cython line score-0">&#xA0;<span class="">043</span>: </pre>
+<pre class="cython line score-13" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">044</span>:     <span class="k">def</span> <span class="nf">__cinit__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
 <pre class='cython code score-13 '>/* Python wrapper */
 static int __pyx_pw_6robots_8engine_c_6engine_7PyRobot_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static int __pyx_pw_6robots_8engine_c_6engine_7PyRobot_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
@@ -690,17 +650,310 @@ static int __pyx_pf_6robots_8engine_c_6engine_7PyRobot___cinit__(struct __pyx_ob
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">053</span>:         <span class="bp">self</span><span class="o">.</span><span class="n">c_robot</span><span class="o">.</span><span class="n">position</span><span class="p">:</span><span class="n">Vec2</span> <span class="o">=</span> <span class="n">Vec2</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="mf">1.0</span><span class="p">)</span></pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">045</span>:         <span class="bp">self</span><span class="o">.</span><span class="n">c_robot</span><span class="o">.</span><span class="n">position</span><span class="p">:</span><span class="n">Vec2</span> <span class="o">=</span> <span class="n">Vec2</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="mf">1.0</span><span class="p">)</span></pre>
 <pre class='cython code score-0 '>  try {
     __pyx_t_1 = Vec2(1.0, 1.0);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    <span class='error_goto'>__PYX_ERR(1, 53, __pyx_L1_error)</span>
+    <span class='error_goto'>__PYX_ERR(1, 45, __pyx_L1_error)</span>
   }
   __pyx_v_self-&gt;c_robot.position = __pyx_t_1;
+</pre><pre class="cython line score-0">&#xA0;<span class="">046</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">047</span>:     <span class="c"># Writeable props</span></pre>
+<pre class="cython line score-0">&#xA0;<span class="">048</span>:     <span class="nd">@property</span></pre>
+<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">049</span>:     <span class="k">def</span> <span class="nf">moving</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
+<pre class='cython code score-3 '>/* Python wrapper */
+static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_6moving_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_6moving_1__get__(PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__get__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_6robots_8engine_c_6engine_7PyRobot_6moving___get__(((struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *)__pyx_v_self));
+
+  /* function exit code */
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_6robots_8engine_c_6engine_7PyRobot_6moving___get__(struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__get__", 0);
+/* … */
+  /* function exit code */
+  __pyx_L1_error:;
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("robots.engine_c.engine.PyRobot.moving.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  <span class='refnanny'>__Pyx_XGIVEREF</span>(__pyx_r);
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">050</span>:         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_robot</span><span class="o">.</span><span class="n">moving</span></pre>
+<pre class='cython code score-3 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
+  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_From_int</span>(__pyx_v_self-&gt;c_robot.moving);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 50, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+</pre><pre class="cython line score-0">&#xA0;<span class="">051</span>:     <span class="nd">@moving</span><span class="o">.</span><span class="n">setter</span></pre>
+<pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">052</span>:     <span class="k">def</span> <span class="nf">moving</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">moving</span><span class="p">):</span></pre>
+<pre class='cython code score-2 '>/* Python wrapper */
+static int __pyx_pw_6robots_8engine_c_6engine_7PyRobot_6moving_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_moving); /*proto*/
+static int __pyx_pw_6robots_8engine_c_6engine_7PyRobot_6moving_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_moving) {
+  int __pyx_r;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__set__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_6robots_8engine_c_6engine_7PyRobot_6moving_2__set__(((struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *)__pyx_v_self), ((PyObject *)__pyx_v_moving));
+
+  /* function exit code */
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+
+static int __pyx_pf_6robots_8engine_c_6engine_7PyRobot_6moving_2__set__(struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *__pyx_v_self, PyObject *__pyx_v_moving) {
+  int __pyx_r;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__set__", 0);
+/* … */
+  /* function exit code */
+  __pyx_r = 0;
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("robots.engine_c.engine.PyRobot.moving.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = -1;
+  __pyx_L0:;
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">053</span>:         <span class="bp">self</span><span class="o">.</span><span class="n">c_robot</span><span class="o">.</span><span class="n">moving</span> <span class="o">=</span> <span class="n">moving</span></pre>
+<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_As_int</span>(__pyx_v_moving); if (unlikely((__pyx_t_1 == (int)-1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(1, 53, __pyx_L1_error)</span>
+  __pyx_v_self-&gt;c_robot.moving = __pyx_t_1;
 </pre><pre class="cython line score-0">&#xA0;<span class="">054</span>: </pre>
 <pre class="cython line score-0">&#xA0;<span class="">055</span>:     <span class="nd">@property</span></pre>
-<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">056</span>:     <span class="k">def</span> <span class="nf">position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
+<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">056</span>:     <span class="k">def</span> <span class="nf">base_turning</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
+<pre class='cython code score-3 '>/* Python wrapper */
+static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_12base_turning_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_12base_turning_1__get__(PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__get__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_6robots_8engine_c_6engine_7PyRobot_12base_turning___get__(((struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *)__pyx_v_self));
+
+  /* function exit code */
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_6robots_8engine_c_6engine_7PyRobot_12base_turning___get__(struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__get__", 0);
+/* … */
+  /* function exit code */
+  __pyx_L1_error:;
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("robots.engine_c.engine.PyRobot.base_turning.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  <span class='refnanny'>__Pyx_XGIVEREF</span>(__pyx_r);
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">057</span>:         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_robot</span><span class="o">.</span><span class="n">base_turning</span></pre>
+<pre class='cython code score-3 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
+  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_From_int</span>(__pyx_v_self-&gt;c_robot.base_turning);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 57, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+</pre><pre class="cython line score-0">&#xA0;<span class="">058</span>:     <span class="nd">@base_turning</span><span class="o">.</span><span class="n">setter</span></pre>
+<pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">059</span>:     <span class="k">def</span> <span class="nf">base_turning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_turning</span><span class="p">):</span></pre>
+<pre class='cython code score-2 '>/* Python wrapper */
+static int __pyx_pw_6robots_8engine_c_6engine_7PyRobot_12base_turning_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_base_turning); /*proto*/
+static int __pyx_pw_6robots_8engine_c_6engine_7PyRobot_12base_turning_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_base_turning) {
+  int __pyx_r;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__set__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_6robots_8engine_c_6engine_7PyRobot_12base_turning_2__set__(((struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *)__pyx_v_self), ((PyObject *)__pyx_v_base_turning));
+
+  /* function exit code */
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+
+static int __pyx_pf_6robots_8engine_c_6engine_7PyRobot_12base_turning_2__set__(struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *__pyx_v_self, PyObject *__pyx_v_base_turning) {
+  int __pyx_r;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__set__", 0);
+/* … */
+  /* function exit code */
+  __pyx_r = 0;
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("robots.engine_c.engine.PyRobot.base_turning.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = -1;
+  __pyx_L0:;
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">060</span>:         <span class="bp">self</span><span class="o">.</span><span class="n">c_robot</span><span class="o">.</span><span class="n">base_turning</span> <span class="o">=</span> <span class="n">base_turning</span></pre>
+<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_As_int</span>(__pyx_v_base_turning); if (unlikely((__pyx_t_1 == (int)-1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(1, 60, __pyx_L1_error)</span>
+  __pyx_v_self-&gt;c_robot.base_turning = __pyx_t_1;
+</pre><pre class="cython line score-0">&#xA0;<span class="">061</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">062</span>:     <span class="nd">@property</span></pre>
+<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">063</span>:     <span class="k">def</span> <span class="nf">turret_turning</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
+<pre class='cython code score-3 '>/* Python wrapper */
+static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_14turret_turning_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_14turret_turning_1__get__(PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__get__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_6robots_8engine_c_6engine_7PyRobot_14turret_turning___get__(((struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *)__pyx_v_self));
+
+  /* function exit code */
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_6robots_8engine_c_6engine_7PyRobot_14turret_turning___get__(struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__get__", 0);
+/* … */
+  /* function exit code */
+  __pyx_L1_error:;
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("robots.engine_c.engine.PyRobot.turret_turning.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  <span class='refnanny'>__Pyx_XGIVEREF</span>(__pyx_r);
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">064</span>:         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_robot</span><span class="o">.</span><span class="n">turret_turning</span></pre>
+<pre class='cython code score-3 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
+  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_From_int</span>(__pyx_v_self-&gt;c_robot.turret_turning);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 64, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+</pre><pre class="cython line score-0">&#xA0;<span class="">065</span>:     <span class="nd">@turret_turning</span><span class="o">.</span><span class="n">setter</span></pre>
+<pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">066</span>:     <span class="k">def</span> <span class="nf">turret_turning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">turret_turning</span><span class="p">):</span></pre>
+<pre class='cython code score-2 '>/* Python wrapper */
+static int __pyx_pw_6robots_8engine_c_6engine_7PyRobot_14turret_turning_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_turret_turning); /*proto*/
+static int __pyx_pw_6robots_8engine_c_6engine_7PyRobot_14turret_turning_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_turret_turning) {
+  int __pyx_r;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__set__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_6robots_8engine_c_6engine_7PyRobot_14turret_turning_2__set__(((struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *)__pyx_v_self), ((PyObject *)__pyx_v_turret_turning));
+
+  /* function exit code */
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+
+static int __pyx_pf_6robots_8engine_c_6engine_7PyRobot_14turret_turning_2__set__(struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *__pyx_v_self, PyObject *__pyx_v_turret_turning) {
+  int __pyx_r;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__set__", 0);
+/* … */
+  /* function exit code */
+  __pyx_r = 0;
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("robots.engine_c.engine.PyRobot.turret_turning.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = -1;
+  __pyx_L0:;
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+</pre><pre class="cython line score-7" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">067</span>:         <span class="bp">self</span><span class="o">.</span><span class="n">c_robot</span><span class="o">.</span><span class="n">turret_turning</span> <span class="o">=</span> <span class="n">turret_turning</span></pre>
+<pre class='cython code score-7 '>  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_As_int</span>(__pyx_v_turret_turning); if (unlikely((__pyx_t_1 == (int)-1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(1, 67, __pyx_L1_error)</span>
+  __pyx_v_self-&gt;c_robot.turret_turning = __pyx_t_1;
+</pre><pre class="cython line score-0">&#xA0;<span class="">068</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">069</span>:     <span class="nd">@property</span></pre>
+<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">070</span>:     <span class="k">def</span> <span class="nf">radar_turning</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
+<pre class='cython code score-3 '>/* Python wrapper */
+static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_13radar_turning_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_13radar_turning_1__get__(PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__get__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_6robots_8engine_c_6engine_7PyRobot_13radar_turning___get__(((struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *)__pyx_v_self));
+
+  /* function exit code */
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_6robots_8engine_c_6engine_7PyRobot_13radar_turning___get__(struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__get__", 0);
+/* … */
+  /* function exit code */
+  __pyx_L1_error:;
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("robots.engine_c.engine.PyRobot.radar_turning.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  <span class='refnanny'>__Pyx_XGIVEREF</span>(__pyx_r);
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+</pre><pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">071</span>:         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_robot</span><span class="o">.</span><span class="n">radar_turning</span></pre>
+<pre class='cython code score-3 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
+  __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyInt_From_int</span>(__pyx_v_self-&gt;c_robot.radar_turning);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 71, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+</pre><pre class="cython line score-0">&#xA0;<span class="">072</span>:     <span class="nd">@radar_turning</span><span class="o">.</span><span class="n">setter</span></pre>
+<pre class="cython line score-9" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">073</span>:     <span class="k">def</span> <span class="nf">radar_turning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">int</span> <span class="n">radar_turning</span><span class="p">):</span></pre>
+<pre class='cython code score-9 '>/* Python wrapper */
+static int __pyx_pw_6robots_8engine_c_6engine_7PyRobot_13radar_turning_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_arg_radar_turning); /*proto*/
+static int __pyx_pw_6robots_8engine_c_6engine_7PyRobot_13radar_turning_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_arg_radar_turning) {
+  int __pyx_v_radar_turning;
+  int __pyx_r;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__set__ (wrapper)", 0);
+  assert(__pyx_arg_radar_turning); {
+    __pyx_v_radar_turning = <span class='pyx_c_api'>__Pyx_PyInt_As_int</span>(__pyx_arg_radar_turning); if (unlikely((__pyx_v_radar_turning == (int)-1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(1, 73, __pyx_L3_error)</span>
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L3_error:;
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("robots.engine_c.engine.PyRobot.radar_turning.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return -1;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_6robots_8engine_c_6engine_7PyRobot_13radar_turning_2__set__(((struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *)__pyx_v_self), ((int)__pyx_v_radar_turning));
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+
+  /* function exit code */
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+
+static int __pyx_pf_6robots_8engine_c_6engine_7PyRobot_13radar_turning_2__set__(struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *__pyx_v_self, int __pyx_v_radar_turning) {
+  int __pyx_r;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__set__", 0);
+/* … */
+  /* function exit code */
+  __pyx_r = 0;
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">074</span>:         <span class="bp">self</span><span class="o">.</span><span class="n">c_robot</span><span class="o">.</span><span class="n">radar_turning</span> <span class="o">=</span> <span class="n">radar_turning</span></pre>
+<pre class='cython code score-0 '>  __pyx_v_self-&gt;c_robot.radar_turning = __pyx_v_radar_turning;
+</pre><pre class="cython line score-0">&#xA0;<span class="">075</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">076</span>:     <span class="c"># Readonly props</span></pre>
+<pre class="cython line score-0">&#xA0;<span class="">077</span>:     <span class="nd">@property</span></pre>
+<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">078</span>:     <span class="k">def</span> <span class="nf">position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
 <pre class='cython code score-3 '>/* Python wrapper */
 static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_8position_1__get__(PyObject *__pyx_v_self); /*proto*/
 static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_8position_1__get__(PyObject *__pyx_v_self) {
@@ -729,15 +982,129 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_7PyRobot_8position___get__(s
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-</pre><pre class="cython line score-1" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">057</span>:         <span class="k">return</span> <span class="n">PyVec2</span><span class="o">.</span><span class="n">from_c</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c_robot</span><span class="o">.</span><span class="n">position</span><span class="p">)</span></pre>
+</pre><pre class="cython line score-1" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">079</span>:         <span class="k">return</span> <span class="n">PyVec2</span><span class="o">.</span><span class="n">from_c</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">c_robot</span><span class="o">.</span><span class="n">position</span><span class="p">)</span></pre>
 <pre class='cython code score-1 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
-  __pyx_t_1 = __pyx_f_6robots_8engine_c_6engine_6PyVec2_from_c(__pyx_v_self-&gt;c_robot.position);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 57, __pyx_L1_error)</span>
+  __pyx_t_1 = __pyx_f_6robots_8engine_c_6engine_6PyVec2_from_c(__pyx_v_self-&gt;c_robot.position);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 79, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
-</pre><pre class="cython line score-0">&#xA0;<span class="">058</span>: </pre>
-<pre class="cython line score-1" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">059</span>:     <span class="k">cdef</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">080</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">081</span>:     <span class="nd">@property</span></pre>
+<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">082</span>:     <span class="k">def</span> <span class="nf">velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
+<pre class='cython code score-3 '>/* Python wrapper */
+static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_8velocity_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_8velocity_1__get__(PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__get__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_6robots_8engine_c_6engine_7PyRobot_8velocity___get__(((struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *)__pyx_v_self));
+
+  /* function exit code */
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_6robots_8engine_c_6engine_7PyRobot_8velocity___get__(struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__get__", 0);
+/* … */
+  /* function exit code */
+  __pyx_L1_error:;
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("robots.engine_c.engine.PyRobot.velocity.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  <span class='refnanny'>__Pyx_XGIVEREF</span>(__pyx_r);
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+</pre><pre class="cython line score-6" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">083</span>:         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_robot</span><span class="o">.</span><span class="n">velocity</span></pre>
+<pre class='cython code score-6 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
+  __pyx_t_1 = <span class='py_c_api'>PyFloat_FromDouble</span>(__pyx_v_self-&gt;c_robot.velocity);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 83, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+</pre><pre class="cython line score-0">&#xA0;<span class="">084</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">085</span>:     <span class="nd">@property</span></pre>
+<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">086</span>:     <span class="k">def</span> <span class="nf">acceleration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
+<pre class='cython code score-3 '>/* Python wrapper */
+static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_12acceleration_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_12acceleration_1__get__(PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__get__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_6robots_8engine_c_6engine_7PyRobot_12acceleration___get__(((struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *)__pyx_v_self));
+
+  /* function exit code */
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_6robots_8engine_c_6engine_7PyRobot_12acceleration___get__(struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__get__", 0);
+/* … */
+  /* function exit code */
+  __pyx_L1_error:;
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("robots.engine_c.engine.PyRobot.acceleration.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  <span class='refnanny'>__Pyx_XGIVEREF</span>(__pyx_r);
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+</pre><pre class="cython line score-6" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">087</span>:         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_robot</span><span class="o">.</span><span class="n">acceleration</span><span class="p">()</span></pre>
+<pre class='cython code score-6 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
+  __pyx_t_1 = <span class='py_c_api'>PyFloat_FromDouble</span>(__pyx_v_self-&gt;c_robot.acceleration());<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 87, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+</pre><pre class="cython line score-0">&#xA0;<span class="">088</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">089</span>:     <span class="nd">@property</span></pre>
+<pre class="cython line score-3" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">090</span>:     <span class="k">def</span> <span class="nf">base_rotation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
+<pre class='cython code score-3 '>/* Python wrapper */
+static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_13base_rotation_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_13base_rotation_1__get__(PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__get__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_6robots_8engine_c_6engine_7PyRobot_13base_rotation___get__(((struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *)__pyx_v_self));
+
+  /* function exit code */
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_6robots_8engine_c_6engine_7PyRobot_13base_rotation___get__(struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__get__", 0);
+/* … */
+  /* function exit code */
+  __pyx_L1_error:;
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("robots.engine_c.engine.PyRobot.base_rotation.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  <span class='refnanny'>__Pyx_XGIVEREF</span>(__pyx_r);
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+</pre><pre class="cython line score-6" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">091</span>:         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_robot</span><span class="o">.</span><span class="n">base_rotation</span></pre>
+<pre class='cython code score-6 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
+  __pyx_t_1 = <span class='py_c_api'>PyFloat_FromDouble</span>(__pyx_v_self-&gt;c_robot.base_rotation);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 91, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+</pre><pre class="cython line score-0">&#xA0;<span class="">092</span>: </pre>
+<pre class="cython line score-1" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">093</span>:     <span class="k">cdef</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
 <pre class='cython code score-1 '>static PyObject *__pyx_f_6robots_8engine_c_6engine_7PyRobot_step(struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
@@ -749,39 +1116,197 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_7PyRobot_8position___get__(s
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">060</span>:         <span class="bp">self</span><span class="o">.</span><span class="n">c_robot</span><span class="o">.</span><span class="n">step</span><span class="p">()</span></pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">094</span>:         <span class="bp">self</span><span class="o">.</span><span class="n">c_robot</span><span class="o">.</span><span class="n">step</span><span class="p">()</span></pre>
 <pre class='cython code score-0 '>  __pyx_v_self-&gt;c_robot.step();
-</pre><pre class="cython line score-0">&#xA0;<span class="">061</span>: </pre>
-<pre class="cython line score-1" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">062</span>:     <span class="k">def</span> <span class="nf">fire</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
-<pre class='cython code score-1 '>/* Python wrapper */
-static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_3fire(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_3fire(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+</pre><pre class="cython line score-0">&#xA0;<span class="">095</span>: </pre>
+<pre class="cython line score-49" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">096</span>:     <span class="k">cpdef</span> <span class="kt">void</span> <span class="nf">fire</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">float</span> <span class="n">fire_power</span><span class="p">):</span></pre>
+<pre class='cython code score-49 '>static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_3fire(PyObject *__pyx_v_self, PyObject *__pyx_arg_fire_power); /*proto*/
+static void __pyx_f_6robots_8engine_c_6engine_7PyRobot_fire(struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *__pyx_v_self, float __pyx_v_fire_power, int __pyx_skip_dispatch) {
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("fire", 0);
+  /* Check if called by wrapper */
+  if (unlikely(__pyx_skip_dispatch)) ;
+  /* Check if overridden in Python */
+  else if (unlikely((Py_TYPE(((PyObject *)__pyx_v_self))-&gt;tp_dictoffset != 0) || (Py_TYPE(((PyObject *)__pyx_v_self))-&gt;tp_flags &amp; (Py_TPFLAGS_IS_ABSTRACT | Py_TPFLAGS_HEAPTYPE)))) {
+    #if CYTHON_USE_DICT_VERSIONS &amp;&amp; CYTHON_USE_PYTYPE_LOOKUP &amp;&amp; CYTHON_USE_TYPE_SLOTS
+    static PY_UINT64_T __pyx_tp_dict_version = __PYX_DICT_VERSION_INIT, __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
+    if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
+      PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
+      #endif
+      __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(((PyObject *)__pyx_v_self), __pyx_n_s_fire);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 96, __pyx_L1_error)</span>
+      <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6robots_8engine_c_6engine_7PyRobot_3fire)) {
+        __pyx_t_3 = <span class='py_c_api'>PyFloat_FromDouble</span>(__pyx_v_fire_power);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 96, __pyx_L1_error)</span>
+        <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
+        <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_t_1);
+        __pyx_t_4 = __pyx_t_1; __pyx_t_5 = NULL;
+        if (CYTHON_UNPACK_METHODS &amp;&amp; unlikely(<span class='py_c_api'>PyMethod_Check</span>(__pyx_t_4))) {
+          __pyx_t_5 = <span class='py_macro_api'>PyMethod_GET_SELF</span>(__pyx_t_4);
+          if (likely(__pyx_t_5)) {
+            PyObject* function = <span class='py_macro_api'>PyMethod_GET_FUNCTION</span>(__pyx_t_4);
+            <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_t_5);
+            <span class='pyx_macro_api'>__Pyx_INCREF</span>(function);
+            <span class='pyx_macro_api'>__Pyx_DECREF_SET</span>(__pyx_t_4, function);
+          }
+        }
+        __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_t_3) : <span class='pyx_c_api'>__Pyx_PyObject_CallOneArg</span>(__pyx_t_4, __pyx_t_3);
+        <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_5); __pyx_t_5 = 0;
+        <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;
+        if (unlikely(!__pyx_t_2)) <span class='error_goto'>__PYX_ERR(1, 96, __pyx_L1_error)</span>
+        <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
+        <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_4); __pyx_t_4 = 0;
+        <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_2); __pyx_t_2 = 0;
+        <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_1); __pyx_t_1 = 0;
+        goto __pyx_L0;
+      }
+      #if CYTHON_USE_DICT_VERSIONS &amp;&amp; CYTHON_USE_PYTYPE_LOOKUP &amp;&amp; CYTHON_USE_TYPE_SLOTS
+      __pyx_tp_dict_version = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
+      __pyx_obj_dict_version = __Pyx_get_object_dict_version(((PyObject *)__pyx_v_self));
+      if (unlikely(__pyx_type_dict_guard != __pyx_tp_dict_version)) {
+        __pyx_tp_dict_version = __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
+      }
+      #endif
+      <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_1); __pyx_t_1 = 0;
+      #if CYTHON_USE_DICT_VERSIONS &amp;&amp; CYTHON_USE_PYTYPE_LOOKUP &amp;&amp; CYTHON_USE_TYPE_SLOTS
+    }
+    #endif
+  }
+/* … */
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_2);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_5);
+  <span class='pyx_c_api'>__Pyx_WriteUnraisable</span>("robots.engine_c.engine.PyRobot.fire", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __pyx_L0:;
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+}
+
+/* Python wrapper */
+static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_3fire(PyObject *__pyx_v_self, PyObject *__pyx_arg_fire_power); /*proto*/
+static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_3fire(PyObject *__pyx_v_self, PyObject *__pyx_arg_fire_power) {
+  float __pyx_v_fire_power;
   PyObject *__pyx_r = 0;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("fire (wrapper)", 0);
-  __pyx_r = __pyx_pf_6robots_8engine_c_6engine_7PyRobot_2fire(((struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *)__pyx_v_self));
+  assert(__pyx_arg_fire_power); {
+    __pyx_v_fire_power = __pyx_<span class='py_c_api'>PyFloat_AsFloat</span>(__pyx_arg_fire_power); if (unlikely((__pyx_v_fire_power == (float)-1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(1, 96, __pyx_L3_error)</span>
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L3_error:;
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("robots.engine_c.engine.PyRobot.fire", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_6robots_8engine_c_6engine_7PyRobot_2fire(((struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *)__pyx_v_self), ((float)__pyx_v_fire_power));
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
 
   /* function exit code */
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6robots_8engine_c_6engine_7PyRobot_2fire(struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *__pyx_v_self) {
+static PyObject *__pyx_pf_6robots_8engine_c_6engine_7PyRobot_2fire(struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *__pyx_v_self, float __pyx_v_fire_power) {
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("fire", 0);
-/* … */
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
+  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_6robots_8engine_c_6engine_7PyRobot_fire(__pyx_v_self, __pyx_v_fire_power, 1));<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 96, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
   /* function exit code */
-  __pyx_r = Py_None; <span class='pyx_macro_api'>__Pyx_INCREF</span>(Py_None);
+  __pyx_L1_error:;
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("robots.engine_c.engine.PyRobot.fire", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
   <span class='refnanny'>__Pyx_XGIVEREF</span>(__pyx_r);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">063</span>:         <span class="bp">self</span><span class="o">.</span><span class="n">c_robot</span><span class="o">.</span><span class="n">fire</span><span class="p">()</span></pre>
-<pre class='cython code score-0 '>  (void)(__pyx_v_self-&gt;c_robot.fire());
-</pre><pre class="cython line score-0">&#xA0;<span class="">064</span>: </pre>
-<pre class="cython line score-1" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">065</span>:     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
-<pre class='cython code score-1 '>/* Python wrapper */
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">097</span>:         <span class="bp">self</span><span class="o">.</span><span class="n">c_robot</span><span class="o">.</span><span class="n">fire_power</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">fire_power</span></pre>
+<pre class='cython code score-0 '>  __pyx_v_self-&gt;c_robot.fire_power = __pyx_v_fire_power;
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">098</span>:         <span class="bp">self</span><span class="o">.</span><span class="n">c_robot</span><span class="o">.</span><span class="n">should_fire</span><span class="p">:</span><span class="n">bint</span> <span class="o">=</span> <span class="bp">True</span></pre>
+<pre class='cython code score-0 '>  __pyx_v_self-&gt;c_robot.should_fire = 1;
+</pre><pre class="cython line score-0">&#xA0;<span class="">099</span>: </pre>
+<pre class="cython line score-33" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">100</span>:     <span class="k">cpdef</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
+<pre class='cython code score-33 '>static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_5run(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_f_6robots_8engine_c_6engine_7PyRobot_run(CYTHON_UNUSED struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *__pyx_v_self, int __pyx_skip_dispatch) {
+  PyObject *__pyx_r = NULL;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("run", 0);
+  /* Check if called by wrapper */
+  if (unlikely(__pyx_skip_dispatch)) ;
+  /* Check if overridden in Python */
+  else if (unlikely((Py_TYPE(((PyObject *)__pyx_v_self))-&gt;tp_dictoffset != 0) || (Py_TYPE(((PyObject *)__pyx_v_self))-&gt;tp_flags &amp; (Py_TPFLAGS_IS_ABSTRACT | Py_TPFLAGS_HEAPTYPE)))) {
+    #if CYTHON_USE_DICT_VERSIONS &amp;&amp; CYTHON_USE_PYTYPE_LOOKUP &amp;&amp; CYTHON_USE_TYPE_SLOTS
+    static PY_UINT64_T __pyx_tp_dict_version = __PYX_DICT_VERSION_INIT, __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
+    if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
+      PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
+      #endif
+      __pyx_t_1 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(((PyObject *)__pyx_v_self), __pyx_n_s_run);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 100, __pyx_L1_error)</span>
+      <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
+      if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6robots_8engine_c_6engine_7PyRobot_5run)) {
+        <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
+        <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_t_1);
+        __pyx_t_3 = __pyx_t_1; __pyx_t_4 = NULL;
+        if (CYTHON_UNPACK_METHODS &amp;&amp; unlikely(<span class='py_c_api'>PyMethod_Check</span>(__pyx_t_3))) {
+          __pyx_t_4 = <span class='py_macro_api'>PyMethod_GET_SELF</span>(__pyx_t_3);
+          if (likely(__pyx_t_4)) {
+            PyObject* function = <span class='py_macro_api'>PyMethod_GET_FUNCTION</span>(__pyx_t_3);
+            <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_t_4);
+            <span class='pyx_macro_api'>__Pyx_INCREF</span>(function);
+            <span class='pyx_macro_api'>__Pyx_DECREF_SET</span>(__pyx_t_3, function);
+          }
+        }
+        __pyx_t_2 = (__pyx_t_4) ? <span class='pyx_c_api'>__Pyx_PyObject_CallOneArg</span>(__pyx_t_3, __pyx_t_4) : <span class='pyx_c_api'>__Pyx_PyObject_CallNoArg</span>(__pyx_t_3);
+        <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4); __pyx_t_4 = 0;
+        if (unlikely(!__pyx_t_2)) <span class='error_goto'>__PYX_ERR(1, 100, __pyx_L1_error)</span>
+        <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_2);
+        <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;
+        __pyx_r = __pyx_t_2;
+        __pyx_t_2 = 0;
+        <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_1); __pyx_t_1 = 0;
+        goto __pyx_L0;
+      }
+      #if CYTHON_USE_DICT_VERSIONS &amp;&amp; CYTHON_USE_PYTYPE_LOOKUP &amp;&amp; CYTHON_USE_TYPE_SLOTS
+      __pyx_tp_dict_version = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
+      __pyx_obj_dict_version = __Pyx_get_object_dict_version(((PyObject *)__pyx_v_self));
+      if (unlikely(__pyx_type_dict_guard != __pyx_tp_dict_version)) {
+        __pyx_tp_dict_version = __pyx_obj_dict_version = __PYX_DICT_VERSION_INIT;
+      }
+      #endif
+      <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_1); __pyx_t_1 = 0;
+      #if CYTHON_USE_DICT_VERSIONS &amp;&amp; CYTHON_USE_PYTYPE_LOOKUP &amp;&amp; CYTHON_USE_TYPE_SLOTS
+    }
+    #endif
+  }
+/* … */
+  /* function exit code */
+  __pyx_r = Py_None; <span class='pyx_macro_api'>__Pyx_INCREF</span>(Py_None);
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_2);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("robots.engine_c.engine.PyRobot.run", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  <span class='refnanny'>__Pyx_XGIVEREF</span>(__pyx_r);
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+/* … */
+/* Python wrapper */
 static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_5run(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
 static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_5run(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
@@ -794,20 +1319,136 @@ static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_5run(PyObject *__py
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6robots_8engine_c_6engine_7PyRobot_4run(CYTHON_UNUSED struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *__pyx_v_self) {
+static PyObject *__pyx_pf_6robots_8engine_c_6engine_7PyRobot_4run(struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("run", 0);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
+  __pyx_t_1 = __pyx_f_6robots_8engine_c_6engine_7PyRobot_run(__pyx_v_self, 1);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 100, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
 
   /* function exit code */
-  __pyx_r = Py_None; <span class='pyx_macro_api'>__Pyx_INCREF</span>(Py_None);
+  __pyx_L1_error:;
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("robots.engine_c.engine.PyRobot.run", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
   <span class='refnanny'>__Pyx_XGIVEREF</span>(__pyx_r);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-</pre><pre class="cython line score-0">&#xA0;<span class="">066</span>:         <span class="k">pass</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">067</span>: </pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">068</span>: <span class="k">cdef</span> <span class="k">class</span> <span class="nf">Engine</span><span class="p">:</span></pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">101</span>:         <span class="k">pass</span></pre>
+<pre class="cython line score-0">&#xA0;<span class="">102</span>: </pre>
+<pre class="cython line score-5" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">103</span>:     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
+<pre class='cython code score-5 '>/* Python wrapper */
+static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_7__repr__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_6robots_8engine_c_6engine_7PyRobot_7__repr__(PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__repr__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_6robots_8engine_c_6engine_7PyRobot_6__repr__(((struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *)__pyx_v_self));
+
+  /* function exit code */
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_6robots_8engine_c_6engine_7PyRobot_6__repr__(struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
+  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__repr__", 0);
+/* … */
+  /* function exit code */
+  __pyx_L1_error:;
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_4);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_5);
+  <span class='pyx_c_api'>__Pyx_AddTraceback</span>("robots.engine_c.engine.PyRobot.__repr__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  <span class='refnanny'>__Pyx_XGIVEREF</span>(__pyx_r);
+  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
+  return __pyx_r;
+}
+</pre><pre class="cython line score-39" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">104</span>:         <span class="k">return</span> <span class="n">f</span><span class="s">&quot;PyRobot(position={self.position},velocity={self.velocity}&quot;</span>\</pre>
+<pre class='cython code score-39 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
+  __pyx_t_1 = <span class='py_c_api'>PyTuple_New</span>(9);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 104, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
+  __pyx_t_2 = 0;
+  __pyx_t_3 = 127;
+  <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_kp_u_PyRobot_position);
+  __pyx_t_2 += 17;
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_kp_u_PyRobot_position);
+  <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_1, 0, __pyx_kp_u_PyRobot_position);
+  __pyx_t_4 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(((PyObject *)__pyx_v_self), __pyx_n_s_position);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 104, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_4);
+  __pyx_t_5 = <span class='pyx_c_api'>__Pyx_PyObject_FormatSimple</span>(__pyx_t_4, __pyx_empty_unicode);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 104, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_5);
+  <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_3 = (<span class='pyx_c_api'>__Pyx_PyUnicode_MAX_CHAR_VALUE</span>(__pyx_t_5) &gt; __pyx_t_3) ? <span class='pyx_c_api'>__Pyx_PyUnicode_MAX_CHAR_VALUE</span>(__pyx_t_5) : __pyx_t_3;
+  __pyx_t_2 += <span class='pyx_c_api'>__Pyx_PyUnicode_GET_LENGTH</span>(__pyx_t_5);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_t_5);
+  <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_1, 1, __pyx_t_5);
+  __pyx_t_5 = 0;
+  <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_kp_u_velocity);
+  __pyx_t_2 += 10;
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_kp_u_velocity);
+  <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_1, 2, __pyx_kp_u_velocity);
+  __pyx_t_5 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(((PyObject *)__pyx_v_self), __pyx_n_s_velocity_2);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 104, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_5);
+  __pyx_t_4 = <span class='pyx_c_api'>__Pyx_PyObject_FormatSimple</span>(__pyx_t_5, __pyx_empty_unicode);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 104, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_4);
+  <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_5); __pyx_t_5 = 0;
+  __pyx_t_3 = (<span class='pyx_c_api'>__Pyx_PyUnicode_MAX_CHAR_VALUE</span>(__pyx_t_4) &gt; __pyx_t_3) ? <span class='pyx_c_api'>__Pyx_PyUnicode_MAX_CHAR_VALUE</span>(__pyx_t_4) : __pyx_t_3;
+  __pyx_t_2 += <span class='pyx_c_api'>__Pyx_PyUnicode_GET_LENGTH</span>(__pyx_t_4);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_t_4);
+  <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_1, 3, __pyx_t_4);
+  __pyx_t_4 = 0;
+  <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_kp_u_acceleration);
+  __pyx_t_2 += 14;
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_kp_u_acceleration);
+  <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_1, 4, __pyx_kp_u_acceleration);
+/* … */
+  __pyx_t_4 = <span class='pyx_c_api'>__Pyx_PyUnicode_Join</span>(__pyx_t_1, 9, __pyx_t_2, __pyx_t_3);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 104, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_4);
+  <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_r = __pyx_t_4;
+  __pyx_t_4 = 0;
+  goto __pyx_L0;
+</pre><pre class="cython line score-28" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">105</span>:             <span class="n">f</span><span class="s">&quot;,acceleration={self.acceleration},base_rotation={self.base_rotation})&quot;</span></pre>
+<pre class='cython code score-28 '>  __pyx_t_4 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(((PyObject *)__pyx_v_self), __pyx_n_s_acceleration_2);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 105, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_4);
+  __pyx_t_5 = <span class='pyx_c_api'>__Pyx_PyObject_FormatSimple</span>(__pyx_t_4, __pyx_empty_unicode);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 105, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_5);
+  <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_3 = (<span class='pyx_c_api'>__Pyx_PyUnicode_MAX_CHAR_VALUE</span>(__pyx_t_5) &gt; __pyx_t_3) ? <span class='pyx_c_api'>__Pyx_PyUnicode_MAX_CHAR_VALUE</span>(__pyx_t_5) : __pyx_t_3;
+  __pyx_t_2 += <span class='pyx_c_api'>__Pyx_PyUnicode_GET_LENGTH</span>(__pyx_t_5);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_t_5);
+  <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_1, 5, __pyx_t_5);
+  __pyx_t_5 = 0;
+  <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_kp_u_base_rotation);
+  __pyx_t_2 += 15;
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_kp_u_base_rotation);
+  <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_1, 6, __pyx_kp_u_base_rotation);
+  __pyx_t_5 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(((PyObject *)__pyx_v_self), __pyx_n_s_base_rotation_2);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 105, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_5);
+  __pyx_t_4 = <span class='pyx_c_api'>__Pyx_PyObject_FormatSimple</span>(__pyx_t_5, __pyx_empty_unicode);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 105, __pyx_L1_error)</span>
+  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_4);
+  <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_5); __pyx_t_5 = 0;
+  __pyx_t_3 = (<span class='pyx_c_api'>__Pyx_PyUnicode_MAX_CHAR_VALUE</span>(__pyx_t_4) &gt; __pyx_t_3) ? <span class='pyx_c_api'>__Pyx_PyUnicode_MAX_CHAR_VALUE</span>(__pyx_t_4) : __pyx_t_3;
+  __pyx_t_2 += <span class='pyx_c_api'>__Pyx_PyUnicode_GET_LENGTH</span>(__pyx_t_4);
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_t_4);
+  <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_1, 7, __pyx_t_4);
+  __pyx_t_4 = 0;
+  <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_kp_u__2);
+  __pyx_t_2 += 1;
+  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_kp_u__2);
+  <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_1, 8, __pyx_kp_u__2);
+</pre><pre class="cython line score-0">&#xA0;<span class="">106</span>: </pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">107</span>: <span class="k">cdef</span> <span class="k">class</span> <span class="nf">Engine</span><span class="p">:</span></pre>
 <pre class='cython code score-0 '>struct __pyx_obj_6robots_8engine_c_6engine_Engine {
   PyObject_HEAD
   struct __pyx_vtabstruct_6robots_8engine_c_6engine_Engine *__pyx_vtab;
@@ -820,8 +1461,8 @@ struct __pyx_vtabstruct_6robots_8engine_c_6engine_Engine {
   void (*collide_bullets)(struct __pyx_obj_6robots_8engine_c_6engine_Engine *);
 };
 static struct __pyx_vtabstruct_6robots_8engine_c_6engine_Engine *__pyx_vtabptr_6robots_8engine_c_6engine_Engine;
-</pre><pre class="cython line score-0">&#xA0;<span class="">069</span>:     <span class="k">cdef</span> <span class="kt">Vec2</span> <span class="nf">size</span></pre>
-<pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">070</span>:     <span class="k">cdef</span> <span class="kr">readonly</span> <span class="kt">list</span> <span class="nf">robots</span></pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">108</span>:     <span class="k">cdef</span> <span class="kt">Vec2</span> <span class="nf">size</span></pre>
+<pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">109</span>:     <span class="k">cdef</span> <span class="kr">readonly</span> <span class="kt">list</span> <span class="nf">robots</span></pre>
 <pre class='cython code score-2 '>/* Python wrapper */
 static PyObject *__pyx_pw_6robots_8engine_c_6engine_6Engine_6robots_1__get__(PyObject *__pyx_v_self); /*proto*/
 static PyObject *__pyx_pw_6robots_8engine_c_6engine_6Engine_6robots_1__get__(PyObject *__pyx_v_self) {
@@ -850,9 +1491,9 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_6robots___get__(stru
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-</pre><pre class="cython line score-0">&#xA0;<span class="">071</span>:     <span class="k">cdef</span> <span class="kt">set</span>[<span class="kt">Bullet</span>*] <span class="nf">c_bullets</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">072</span>: </pre>
-<pre class="cython line score-34" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">073</span>:     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="nb">tuple</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mf">600</span><span class="p">,</span><span class="mf">400</span><span class="p">),</span> <span class="nb">list</span> <span class="n">robots</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span></pre>
+</pre><pre class="cython line score-0">&#xA0;<span class="">110</span>:     <span class="k">cdef</span> <span class="kt">set</span>[<span class="kt">Bullet</span>*] <span class="nf">c_bullets</span></pre>
+<pre class="cython line score-0">&#xA0;<span class="">111</span>: </pre>
+<pre class="cython line score-34" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">112</span>:     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="nb">tuple</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mf">600</span><span class="p">,</span><span class="mf">400</span><span class="p">),</span> <span class="nb">list</span> <span class="n">robots</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span></pre>
 <pre class='cython code score-34 '>/* Python wrapper */
 static int __pyx_pw_6robots_8engine_c_6engine_6Engine_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static int __pyx_pw_6robots_8engine_c_6engine_6Engine_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
@@ -892,7 +1533,7 @@ static int __pyx_pw_6robots_8engine_c_6engine_6Engine_1__init__(PyObject *__pyx_
         }
       }
       if (unlikely(kw_args &gt; 0)) {
-        if (unlikely(<span class='pyx_c_api'>__Pyx_ParseOptionalKeywords</span>(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") &lt; 0)) <span class='error_goto'>__PYX_ERR(1, 73, __pyx_L3_error)</span>
+        if (unlikely(<span class='pyx_c_api'>__Pyx_ParseOptionalKeywords</span>(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") &lt; 0)) <span class='error_goto'>__PYX_ERR(1, 112, __pyx_L3_error)</span>
       }
     } else {
       switch (<span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)) {
@@ -909,14 +1550,14 @@ static int __pyx_pw_6robots_8engine_c_6engine_6Engine_1__init__(PyObject *__pyx_
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("__init__", 0, 0, 2, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(1, 73, __pyx_L3_error)</span>
+  <span class='pyx_c_api'>__Pyx_RaiseArgtupleInvalid</span>("__init__", 0, 0, 2, <span class='py_macro_api'>PyTuple_GET_SIZE</span>(__pyx_args)); <span class='error_goto'>__PYX_ERR(1, 112, __pyx_L3_error)</span>
   __pyx_L3_error:;
   <span class='pyx_c_api'>__Pyx_AddTraceback</span>("robots.engine_c.engine.Engine.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!<span class='pyx_c_api'>__Pyx_ArgTypeTest</span>(((PyObject *)__pyx_v_size), (&amp;PyTuple_Type), 1, "size", 1))) <span class='error_goto'>__PYX_ERR(1, 73, __pyx_L1_error)</span>
-  if (unlikely(!<span class='pyx_c_api'>__Pyx_ArgTypeTest</span>(((PyObject *)__pyx_v_robots), (&amp;PyList_Type), 1, "robots", 1))) <span class='error_goto'>__PYX_ERR(1, 73, __pyx_L1_error)</span>
+  if (unlikely(!<span class='pyx_c_api'>__Pyx_ArgTypeTest</span>(((PyObject *)__pyx_v_size), (&amp;PyTuple_Type), 1, "size", 1))) <span class='error_goto'>__PYX_ERR(1, 112, __pyx_L1_error)</span>
+  if (unlikely(!<span class='pyx_c_api'>__Pyx_ArgTypeTest</span>(((PyObject *)__pyx_v_robots), (&amp;PyList_Type), 1, "robots", 1))) <span class='error_goto'>__PYX_ERR(1, 112, __pyx_L1_error)</span>
   __pyx_r = __pyx_pf_6robots_8engine_c_6engine_6Engine___init__(((struct __pyx_obj_6robots_8engine_c_6engine_Engine *)__pyx_v_self), __pyx_v_size, __pyx_v_robots);
 
   /* function exit code */
@@ -945,56 +1586,59 @@ static int __pyx_pf_6robots_8engine_c_6engine_6Engine___init__(struct __pyx_obj_
   return __pyx_r;
 }
 /* … */
-  __pyx_tuple__9 = <span class='py_c_api'>PyTuple_Pack</span>(2, __pyx_int_600, __pyx_int_400);<span class='error_goto'> if (unlikely(!__pyx_tuple__9)) __PYX_ERR(1, 73, __pyx_L1_error)</span>
+  __pyx_tuple__9 = <span class='py_c_api'>PyTuple_Pack</span>(2, __pyx_int_600, __pyx_int_400);<span class='error_goto'> if (unlikely(!__pyx_tuple__9)) __PYX_ERR(1, 112, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_tuple__9);
   <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_tuple__9);
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">074</span>:         <span class="k">if</span> <span class="n">robots</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span></pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">113</span>:         <span class="k">if</span> <span class="n">robots</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span></pre>
 <pre class='cython code score-0 '>  __pyx_t_1 = (__pyx_v_robots == ((PyObject*)Py_None));
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (unlikely(__pyx_t_2)) {
 /* … */
   }
-</pre><pre class="cython line score-5" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">075</span>:             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span></pre>
-<pre class='cython code score-5 '>    __pyx_t_3 = <span class='pyx_c_api'>__Pyx_PyObject_CallNoArg</span>(__pyx_builtin_ValueError);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 75, __pyx_L1_error)</span>
+</pre><pre class="cython line score-5" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">114</span>:             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span></pre>
+<pre class='cython code score-5 '>    __pyx_t_3 = <span class='pyx_c_api'>__Pyx_PyObject_CallNoArg</span>(__pyx_builtin_ValueError);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 114, __pyx_L1_error)</span>
     <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
     <span class='pyx_c_api'>__Pyx_Raise</span>(__pyx_t_3, 0, 0, 0);
     <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;
-    <span class='error_goto'>__PYX_ERR(1, 75, __pyx_L1_error)</span>
-</pre><pre class="cython line score-36" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">076</span>:         <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">Vec2</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mf">0</span><span class="p">],</span> <span class="n">size</span><span class="p">[</span><span class="mf">1</span><span class="p">])</span></pre>
+    <span class='error_goto'>__PYX_ERR(1, 114, __pyx_L1_error)</span>
+</pre><pre class="cython line score-36" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">115</span>:         <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">Vec2</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mf">0</span><span class="p">],</span> <span class="n">size</span><span class="p">[</span><span class="mf">1</span><span class="p">])</span></pre>
 <pre class='cython code score-36 '>  if (unlikely(__pyx_v_size == Py_None)) {
     <span class='py_c_api'>PyErr_SetString</span>(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    <span class='error_goto'>__PYX_ERR(1, 76, __pyx_L1_error)</span>
+    <span class='error_goto'>__PYX_ERR(1, 115, __pyx_L1_error)</span>
   }
-  __pyx_t_3 = <span class='pyx_c_api'>__Pyx_GetItemInt_Tuple</span>(__pyx_v_size, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 76, __pyx_L1_error)</span>
+  __pyx_t_3 = <span class='pyx_c_api'>__Pyx_GetItemInt_Tuple</span>(__pyx_v_size, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 115, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
-  __pyx_t_4 = __pyx_<span class='py_c_api'>PyFloat_AsFloat</span>(__pyx_t_3); if (unlikely((__pyx_t_4 == (float)-1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(1, 76, __pyx_L1_error)</span>
+  __pyx_t_4 = __pyx_<span class='py_c_api'>PyFloat_AsFloat</span>(__pyx_t_3); if (unlikely((__pyx_t_4 == (float)-1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(1, 115, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;
   if (unlikely(__pyx_v_size == Py_None)) {
     <span class='py_c_api'>PyErr_SetString</span>(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    <span class='error_goto'>__PYX_ERR(1, 76, __pyx_L1_error)</span>
+    <span class='error_goto'>__PYX_ERR(1, 115, __pyx_L1_error)</span>
   }
-  __pyx_t_3 = <span class='pyx_c_api'>__Pyx_GetItemInt_Tuple</span>(__pyx_v_size, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 76, __pyx_L1_error)</span>
+  __pyx_t_3 = <span class='pyx_c_api'>__Pyx_GetItemInt_Tuple</span>(__pyx_v_size, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 115, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
-  __pyx_t_5 = __pyx_<span class='py_c_api'>PyFloat_AsFloat</span>(__pyx_t_3); if (unlikely((__pyx_t_5 == (float)-1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(1, 76, __pyx_L1_error)</span>
+  __pyx_t_5 = __pyx_<span class='py_c_api'>PyFloat_AsFloat</span>(__pyx_t_3); if (unlikely((__pyx_t_5 == (float)-1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(1, 115, __pyx_L1_error)</span>
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;
   try {
     __pyx_t_6 = Vec2(__pyx_t_4, __pyx_t_5);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    <span class='error_goto'>__PYX_ERR(1, 76, __pyx_L1_error)</span>
+    <span class='error_goto'>__PYX_ERR(1, 115, __pyx_L1_error)</span>
   }
   __pyx_v_self-&gt;size = __pyx_t_6;
-</pre><pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">077</span>:         <span class="bp">self</span><span class="o">.</span><span class="n">robots</span> <span class="o">=</span> <span class="n">robots</span></pre>
+</pre><pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">116</span>:         <span class="bp">self</span><span class="o">.</span><span class="n">robots</span> <span class="o">=</span> <span class="n">robots</span></pre>
 <pre class='cython code score-2 '>  <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_v_robots);
   <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_v_robots);
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_v_self-&gt;robots);
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_v_self-&gt;robots);
   __pyx_v_self-&gt;robots = __pyx_v_robots;
-</pre><pre class="cython line score-0">&#xA0;<span class="">078</span>: </pre>
-<pre class="cython line score-4" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">079</span>:     <span class="k">cdef</span> <span class="kt">void</span> <span class="nf">collide_bullets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
-<pre class='cython code score-4 '>static void __pyx_f_6robots_8engine_c_6engine_6Engine_collide_bullets(struct __pyx_obj_6robots_8engine_c_6engine_Engine *__pyx_v_self) {
-  Py_ssize_t __pyx_v_i;
-  CYTHON_UNUSED PyObject *__pyx_v_robot = NULL;
+</pre><pre class="cython line score-0">&#xA0;<span class="">117</span>: </pre>
+<pre class="cython line score-9" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">118</span>:     <span class="k">cdef</span> <span class="kt">void</span> <span class="nf">collide_bullets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
+<pre class='cython code score-9 '>static void __pyx_f_6robots_8engine_c_6engine_6Engine_collide_bullets(struct __pyx_obj_6robots_8engine_c_6engine_Engine *__pyx_v_self) {
+  PyObject *__pyx_v_py_robot = NULL;
+  Robot *__pyx_v_ptr_robot;
+  Bullet *__pyx_v_ptr_bullet;
+  PyObject *__pyx_v_power = NULL;
+  double __pyx_v_damage;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("collide_bullets", 0);
 /* … */
@@ -1002,47 +1646,130 @@ static int __pyx_pf_6robots_8engine_c_6engine_6Engine___init__(struct __pyx_obj_
   goto __pyx_L0;
   __pyx_L1_error:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_10);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_11);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_12);
   <span class='pyx_c_api'>__Pyx_WriteUnraisable</span>("robots.engine_c.engine.Engine.collide_bullets", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_L0:;
-  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_v_robot);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_v_py_robot);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_v_power);
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
 }
-</pre><pre class="cython line score-8" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">080</span>:         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">robots</span><span class="p">)):</span></pre>
-<pre class='cython code score-8 '>  __pyx_t_1 = __pyx_v_self-&gt;robots;
-  <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_t_1);
-  if (unlikely(__pyx_t_1 == Py_None)) {
-    <span class='py_c_api'>PyErr_SetString</span>(PyExc_TypeError, "object of type 'NoneType' has no len()");
-    <span class='error_goto'>__PYX_ERR(1, 80, __pyx_L1_error)</span>
+</pre><pre class="cython line score-12" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">119</span>:         <span class="k">for</span> <span class="n">py_robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">robots</span><span class="p">:</span></pre>
+<pre class='cython code score-12 '>  if (unlikely(__pyx_v_self-&gt;robots == Py_None)) {
+    <span class='py_c_api'>PyErr_SetString</span>(PyExc_TypeError, "'NoneType' object is not iterable");
+    <span class='error_goto'>__PYX_ERR(1, 119, __pyx_L1_error)</span>
   }
-  __pyx_t_2 = <span class='py_macro_api'>PyList_GET_SIZE</span>(__pyx_t_1);<span class='error_goto'> if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(1, 80, __pyx_L1_error)</span>
+  __pyx_t_1 = __pyx_v_self-&gt;robots; <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_t_1); __pyx_t_2 = 0;
+  for (;;) {
+    if (__pyx_t_2 &gt;= <span class='py_macro_api'>PyList_GET_SIZE</span>(__pyx_t_1)) break;
+    #if CYTHON_ASSUME_SAFE_MACROS &amp;&amp; !CYTHON_AVOID_BORROWED_REFS
+    __pyx_t_3 = <span class='py_macro_api'>PyList_GET_ITEM</span>(__pyx_t_1, __pyx_t_2); <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_t_3); __pyx_t_2++; if (unlikely(0 &lt; 0)) <span class='error_goto'>__PYX_ERR(1, 119, __pyx_L1_error)</span>
+    #else
+    __pyx_t_3 = <span class='py_macro_api'>PySequence_ITEM</span>(__pyx_t_1, __pyx_t_2); __pyx_t_2++;<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 119, __pyx_L1_error)</span>
+    <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
+    #endif
+    <span class='pyx_macro_api'>__Pyx_XDECREF_SET</span>(__pyx_v_py_robot, __pyx_t_3);
+    __pyx_t_3 = 0;
+/* … */
+  }
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_3 = __pyx_t_2;
-  for (__pyx_t_4 = 0; __pyx_t_4 &lt; __pyx_t_3; __pyx_t_4+=1) {
-    __pyx_v_i = __pyx_t_4;
-</pre><pre class="cython line score-8" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">081</span>:             <span class="n">robot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">robots</span><span class="p">[</span><span class="n">i</span><span class="p">]</span></pre>
-<pre class='cython code score-8 '>    if (unlikely(__pyx_v_self-&gt;robots == Py_None)) {
-      <span class='py_c_api'>PyErr_SetString</span>(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      <span class='error_goto'>__PYX_ERR(1, 81, __pyx_L1_error)</span>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">120</span>:             <span class="n">ptr_robot</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">Robot</span> <span class="o">=</span> <span class="o">&amp;</span><span class="p">((&lt;</span><span class="kt">PyRobot</span><span class="p">&gt;</span><span class="n">py_robot</span><span class="p">)</span><span class="o">.</span><span class="n">c_robot</span><span class="p">)</span></pre>
+<pre class='cython code score-0 '>    __pyx_v_ptr_robot = (&amp;((struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *)__pyx_v_py_robot)-&gt;c_robot);
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">121</span>:             <span class="k">for</span> <span class="n">ptr_bullet</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_bullets</span><span class="p">:</span></pre>
+<pre class='cython code score-0 '>    __pyx_t_5 = &amp;__pyx_v_self-&gt;c_bullets;
+    __pyx_t_4 = __pyx_t_5-&gt;begin();
+    for (;;) {
+      if (!(__pyx_t_4 != __pyx_t_5-&gt;end())) break;
+      __pyx_t_6 = *__pyx_t_4;
+      ++__pyx_t_4;
+      __pyx_v_ptr_bullet = __pyx_t_6;
+/* … */
     }
-    __pyx_t_1 = <span class='pyx_c_api'>__Pyx_GetItemInt_List</span>(__pyx_v_self-&gt;robots, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 1, 1, 1);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 81, __pyx_L1_error)</span>
-    <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
-    <span class='pyx_macro_api'>__Pyx_XDECREF_SET</span>(__pyx_v_robot, __pyx_t_1);
-    __pyx_t_1 = 0;
-  }
-</pre><pre class="cython line score-0">&#xA0;<span class="">082</span>:             <span class="c"># for bullet in self.c_bullets:</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">083</span>:             <span class="c">#     # if bullet.ptr_owner[0] != robot:</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">084</span>:             <span class="c">#     #     if test_circle_to_circle(robot.position, ROBOT_RADIUS, bullet.position, 3):</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">085</span>:             <span class="c">#     #         power = ptr_bullet[0].power</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">086</span>:             <span class="c">#     #         damage: float = 4 * power + ((power &gt;= 1) * 2 * (power - 1))</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">087</span>:             <span class="c">#     #         robot.energy -= damage</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">088</span>: </pre>
-<pre class="cython line score-0">&#xA0;<span class="">089</span>:             <span class="c">#     #         self.bullets.erase(ptr_bullet)</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">090</span>:             <span class="c">#     #         free(ptr_bullet)</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">091</span>:             <span class="c">#     pass</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">092</span>:             <span class="c"># #print(f&quot;{&lt;unsigned long&gt;ptr_bullet[0].position.x}&quot;)</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">093</span>: </pre>
-<pre class="cython line score-6" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">094</span>:     <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
-<pre class='cython code score-6 '>/* Python wrapper */
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">122</span>:                 <span class="k">if</span> <span class="n">ptr_bullet</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="o">.</span><span class="n">owner</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="o">.</span><span class="n">uid</span> <span class="o">!=</span> <span class="n">ptr_robot</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="o">.</span><span class="n">uid</span><span class="p">:</span></pre>
+<pre class='cython code score-0 '>      __pyx_t_7 = ((((__pyx_v_ptr_bullet[0]).owner[0]).uid != (__pyx_v_ptr_robot[0]).uid) != 0);
+      if (__pyx_t_7) {
+/* … */
+      }
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">123</span>:                     <span class="k">if</span> <span class="n">test_circle_to_circle</span><span class="p">(</span><span class="n">ptr_robot</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">ROBOT_RADIUS</span><span class="p">,</span> <span class="n">ptr_bullet</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="mf">3</span><span class="p">):</span></pre>
+<pre class='cython code score-0 '>        __pyx_t_7 = (__pyx_f_6robots_8engine_c_6engine_test_circle_to_circle((__pyx_v_ptr_robot[0]).position, ROBOT_RADIUS, (__pyx_v_ptr_bullet[0]).position, 3.0) != 0);
+        if (__pyx_t_7) {
+/* … */
+        }
+</pre><pre class="cython line score-35" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">124</span>:                         <span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s">&quot;Bullet collided {py_robot}, {PyBullet.from_c(ptr_bullet)}&quot;</span><span class="p">)</span></pre>
+<pre class='cython code score-35 '>          __pyx_t_3 = <span class='py_c_api'>PyTuple_New</span>(4);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 124, __pyx_L1_error)</span>
+          <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
+          __pyx_t_8 = 0;
+          __pyx_t_9 = 127;
+          <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_kp_u_Bullet_collided);
+          __pyx_t_8 += 16;
+          <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_kp_u_Bullet_collided);
+          <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_3, 0, __pyx_kp_u_Bullet_collided);
+          __pyx_t_10 = <span class='pyx_c_api'>__Pyx_PyObject_FormatSimple</span>(__pyx_v_py_robot, __pyx_empty_unicode);<span class='error_goto'> if (unlikely(!__pyx_t_10)) __PYX_ERR(1, 124, __pyx_L1_error)</span>
+          <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_10);
+          __pyx_t_9 = (<span class='pyx_c_api'>__Pyx_PyUnicode_MAX_CHAR_VALUE</span>(__pyx_t_10) &gt; __pyx_t_9) ? <span class='pyx_c_api'>__Pyx_PyUnicode_MAX_CHAR_VALUE</span>(__pyx_t_10) : __pyx_t_9;
+          __pyx_t_8 += <span class='pyx_c_api'>__Pyx_PyUnicode_GET_LENGTH</span>(__pyx_t_10);
+          <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_t_10);
+          <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_3, 1, __pyx_t_10);
+          __pyx_t_10 = 0;
+          <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_kp_u__10);
+          __pyx_t_8 += 2;
+          <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_kp_u__10);
+          <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_3, 2, __pyx_kp_u__10);
+          __pyx_t_10 = ((PyObject *)__pyx_f_6robots_8engine_c_6engine_8PyBullet_from_c(__pyx_v_ptr_bullet));<span class='error_goto'> if (unlikely(!__pyx_t_10)) __PYX_ERR(1, 124, __pyx_L1_error)</span>
+          <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_10);
+          __pyx_t_11 = <span class='pyx_c_api'>__Pyx_PyObject_FormatSimple</span>(__pyx_t_10, __pyx_empty_unicode);<span class='error_goto'> if (unlikely(!__pyx_t_11)) __PYX_ERR(1, 124, __pyx_L1_error)</span>
+          <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_11);
+          <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_10); __pyx_t_10 = 0;
+          __pyx_t_9 = (<span class='pyx_c_api'>__Pyx_PyUnicode_MAX_CHAR_VALUE</span>(__pyx_t_11) &gt; __pyx_t_9) ? <span class='pyx_c_api'>__Pyx_PyUnicode_MAX_CHAR_VALUE</span>(__pyx_t_11) : __pyx_t_9;
+          __pyx_t_8 += <span class='pyx_c_api'>__Pyx_PyUnicode_GET_LENGTH</span>(__pyx_t_11);
+          <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_t_11);
+          <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_3, 3, __pyx_t_11);
+          __pyx_t_11 = 0;
+          __pyx_t_11 = <span class='pyx_c_api'>__Pyx_PyUnicode_Join</span>(__pyx_t_3, 4, __pyx_t_8, __pyx_t_9);<span class='error_goto'> if (unlikely(!__pyx_t_11)) __PYX_ERR(1, 124, __pyx_L1_error)</span>
+          <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_11);
+          <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;
+          __pyx_t_3 = <span class='pyx_c_api'>__Pyx_PyObject_CallOneArg</span>(__pyx_builtin_print, __pyx_t_11);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 124, __pyx_L1_error)</span>
+          <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
+          <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_11); __pyx_t_11 = 0;
+          <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;
+</pre><pre class="cython line score-6" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">125</span>:                         <span class="n">power</span> <span class="o">=</span> <span class="n">ptr_bullet</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="o">.</span><span class="n">power</span></pre>
+<pre class='cython code score-6 '>          __pyx_t_3 = <span class='py_c_api'>PyFloat_FromDouble</span>((__pyx_v_ptr_bullet[0]).power);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 125, __pyx_L1_error)</span>
+          <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
+          <span class='pyx_macro_api'>__Pyx_XDECREF_SET</span>(__pyx_v_power, __pyx_t_3);
+          __pyx_t_3 = 0;
+</pre><pre class="cython line score-43" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">126</span>:                         <span class="n">damage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">4</span> <span class="o">*</span> <span class="n">power</span> <span class="o">+</span> <span class="p">((</span><span class="n">power</span> <span class="o">&gt;=</span> <span class="mf">1</span><span class="p">)</span> <span class="o">*</span> <span class="mf">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">power</span> <span class="o">-</span> <span class="mf">1</span><span class="p">))</span></pre>
+<pre class='cython code score-43 '>          __pyx_t_3 = <span class='py_c_api'>PyNumber_Multiply</span>(__pyx_int_4, __pyx_v_power);<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 126, __pyx_L1_error)</span>
+          <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
+          __pyx_t_11 = <span class='py_c_api'>PyObject_RichCompare</span>(__pyx_v_power, __pyx_int_1, Py_GE); <span class='refnanny'>__Pyx_XGOTREF</span>(__pyx_t_11);<span class='error_goto'> if (unlikely(!__pyx_t_11)) __PYX_ERR(1, 126, __pyx_L1_error)</span>
+          __pyx_t_10 = <span class='py_c_api'>PyNumber_Multiply</span>(__pyx_t_11, __pyx_int_2);<span class='error_goto'> if (unlikely(!__pyx_t_10)) __PYX_ERR(1, 126, __pyx_L1_error)</span>
+          <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_10);
+          <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_11); __pyx_t_11 = 0;
+          __pyx_t_11 = <span class='pyx_c_api'>__Pyx_PyInt_SubtractObjC</span>(__pyx_v_power, __pyx_int_1, 1, 0, 0);<span class='error_goto'> if (unlikely(!__pyx_t_11)) __PYX_ERR(1, 126, __pyx_L1_error)</span>
+          <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_11);
+          __pyx_t_12 = <span class='py_c_api'>PyNumber_Multiply</span>(__pyx_t_10, __pyx_t_11);<span class='error_goto'> if (unlikely(!__pyx_t_12)) __PYX_ERR(1, 126, __pyx_L1_error)</span>
+          <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_12);
+          <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_10); __pyx_t_10 = 0;
+          <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_11); __pyx_t_11 = 0;
+          __pyx_t_11 = <span class='py_c_api'>PyNumber_Add</span>(__pyx_t_3, __pyx_t_12);<span class='error_goto'> if (unlikely(!__pyx_t_11)) __PYX_ERR(1, 126, __pyx_L1_error)</span>
+          <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_11);
+          <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;
+          <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_12); __pyx_t_12 = 0;
+          __pyx_t_13 = __pyx_<span class='py_c_api'>PyFloat_AsDouble</span>(__pyx_t_11); if (unlikely((__pyx_t_13 == (double)-1) &amp;&amp; <span class='py_c_api'>PyErr_Occurred</span>())) <span class='error_goto'>__PYX_ERR(1, 126, __pyx_L1_error)</span>
+          <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_11); __pyx_t_11 = 0;
+          __pyx_v_damage = __pyx_t_13;
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">127</span>:                         <span class="n">ptr_robot</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="o">.</span><span class="n">energy</span> <span class="o">-=</span> <span class="n">damage</span></pre>
+<pre class='cython code score-0 '>          __pyx_t_14 = 0;
+          (__pyx_v_ptr_robot[__pyx_t_14]).energy = ((__pyx_v_ptr_robot[__pyx_t_14]).energy - __pyx_v_damage);
+</pre><pre class="cython line score-0">&#xA0;<span class="">128</span>: </pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">129</span>:                         <span class="bp">self</span><span class="o">.</span><span class="n">c_bullets</span><span class="o">.</span><span class="n">erase</span><span class="p">(</span><span class="n">ptr_bullet</span><span class="p">)</span></pre>
+<pre class='cython code score-0 '>          (void)(__pyx_v_self-&gt;c_bullets.erase(__pyx_v_ptr_bullet));
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">130</span>:                         <span class="k">del</span> <span class="n">ptr_bullet</span></pre>
+<pre class='cython code score-0 '>          delete __pyx_v_ptr_bullet;
+</pre><pre class="cython line score-0">&#xA0;<span class="">131</span>: </pre>
+<pre class="cython line score-8" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">132</span>:     <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
+<pre class='cython code score-8 '>/* Python wrapper */
 static PyObject *__pyx_pw_6robots_8engine_c_6engine_6Engine_3step(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
 static PyObject *__pyx_pw_6robots_8engine_c_6engine_6Engine_3step(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
@@ -1058,6 +1785,7 @@ static PyObject *__pyx_pw_6robots_8engine_c_6engine_6Engine_3step(PyObject *__py
 static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_2step(struct __pyx_obj_6robots_8engine_c_6engine_Engine *__pyx_v_self) {
   PyObject *__pyx_v_py_robot = NULL;
   Robot __pyx_v_robot;
+  Bullet *__pyx_v_bullet;
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("step", 0);
@@ -1068,6 +1796,8 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_2step(struct __pyx_o
   __pyx_L1_error:;
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_1);
   <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_3);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_5);
+  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6);
   <span class='pyx_c_api'>__Pyx_AddTraceback</span>("robots.engine_c.engine.Engine.step", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
@@ -1076,20 +1806,20 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_2step(struct __pyx_o
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">095</span>:         <span class="bp">self</span><span class="o">.</span><span class="n">collide_bullets</span><span class="p">()</span></pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">133</span>:         <span class="bp">self</span><span class="o">.</span><span class="n">collide_bullets</span><span class="p">()</span></pre>
 <pre class='cython code score-0 '>  ((struct __pyx_vtabstruct_6robots_8engine_c_6engine_Engine *)__pyx_v_self-&gt;__pyx_vtab)-&gt;collide_bullets(__pyx_v_self);
-</pre><pre class="cython line score-12" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">096</span>:         <span class="k">for</span> <span class="n">py_robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">robots</span><span class="p">:</span></pre>
+</pre><pre class="cython line score-12" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">134</span>:         <span class="k">for</span> <span class="n">py_robot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">robots</span><span class="p">:</span></pre>
 <pre class='cython code score-12 '>  if (unlikely(__pyx_v_self-&gt;robots == Py_None)) {
     <span class='py_c_api'>PyErr_SetString</span>(PyExc_TypeError, "'NoneType' object is not iterable");
-    <span class='error_goto'>__PYX_ERR(1, 96, __pyx_L1_error)</span>
+    <span class='error_goto'>__PYX_ERR(1, 134, __pyx_L1_error)</span>
   }
   __pyx_t_1 = __pyx_v_self-&gt;robots; <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_t_1); __pyx_t_2 = 0;
   for (;;) {
     if (__pyx_t_2 &gt;= <span class='py_macro_api'>PyList_GET_SIZE</span>(__pyx_t_1)) break;
     #if CYTHON_ASSUME_SAFE_MACROS &amp;&amp; !CYTHON_AVOID_BORROWED_REFS
-    __pyx_t_3 = <span class='py_macro_api'>PyList_GET_ITEM</span>(__pyx_t_1, __pyx_t_2); <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_t_3); __pyx_t_2++; if (unlikely(0 &lt; 0)) <span class='error_goto'>__PYX_ERR(1, 96, __pyx_L1_error)</span>
+    __pyx_t_3 = <span class='py_macro_api'>PyList_GET_ITEM</span>(__pyx_t_1, __pyx_t_2); <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_t_3); __pyx_t_2++; if (unlikely(0 &lt; 0)) <span class='error_goto'>__PYX_ERR(1, 134, __pyx_L1_error)</span>
     #else
-    __pyx_t_3 = <span class='py_macro_api'>PySequence_ITEM</span>(__pyx_t_1, __pyx_t_2); __pyx_t_2++;<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 96, __pyx_L1_error)</span>
+    __pyx_t_3 = <span class='py_macro_api'>PySequence_ITEM</span>(__pyx_t_1, __pyx_t_2); __pyx_t_2++;<span class='error_goto'> if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 134, __pyx_L1_error)</span>
     <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
     #endif
     <span class='pyx_macro_api'>__Pyx_XDECREF_SET</span>(__pyx_v_py_robot, __pyx_t_3);
@@ -1097,56 +1827,60 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_2step(struct __pyx_o
 /* … */
   }
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_1); __pyx_t_1 = 0;
-</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">097</span>:             <span class="n">robot</span><span class="p">:</span> <span class="n">Robot</span> <span class="o">=</span> <span class="p">(&lt;</span><span class="kt">PyRobot</span><span class="p">&gt;</span><span class="n">py_robot</span><span class="p">)</span><span class="o">.</span><span class="n">c_robot</span></pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">135</span>:             <span class="n">robot</span><span class="p">:</span> <span class="n">Robot</span> <span class="o">=</span> <span class="p">(&lt;</span><span class="kt">PyRobot</span><span class="p">&gt;</span><span class="n">py_robot</span><span class="p">)</span><span class="o">.</span><span class="n">c_robot</span></pre>
 <pre class='cython code score-0 '>    __pyx_t_4 = ((struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *)__pyx_v_py_robot)-&gt;c_robot;
     __pyx_v_robot = __pyx_t_4;
-</pre><pre class="cython line score-0">&#xA0;<span class="">098</span>: </pre>
-<pre class="cython line score-0">&#xA0;<span class="">099</span>:             <span class="c"># Need to do robot update here for the bullet to be added to bullets</span></pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">100</span>:             <span class="n">robot</span><span class="o">.</span><span class="n">step</span><span class="p">()</span></pre>
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">136</span>:             <span class="n">robot</span><span class="o">.</span><span class="n">step</span><span class="p">()</span></pre>
 <pre class='cython code score-0 '>    __pyx_v_robot.step();
-</pre><pre class="cython line score-0">&#xA0;<span class="">101</span>:             <span class="c"># if robot.should_fire and (robot.heat &lt;= 0.0):</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">102</span>:             <span class="c">#     bullet:&amp;Bullet = robot.fire()</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">103</span>:             <span class="c">#     # print(f&quot;{&lt;unsigned long&gt;ptr_bullet}&quot;)</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">104</span>:             <span class="c">#     self.c_bullets.insert(bullet)</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">105</span>: </pre>
-<pre class="cython line score-0">&#xA0;<span class="">106</span>:             <span class="c"># clip_Vec2(robot.position, 0.0, 0.0, self.size.x, self.size.y)</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">107</span>: </pre>
-<pre class="cython line score-0">&#xA0;<span class="">108</span>:             <span class="c"># robot.heat = max(robot.heat - 0.1, 0.0)</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">109</span>: </pre>
-<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">110</span>:     <span class="k">def</span> <span class="nf">get_bullets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
-<pre class='cython code score-0 '>/* Python wrapper */
-static PyObject *__pyx_pw_6robots_8engine_c_6engine_6Engine_5get_bullets(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_6robots_8engine_c_6engine_6Engine_5get_bullets(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
-  PyObject *__pyx_r = 0;
-  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
-  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("get_bullets (wrapper)", 0);
-  __pyx_r = __pyx_pf_6robots_8engine_c_6engine_6Engine_4get_bullets(((struct __pyx_obj_6robots_8engine_c_6engine_Engine *)__pyx_v_self));
-
-  /* function exit code */
-  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_4get_bullets(CYTHON_UNUSED struct __pyx_obj_6robots_8engine_c_6engine_Engine *__pyx_v_self) {
-  PyObject *__pyx_r = NULL;
-  <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
-  <span class='refnanny'>__Pyx_RefNannySetupContext</span>("get_bullets", 0);
+</pre><pre class="cython line score-19" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">137</span>:             <span class="n">py_robot</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></pre>
+<pre class='cython code score-19 '>    __pyx_t_5 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_v_py_robot, __pyx_n_s_run);<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 137, __pyx_L1_error)</span>
+    <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_5);
+    __pyx_t_6 = NULL;
+    if (CYTHON_UNPACK_METHODS &amp;&amp; likely(<span class='py_c_api'>PyMethod_Check</span>(__pyx_t_5))) {
+      __pyx_t_6 = <span class='py_macro_api'>PyMethod_GET_SELF</span>(__pyx_t_5);
+      if (likely(__pyx_t_6)) {
+        PyObject* function = <span class='py_macro_api'>PyMethod_GET_FUNCTION</span>(__pyx_t_5);
+        <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_t_6);
+        <span class='pyx_macro_api'>__Pyx_INCREF</span>(function);
+        <span class='pyx_macro_api'>__Pyx_DECREF_SET</span>(__pyx_t_5, function);
+      }
+    }
+    __pyx_t_3 = (__pyx_t_6) ? <span class='pyx_c_api'>__Pyx_PyObject_CallOneArg</span>(__pyx_t_5, __pyx_t_6) : <span class='pyx_c_api'>__Pyx_PyObject_CallNoArg</span>(__pyx_t_5);
+    <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_t_6); __pyx_t_6 = 0;
+    if (unlikely(!__pyx_t_3)) <span class='error_goto'>__PYX_ERR(1, 137, __pyx_L1_error)</span>
+    <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_3);
+    <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_5); __pyx_t_5 = 0;
+    <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_3); __pyx_t_3 = 0;
+</pre><pre class="cython line score-0">&#xA0;<span class="">138</span>:             <span class="c"># Need to do robot update here for the bullet to be added to bullets</span></pre>
+<pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">139</span>:             <span class="k">if</span> <span class="n">robot</span><span class="o">.</span><span class="n">should_fire</span> <span class="ow">and</span> <span class="p">(</span><span class="n">robot</span><span class="o">.</span><span class="n">heat</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">):</span></pre>
+<pre class='cython code score-0 '>    __pyx_t_8 = (__pyx_v_robot.should_fire != 0);
+    if (__pyx_t_8) {
+    } else {
+      __pyx_t_7 = __pyx_t_8;
+      goto __pyx_L6_bool_binop_done;
+    }
+    __pyx_t_8 = ((__pyx_v_robot.heat &lt;= 0.0) != 0);
+    __pyx_t_7 = __pyx_t_8;
+    __pyx_L6_bool_binop_done:;
+    if (__pyx_t_7) {
 /* … */
-  /* function exit code */
-  __pyx_L0:;
-  <span class='refnanny'>__Pyx_XGIVEREF</span>(__pyx_r);
-  <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
-  return __pyx_r;
-}
-</pre><pre class="cython line score-2" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">111</span>:         <span class="k">return</span> <span class="bp">None</span></pre>
-<pre class='cython code score-2 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
-  __pyx_r = Py_None; <span class='pyx_macro_api'>__Pyx_INCREF</span>(Py_None);
-  goto __pyx_L0;
-</pre><pre class="cython line score-0">&#xA0;<span class="">112</span>:         <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bullets</span><span class="p">:</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">113</span>:             <span class="k">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span></pre>
-<pre class="cython line score-0">&#xA0;<span class="">114</span>: </pre>
-<pre class="cython line score-0">&#xA0;<span class="">115</span>:     <span class="nd">@property</span></pre>
-<pre class="cython line score-4" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">116</span>:     <span class="k">def</span> <span class="nf">bullets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
+    }
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">140</span>:                 <span class="n">bullet</span><span class="p">:</span><span class="o">&amp;</span><span class="n">Bullet</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">fire</span><span class="p">()</span></pre>
+<pre class='cython code score-0 '>      __pyx_v_bullet = __pyx_v_robot.fire();
+</pre><pre class="cython line score-0" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">141</span>:                 <span class="bp">self</span><span class="o">.</span><span class="n">c_bullets</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">bullet</span><span class="p">)</span></pre>
+<pre class='cython code score-0 '>      try {
+        __pyx_v_self-&gt;c_bullets.insert(__pyx_v_bullet);
+      } catch(...) {
+        __Pyx_CppExn2PyErr();
+        <span class='error_goto'>__PYX_ERR(1, 141, __pyx_L1_error)</span>
+      }
+</pre><pre class="cython line score-0">&#xA0;<span class="">142</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">143</span>:             <span class="c"># clip_Vec2(robot.position, 0.0, 0.0, self.size.x, self.size.y)</span></pre>
+<pre class="cython line score-0">&#xA0;<span class="">144</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">145</span>:             <span class="c"># robot.heat = max(robot.heat - 0.1, 0.0)</span></pre>
+<pre class="cython line score-0">&#xA0;<span class="">146</span>: </pre>
+<pre class="cython line score-0">&#xA0;<span class="">147</span>:     <span class="nd">@property</span></pre>
+<pre class="cython line score-4" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">148</span>:     <span class="k">def</span> <span class="nf">bullets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></pre>
 <pre class='cython code score-4 '>/* Python wrapper */
 static PyObject *__pyx_pw_6robots_8engine_c_6engine_6Engine_7bullets_1__get__(PyObject *__pyx_v_self); /*proto*/
 static PyObject *__pyx_pw_6robots_8engine_c_6engine_6Engine_7bullets_1__get__(PyObject *__pyx_v_self) {
@@ -1161,7 +1895,7 @@ static PyObject *__pyx_pw_6robots_8engine_c_6engine_6Engine_7bullets_1__get__(Py
 }
 
 static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_7bullets___get__(struct __pyx_obj_6robots_8engine_c_6engine_Engine *__pyx_v_self) {
-  Bullet *__pyx_7genexpr__pyx_v_bullet;
+  Bullet *__pyx_7genexpr__pyx_v_ptr_bullet;
   PyObject *__pyx_r = NULL;
   <span class='refnanny'>__Pyx_RefNannyDeclarations</span>
   <span class='refnanny'>__Pyx_RefNannySetupContext</span>("__get__", 0);
@@ -1177,10 +1911,10 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_7bullets___get__(str
   <span class='refnanny'>__Pyx_RefNannyFinishContext</span>();
   return __pyx_r;
 }
-</pre><pre class="cython line score-9" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">117</span>:         <span class="k">return</span> <span class="p">[</span><span class="n">PyBullet</span><span class="o">.</span><span class="n">from_c</span><span class="p">(</span><span class="n">bullet</span><span class="p">)</span> <span class="k">for</span> <span class="n">bullet</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_bullets</span><span class="p">]</span></pre>
+</pre><pre class="cython line score-9" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">149</span>:         <span class="k">return</span> <span class="p">[</span><span class="n">PyBullet</span><span class="o">.</span><span class="n">from_c</span><span class="p">(</span><span class="n">ptr_bullet</span><span class="p">)</span> <span class="k">for</span> <span class="n">ptr_bullet</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">c_bullets</span><span class="p">]</span></pre>
 <pre class='cython code score-9 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
   { /* enter inner scope */
-    __pyx_t_1 = <span class='py_c_api'>PyList_New</span>(0);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 117, __pyx_L1_error)</span>
+    __pyx_t_1 = <span class='py_c_api'>PyList_New</span>(0);<span class='error_goto'> if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 149, __pyx_L1_error)</span>
     <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_1);
     __pyx_t_3 = &amp;__pyx_v_self-&gt;c_bullets;
     __pyx_t_2 = __pyx_t_3-&gt;begin();
@@ -1188,10 +1922,10 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_7bullets___get__(str
       if (!(__pyx_t_2 != __pyx_t_3-&gt;end())) break;
       __pyx_t_4 = *__pyx_t_2;
       ++__pyx_t_2;
-      __pyx_7genexpr__pyx_v_bullet = __pyx_t_4;
-      __pyx_t_5 = ((PyObject *)__pyx_f_6robots_8engine_c_6engine_8PyBullet_from_c(__pyx_7genexpr__pyx_v_bullet));<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 117, __pyx_L1_error)</span>
+      __pyx_7genexpr__pyx_v_ptr_bullet = __pyx_t_4;
+      __pyx_t_5 = ((PyObject *)__pyx_f_6robots_8engine_c_6engine_8PyBullet_from_c(__pyx_7genexpr__pyx_v_ptr_bullet));<span class='error_goto'> if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 149, __pyx_L1_error)</span>
       <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_5);
-      if (unlikely(<span class='pyx_c_api'>__Pyx_ListComp_Append</span>(__pyx_t_1, (PyObject*)__pyx_t_5))) <span class='error_goto'>__PYX_ERR(1, 117, __pyx_L1_error)</span>
+      if (unlikely(<span class='pyx_c_api'>__Pyx_ListComp_Append</span>(__pyx_t_1, (PyObject*)__pyx_t_5))) <span class='error_goto'>__PYX_ERR(1, 149, __pyx_L1_error)</span>
       <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_5); __pyx_t_5 = 0;
     }
   } /* exit inner scope */

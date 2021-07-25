@@ -6,6 +6,7 @@ import time
 
 class RandomRobot(PyRobot):
     def run(self):
+        print("Running", self)
         self.moving = 1
         self.base_turning = 1
         self.turret_turning = -1
@@ -23,15 +24,17 @@ eng = Engine(robots=robots)
 
 
 print(eng)
-eng.step()
 print([(b.uid, b.owner_uid) for b in eng.bullets])
-
-
-start = time.perf_counter_ns()
-for i in range(int(1e6)):
+for i in range(int(1e2)):
     eng.step()
 
-duration = (time.perf_counter_ns() - start)/1e9
-print(100000/(duration), duration)
-print(eng.get_bullets())
+
+
+# frames = int(8e6)
+# start = time.perf_counter_ns()
+# for i in range(frames):
+#     eng.step()
+
+# duration = (time.perf_counter_ns() - start)/1e9
+# print(frames/(duration), duration)
 

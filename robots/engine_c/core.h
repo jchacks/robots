@@ -21,20 +21,20 @@ const float ROBOT_RADIUS = 24;
 struct Bullet
 {
     unsigned long uid;
-    long owner_uid;
+    struct Robot* owner;
     Vec2 position;
     Vec2 velocity;
     float power;
 
     Bullet()
         : uid(NUMBER_BULLETS += 1),
-          owner_uid(-1),
+          owner(NULL),
           position(Vec2(0.0, 0.0)),
           velocity(Vec2(0.0, 0.0)),
           power(0){};
-    Bullet(long owner_uid, Vec2 position, Vec2 velocity, float power)
+    Bullet(Robot* owner, Vec2 position, Vec2 velocity, float power)
         : uid(NUMBER_BULLETS += 1),
-          owner_uid(owner_uid),
+          owner(owner),
           position(position),
           velocity(velocity),
           power(power){};

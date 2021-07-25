@@ -30,7 +30,7 @@ cdef extern from "vec2.cpp":
 
 cdef extern from "core.h" nogil:
     cdef cppclass Bullet:
-        long owner_uid
+        Robot* owner
         unsigned long uid
         Vec2 position, velocity
         float power
@@ -41,12 +41,17 @@ cdef extern from "core.h" nogil:
     
     cdef cppclass Robot:
         unsigned long uid
+        int moving, base_turning, turret_turning, radar_turning
+        float energy, fire_power, velocity, heat, base_rotation, turret_rotation
+        bint should_fire
         Vec2 position
-        float power, velocity
         Robot()
         void step()
         float acceleration()
         Bullet* fire()
+    
+    cdef float ROBOT_RADIUS
+
 
 
 cdef extern from "core.cpp":
