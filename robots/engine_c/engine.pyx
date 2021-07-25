@@ -39,7 +39,7 @@ cdef bint test_circle_to_circle(const Vec2 c1, float r1, const Vec2 c2, float r2
 
 
 cdef class PyBullet:
-    cdef Bullet c_bullet
+    cdef Bullet* c_bullet
 
     @property
     def owner_uid(self):
@@ -54,28 +54,24 @@ cdef class PyBullet:
         return self.c_bullet.owner_uid
 
     @staticmethod
-    cdef PyBullet from_c(Bullet c_bullet):
+    cdef PyBullet from_c(Bullet* c_bullet):
         bullet:PyBullet = PyBullet()
         bullet.c_bullet = c_bullet
         return bullet
 
 
-# cdef struct RobotData:
-#     readonly long uid
-#     float energy
-#     float velocity
-#     Vec2 position
-#     float base_rotation
-#     float turret_rotation
-#     float radar_rotation
-#     float heat
 
-#     public int moving
-#     public int base_turning
-#     public int turret_turning
-#     public int radar_turning
-#     public bint should_fire
-#     public int fire_power
+cdef class PyRobot:
+    cdef Robot c_robot
+
+    def __cinit__(self):
+
+        self.c_robot.
+    
+    @property
+    def uid(self):
+        return self.c_robot.uid
+    
 
 cdef class Robot:
     cdef:
@@ -127,18 +123,19 @@ cdef class Robot:
         radar_rotation_velocity:float  = RADAR_ROTATION_VELOCITY_RADS * self.radar_turning + turret_rotation_velocity
         self.radar_rotation += radar_rotation_velocity
 
-    cdef &Bullet fire(self):
+    cdef Bullet* fire(self):
         self.heat = 1.0 + self.fire_power/5.0
         self.energy = max(<float>0.0, self.energy - self.fire_power)
         self.should_fire = False
         turret_direction: Vec2 = rads_to_Vec2(self.turret_rotation)
-
-        return Bullet(
+        ptr_bullet: &Bullet = <Bullet*> malloc(sizeof(Bullet))
+        ptr_bullet[0] = Bullet(
             self.uid,
             self.position +  turret_direction * 30.0, 
             turret_direction * (20.0 - (3.0 * self.fire_power)),
             max(min(BULLET_MAX_POWER, self.fire_power), BULLET_MIN_POWER)
         )
+        return ptr_bullet 
 
 
     cdef float acceleration(self):

@@ -28,18 +28,26 @@ cdef extern from "vec2.cpp":
     pass
 
 
-cdef extern from "bullet.h" nogil:
+cdef extern from "core.h" nogil:
     cdef cppclass Bullet:
         long owner_uid
-        unsigned long long uid
+        unsigned long uid
         Vec2 position, velocity
         float power
         Bullet()
         Bullet(long, Vec2, Vec2, float)
-        void update()
+        void step()
         bint operator>(Vec2)
+    
+    cdef cppclass Robot:
+        unsigned long uid
+        Vec2 position
+        float power, velocity
+        Robot()
+        void step()
+        Bullet* fire()
 
 
-cdef extern from "bullet.cpp":
+cdef extern from "core.cpp":
     pass
 

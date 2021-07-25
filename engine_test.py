@@ -3,7 +3,6 @@ from robots.app import App, Battle
 import random
 
 import time
-# app = App()
 
 class RandomRobot(Robot):
     def run(self):
@@ -16,6 +15,8 @@ class RandomRobot(Robot):
 robots = [RandomRobot((255, 0, 0)), RandomRobot((0, 255, 0))]
 eng = Engine(robots=robots)
 
+
+# app = App()
 # app.child = Battle(robots, (600, 400), eng=eng)
 # app.child.set_tick_rate(-1)
 # app.run()

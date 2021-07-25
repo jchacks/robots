@@ -6,6 +6,10 @@ float rand_float(float low, float high)
     return low + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (high - low)));
 }
 
+Vec2 Vec2::from_rads(float rads) {
+    return Vec2(std::cos(rads), std::sin(rads));
+};
+
 Vec2 Vec2::random(float low, float high)
 {
     return Vec2(rand_float(low, high), rand_float(low, high));

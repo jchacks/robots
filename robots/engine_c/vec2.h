@@ -16,7 +16,8 @@ struct Vec2
     Vec2(float x, float y) : x(x), y(y){};
 
     static Vec2 random(float low, float high);
-    
+    static Vec2 from_rads(float rads);
+
     Vec2 pow(float exponent);
     float sum();
     
