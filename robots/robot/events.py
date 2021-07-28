@@ -101,7 +101,7 @@ class ScannedRobotEvent(Event):
         self.direction = d / h
         self.distance = h
         self.energy = robot.energy
-        self.heading = robot.bearing
+        self.heading = robot.base_rotation
         self.velocity = robot.velocity
 
 

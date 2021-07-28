@@ -15,8 +15,8 @@ class Robot(ABC):
         # Attributes are set by engine.
         self.energy = 100
         self.position = None
-        self.rotation = None
-        self.turret_rotation= None
+        self.base_rotation = None
+        self.turret_rotation = None
         self.radar_rotation = None
         self.velocity = 0.0
         self.turret_heat = 0.0
@@ -50,31 +50,33 @@ class Robot(ABC):
             "position": self.position.copy(),
             "direction": self.direction,
             "turret_direction": self.turret_direction,
-            "velocity": self.velocity
+            "velocity": self.velocity,
         }
 
     @property
     def direction(self):
-        return np.sin(self.bearing * np.pi / 180), np.cos(self.bearing * np.pi / 180)
-    
+        return np.sin(self.base_rotation), np.cos(self.base_rotation)
+
     @property
     def turret_direction(self):
-        return np.sin(self.turret_bearing * np.pi / 180), np.cos(self.turret_bearing * np.pi / 180)
+        return np.sin(self.turret_rotation), np.cos(self.turret_rotation)
 
     @property
     def heat_pctg(self):
-        return self.turret_heat/(1+3/5)
+        return self.turret_heat / (1 + 3 / 5)
 
     @property
     def energy_pctg(self):
-        return self.energy/100
+        return self.energy / 100
 
     def __repr__(self):
-        return f"{self.__class__.__name__}<"\
-            f"Velocity: {self.velocity}, " \
-            f"Bearing:  {self.bearing} degs, " \
-            f"Position: {self.position}, "\
+        return (
+            f"{self.__class__.__name__}<"
+            f"Velocity: {self.velocity}, "
+            f"Rotation:  {self.base_rotation} degs, "
+            f"Position: {self.position}, "
             f"Energy:   {self.energy}>"
+        )
 
     def run(self):
         pass
@@ -143,7 +145,7 @@ class AdvancedRobot(Robot, ABC):
 
     def turn(self, angle):
         self.left_to_turn
-        self.bearing
+        self.base_rotation
 
     def run(self):
         self.left_to_move -= self.velocity

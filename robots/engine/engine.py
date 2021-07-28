@@ -1,18 +1,22 @@
-from dataclasses import dataclass
-from robots.robot.utils import *
+import math
 import random
-from robots.engine.utils import test_circle_to_circles, test_circles
-import numpy as np
-from robots.robot.utils import Turn, Move
-from robots.config import *
-from robots.robot.events import *
 import time
 from collections import defaultdict, deque
+from dataclasses import dataclass
 
-
-import numpy as np
 import numba as nb
+import numpy as np
 from numba.experimental import jitclass
+from robots.config import *
+from robots.engine.utils import test_circle_to_circles, test_circles
+from robots.robot.events import *
+from robots.robot.utils import *
+from robots.robot.utils import Move, Turn
+
+BASE_ROTATION_VELOCITY_RADS = 5 / 180 * math.pi
+BASE_ROTATION_VELOCITY_DEC_RADS = 0.75 / 180 * math.pi
+TURRET_ROTATION_VELOCITY_RADS = 5 / 180 * math.pi
+RADAR_ROTATION_VELOCITY_RADS = 5 / 180 * math.pi
 
 
 class RobotData(object):
@@ -89,8 +93,9 @@ def bullet_damage(bullet):
 def energy_on_hit(bullet):
     return 3 * bullet.power
 
+
 class Timer(object):
-    times = defaultdict(lambda : deque(maxlen=1000))
+    times = defaultdict(lambda: deque(maxlen=1000))
     next_print = time.perf_counter() + 1
     should_print = False
 
@@ -103,13 +108,18 @@ class Timer(object):
             cls.times[func.__name__].append(duration)
             cls.print(func.__name__)
             return res
+
         return inner
 
     @classmethod
     def print(cls, name):
         if cls.should_print & (time.perf_counter() > cls.next_print):
-            t = np.mean(cls.times[name])/10e9
-            print(f"\rAVG Time: {t:9.9f}, FPS: {1/t:010.2f}, Len: {len(cls.times[name]):3.0f}",end='', flush=True)
+            t = np.mean(cls.times[name]) / 10e9
+            print(
+                f"\rAVG Time: {t:9.9f}, FPS: {1/t:010.2f}, Len: {len(cls.times[name]):3.0f}",
+                end="",
+                flush=True,
+            )
             cls.next_print = time.perf_counter() + 1
 
 
@@ -175,9 +185,9 @@ class Engine(object):
             * energy
         """
         robot.position = np.random.normal(np.array(self.size) // 2, 80)
-        robot.base_rotation = random.random() * 360
-        robot.turret_rotation = random.random() * 360
-        robot.radar_rotation = random.random() * 360
+        robot.base_rotation = random.random() * 2 * math.pi
+        robot.turret_rotation = random.random() * 2 * math.pi
+        robot.radar_rotation = random.random() * 2 * math.pi
         robot.energy = 100
 
     def run(self):
@@ -272,33 +282,37 @@ class Engine(object):
 
         for i, r in enumerate(robots):
             # Update robots actions
-            base_rotation_rads = r.base_rotation * np.pi / 180
-            direction = np.array(
-                [np.sin(base_rotation_rads), np.cos(base_rotation_rads)]
-            )
+            base_rotation_rads = r.base_rotation
+            direction = np.array([np.sin(r.base_rotation), np.cos(r.base_rotation)])
             r.velocity = np.clip(
                 r.velocity + acceleration(r.robot.moving.value, r.velocity), -8.0, 8.0
             )
             r.position = r.position + (r.velocity * direction)
 
             r.base_rotation_velocity = (
-                max(0, (5 - 0.75 * abs(r.velocity))) * r.robot.base_turning.value
+                max(
+                    0,
+                    BASE_ROTATION_VELOCITY_RADS
+                    - BASE_ROTATION_VELOCITY_DEC_RADS * abs(r.velocity),
+                )
+                * r.robot.base_turning.value
             )
-            r.base_rotation = (r.base_rotation + r.base_rotation_velocity) % 360
+            r.base_rotation = (r.base_rotation + r.base_rotation_velocity) % (2 * math.pi)
 
             # TODO add locked turret
-            turret_rotation_rads = r.turret_rotation * np.pi / 180
             r.turret_rotation_velocity = (
-                5 * r.robot.turret_turning.value + r.base_rotation_velocity
+                TURRET_ROTATION_VELOCITY_RADS * r.robot.turret_turning.value
+                + r.base_rotation_velocity
             )
-            r.turret_rotation = (r.turret_rotation + r.turret_rotation_velocity) % 360
+            r.turret_rotation = (r.turret_rotation + r.turret_rotation_velocity) % (2 * math.pi)
             r.turret_heat = np.maximum(0.0, r.turret_heat - 0.1)
 
             # TODO add locked radar
             r.radar_rotation_velocity = (
-                5 * r.robot.radar_turning.value + r.turret_rotation_velocity
+                RADAR_ROTATION_VELOCITY_RADS * r.robot.radar_turning.value
+                + r.turret_rotation_velocity
             )
-            r.radar_rotation = (r.radar_rotation + r.radar_rotation_velocity) % 360
+            r.radar_rotation = (r.radar_rotation + r.radar_rotation_velocity) % (2 * math.pi)
 
             # Should fire and can fire
             if r.robot.should_fire and (
@@ -309,7 +323,7 @@ class Engine(object):
                 r.energy = np.maximum(0.0, r.energy - fire_power)
                 r.robot.should_fire = False
                 turret_direction = np.array(
-                    [np.sin(turret_rotation_rads), np.cos(turret_rotation_rads)]
+                    [np.sin(r.turret_rotation), np.cos(r.turret_rotation)]
                 )
                 bullet_position = r.position + (turret_direction * 30)
                 self.add_bullet(
@@ -328,4 +342,3 @@ class Engine(object):
                 r.alive = False
             else:
                 r.robot.run()
-

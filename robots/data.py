@@ -11,9 +11,8 @@ class BulletData(object):
         self.power = Vector((1,), mask=self.centers._mask)
         self.robot = Vector((1,), dtype="int16", mask=self.centers._mask)
 
-    def add_bullet(self, owner, power, bearing):
+    def add_bullet(self, owner, power, rads):
         speed = 20 - (3 * power)
-        rads = np.pi * bearing / 180
         return np.stack([speed * np.sin(rads), speed * np.cos(rads)], axis=-1)
 
     @property
