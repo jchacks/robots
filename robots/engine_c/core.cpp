@@ -1,29 +1,21 @@
 #include <core.h>
 #include <math.h>
-#include <stdio.h>
+#include <iostream>
 
 void Bullet::step()
 {
     position += velocity;
 };
 
-bool Bullet::operator>(const Bullet &other) const
-{
-    return uid > other.uid;
-};
 
-bool Bullet::operator<(const Bullet &other) const
-{
-    return uid < other.uid;
-};
-
-Bullet *Robot::fire()
+Bullet Robot::fire()
 {
     heat = 1.0f + fire_power / 5.0f;
     energy = std::max(0.0f, energy - fire_power);
     should_fire = false;
     Vec2 turret_direction = Vec2::from_rads(turret_rotation);
-    return new Bullet(
+    std::cout << "Firing" << std::endl ;
+    return Bullet(
         this,
         position + turret_direction * 30.0f,
         turret_direction * (20.0f - (3.0f * fire_power)),
@@ -33,8 +25,8 @@ Bullet *Robot::fire()
 void Robot::step()
 {
     Vec2 direction = Vec2::from_rads(base_rotation);
-    position += direction * velocity;
     velocity = clip(velocity + acceleration(), -8.0f, 8.0f);
+    position = position + (direction * velocity);
     float base_rotation_velocity =
         std::max(0.0f, (BASE_ROTATION_VELOCITY_RADS - BASE_ROTATION_VELOCITY_DEC_RADS * std::abs(velocity))) * base_turning;
     base_rotation += base_rotation_velocity;
@@ -46,7 +38,6 @@ void Robot::step()
 
 float Robot::acceleration()
 {   
-    std::cout << velocity << ',' << moving << std::endl;
     if (velocity > 0.0f)
     {
         if (moving > 0)

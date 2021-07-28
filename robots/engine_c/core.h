@@ -20,21 +20,18 @@ const float ROBOT_RADIUS = 24;
 
 struct Bullet
 {
-    unsigned long uid;
     struct Robot* owner;
     Vec2 position;
     Vec2 velocity;
     float power;
 
     Bullet()
-        : uid(NUMBER_BULLETS += 1),
-          owner(NULL),
+        : owner(NULL),
           position(Vec2(0.0, 0.0)),
           velocity(Vec2(0.0, 0.0)),
           power(0){};
     Bullet(Robot* owner, Vec2 position, Vec2 velocity, float power)
-        : uid(NUMBER_BULLETS += 1),
-          owner(owner),
+        : owner(owner),
           position(position),
           velocity(velocity),
           power(power){};
@@ -46,6 +43,7 @@ struct Bullet
 
 struct Robot
 {
+public:
     unsigned long uid;
     float energy;
     float velocity;
@@ -55,7 +53,6 @@ struct Robot
     float radar_rotation;
     float heat;
 
-public:
     int moving;
     int base_turning;
     int turret_turning;
@@ -83,7 +80,7 @@ public:
 
     void step();
     float acceleration();
-    Bullet *fire();
+    Bullet fire();
 };
 
 #endif

@@ -5,6 +5,7 @@ Basic clone of Robocode.
 __This repo just went through a large rewrite and is currently missing some of the features described below.  It is planned to add them back in.__
 
 Recently implemented a engine_c in cython and cpp.
+
 TODO:
 
 * Consider where the Robot struct/class should be cython or cpp.
@@ -19,6 +20,15 @@ TODO:
 * ~~Scale the `Overlay` independently from the battle scaling~~
 * Implement auto slow down on stacked commands e.g. calculate quickest path to angle without breaking max acceleration by turning remainder of angle in 1 tick.  max_accel = 4 but remainder = 2 in 1 tick, velocity should reach 0 at same time as stopping.
 * ~~Represent the user Robot space as dict of configs passed to the engine.~~
+
+## Python -> Cython -> C++ flow
+
+* `PyRobot` Class (Cython) -> constructs c++ `Robot` structs underneath
+  * Subclassed `PyRobot` contains AI script (python)
+* `Engine` Class (Cython) -> takes PyRobots as argument.
+* Engine step method calls:
+  * PyRobot run to execute python AI scripts.
+  * Robot step to do fast update of logic
 
 To summarise the repo now relies on an `Engine` class that is not _easily_ accessible by user code.  The objects that the engine interacts with are different from those that the 'User' will use to write their AI.
 New concepts:

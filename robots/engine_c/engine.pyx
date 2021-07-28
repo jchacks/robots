@@ -1,48 +1,50 @@
 # distutils: language = c++
 
 cimport cython
+from cython.operator cimport dereference as deref, preincrement as inc
+
 cimport robots.engine_c.core
-from robots.engine_c.core cimport Vec2, Bullet, Robot, ROBOT_RADIUS
+from robots.engine_c.core cimport Vec2, Bullet, Robot, ROBOT_RADIUS, rand_float
 
 from libc.math cimport sin, cos, abs, pi, pow
 from libcpp.set cimport set
+from libcpp.vector cimport vector
+from libcpp.list cimport list as c_list
 
 
 cdef bint test_circle_to_circle(const Vec2 c1, float r1, const Vec2 c2, float r2) :
     return (c1 - c2).pow(2).sum() <= pow((r1 + r2),2)
 
 
-cdef class PyVec2:
-    cdef Vec2 c_vec2
-
-    @staticmethod
-    cdef from_c(Vec2 c_vec2):
-        py_vec2 = PyVec2()
-        py_vec2.c_vec2 = c_vec2
-        return py_vec2
-    
-    def __repr__(self):
-        return f"Vec2({self.c_vec2.x},{self.c_vec2.y})"
-
 cdef class PyBullet:
+    """
+    Needed for rendering bullets.
+    Maybe swap to a list of tuples...
+    """
     cdef Bullet* c_bullet
 
     @property
-    def uid(self):
-        return self.c_bullet.uid
-    
+    def position(self):
+        return self.c_bullet.position.x, self.c_bullet.position.y
+
     @staticmethod
     cdef PyBullet from_c(Bullet* c_bullet):
         bullet:PyBullet = PyBullet()
         bullet.c_bullet = c_bullet
         return bullet
 
+    def __repr__(self):
+        return f"Bullet<{<long>&(self.c_bullet[0])},{<long>self.c_bullet}>({self.position})"
+
 
 cdef class PyRobot:
     cdef Robot c_robot
 
-    def __cinit__(self):
-        self.c_robot.position:Vec2 = Vec2(1.0,1.0)
+    def __init__(self, base_color, turret_color=None, radar_color=None):
+        self.base_color = base_color
+        self.turret_color = turret_color if turret_color is not None else base_color
+        self.radar_color = radar_color if radar_color is not None else base_color
+
 
     # Writeable props
     @property
@@ -76,7 +78,7 @@ cdef class PyRobot:
     # Readonly props
     @property
     def position(self):
-        return PyVec2.from_c(self.c_robot.position)
+        return self.c_robot.position.x, self.c_robot.position.y
 
     @property
     def velocity(self):
@@ -90,10 +92,11 @@ cdef class PyRobot:
     def base_rotation(self):
         return self.c_robot.base_rotation
 
-    cdef step(self):
-        self.c_robot.step()
+    @property
+    def energy(self):
+        return self.c_robot.energy
 
-    cpdef void fire(self, float fire_power):
+    def fire(self, float fire_power):
         self.c_robot.fire_power: float = fire_power
         self.c_robot.should_fire:bint = True
 
@@ -101,49 +104,76 @@ cdef class PyRobot:
         pass
     
     def __repr__(self):
-        return f"PyRobot(position={self.position},velocity={self.velocity}"\
+        return f"PyRobot(energy={self.energy}, position={self.position},velocity={self.velocity}"\
             f",acceleration={self.acceleration},base_rotation={self.base_rotation})"
+
+
+cdef bint cirle_oob(Vec2 c, float r, Vec2 size):
+    return not ((r < c.x) & (c.x < size.x - r) & (r < c.y) & (c.y < size.x - r))
+
 
 cdef class Engine:
     cdef Vec2 size
     cdef readonly list robots
-    cdef set[Bullet*] c_bullets
+    cdef c_list[Bullet] c_bullets
+    cdef float interval
 
-    def __init__(self,tuple size=(600,400), list robots=None):
+    def __init__(self,list robots,tuple size=(600,400), rate=-1 ):
         if robots is None:
             raise ValueError()
-        self.size = Vec2(size[0], size[1])
+        self.size:Vec2 = Vec2(size[0], size[1])
         self.robots = robots
+        self.interval : float = 1/rate
 
-    cdef void collide_bullets(self):
+    def set_rate(self,int rate):
+        rate: float = rate
+        print(f"Set rate to {rate} sims/s.")
+        self.interval = 1 / rate
+
+    cpdef void init_robots(self):
         for py_robot in self.robots:
             ptr_robot: &Robot = &((<PyRobot>py_robot).c_robot)
-            for ptr_bullet in self.c_bullets:
-                if ptr_bullet[0].owner[0].uid != ptr_robot[0].uid:
-                    if test_circle_to_circle(ptr_robot[0].position, ROBOT_RADIUS, ptr_bullet[0].position, 3):
-                        print(f"Bullet collided {py_robot}, {PyBullet.from_c(ptr_bullet)}")
-                        power = ptr_bullet[0].power
-                        damage: float = 4 * power + ((power >= 1) * 2 * (power - 1))
-                        ptr_robot[0].energy -= damage
+            ptr_robot.position = Vec2(rand_float(0,600), rand_float(0,400))
 
-                        self.c_bullets.erase(ptr_bullet)
-                        del ptr_bullet
-    
+    cdef void collide_bullets(self):
+        it: c_list[Bullet].iterator = self.c_bullets.begin()
+        while it != self.c_bullets.end():
+            bullet: Bullet = deref(it) # does this copy?
+            print(<long>&bullet, PyBullet.from_c(&(deref(it))), PyBullet.from_c(&bullet))
+
+            if cirle_oob(bullet.position, 3, self.size):
+                print(f"Bullet {PyBullet.from_c(&bullet)} collided with wall.")
+                it = self.c_bullets.erase(it)
+                break
+
+            for py_robot in self.robots:
+                ptr_robot: &Robot = &((<PyRobot>py_robot).c_robot)
+                if bullet.owner.uid != ptr_robot.uid:
+                    if test_circle_to_circle(ptr_robot.position, ROBOT_RADIUS, bullet.position, 3):
+                        print(f"Bullet collided {py_robot}, {PyBullet.from_c(&bullet)}")
+                        power: float = bullet.power
+                        damage: float = 4 * power + ((power >= 1) * 2 * (power - 1))
+                        ptr_robot.energy -= damage
+                        it = self.c_bullets.erase(it)
+                        break
+            
+            inc(it)
+            
     def step(self):
         self.collide_bullets()
+        it: c_list[Bullet].iterator = self.c_bullets.begin()
+        while it != self.c_bullets.end():
+            deref(it).step()
+            inc(it)
+
         for py_robot in self.robots:
-            robot: Robot = (<PyRobot>py_robot).c_robot
+            robot: &Robot = &(<PyRobot>py_robot).c_robot
             robot.step()
             py_robot.run()
             # Need to do robot update here for the bullet to be added to bullets
             if robot.should_fire and (robot.heat <= 0.0):
-                bullet:&Bullet = robot.fire()
-                self.c_bullets.insert(bullet)
-
-            # clip_Vec2(robot.position, 0.0, 0.0, self.size.x, self.size.y)
-            
-            # robot.heat = max(robot.heat - 0.1, 0.0)
+                self.c_bullets.push_back(robot.fire())
 
     @property
     def bullets(self):
-        return [PyBullet.from_c(ptr_bullet) for ptr_bullet in self.c_bullets]
+        return [PyBullet.from_c(&bullet) for bullet in self.c_bullets]

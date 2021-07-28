@@ -22,6 +22,7 @@ cdef extern from "vec2.h" nogil:
         Vec2 operator-(Vec2)
         Vec2 operator*(float)
         # Vec2 &operator+=(Vec2)
+    float rand_float(float, float)
     
 
 cdef extern from "vec2.cpp":
@@ -31,13 +32,11 @@ cdef extern from "vec2.cpp":
 cdef extern from "core.h" nogil:
     cdef cppclass Bullet:
         Robot* owner
-        unsigned long uid
         Vec2 position, velocity
         float power
         Bullet()
         Bullet(long, Vec2, Vec2, float)
         void step()
-        bint operator>(Vec2)
     
     cdef cppclass Robot:
         unsigned long uid
@@ -48,7 +47,7 @@ cdef extern from "core.h" nogil:
         Robot()
         void step()
         float acceleration()
-        Bullet* fire()
+        Bullet fire()
     
     cdef float ROBOT_RADIUS
 

@@ -56,6 +56,7 @@ Vec2 Vec2::operator*(const float &scalar) const
     return Vec2(x * scalar, y * scalar);
 };
 
+
 Vec2 &Vec2::operator+=(const Vec2 &other)
 {
     x = x + other.x;
