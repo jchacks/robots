@@ -1,5 +1,6 @@
 import pygame
 import os
+import math
 
 
 class Colors(object):
@@ -31,9 +32,9 @@ def load_image(name):
     return image, image.get_rect()
 
 
-def rot_center(image, rect, angle):
+def rot_center(image, rect, rads):
     """rotate an image while keeping its center"""
-    rot_image = pygame.transform.rotate(image, angle)
+    rot_image = pygame.transform.rotate(image, rads * 180 / math.pi)
     rot_rect = rot_image.get_rect(center=rect.center)
     return rot_image, rot_rect
 
@@ -41,6 +42,8 @@ def rot_center(image, rect, angle):
 def scale_image(image, rect, factor):
     """rotate an image while keeping its center"""
     size = image.get_size()
-    scale_image = pygame.transform.scale(image, (int(round(size[0] * factor)), int(round(size[1] * factor))))
+    scale_image = pygame.transform.scale(
+        image, (int(round(size[0] * factor)), int(round(size[1] * factor)))
+    )
     scale_rect = scale_image.get_rect(center=rect.center)
     return scale_image, scale_rect

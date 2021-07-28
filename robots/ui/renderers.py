@@ -135,23 +135,23 @@ class RobotRenderer(Renderer):
             self.draw_radar(surface, robot)
 
     def draw_radar(self, surface, robot):
+        rads = robot.radar_rotation
         image, rect = self.orig_sprites[robot][0]
-        image, rect = rot_center(image, rect, robot.radar_bearing)
+        image, rect = rot_center(image, rect, rads)
         rect.center = robot.position
         surface.blit(image, rect)
-        rads = robot.radar_bearing * np.pi / 180
         direction = np.array([np.sin(rads), np.cos(rads)])
         endpoint = robot.position + (direction * 1200)
         pygame.draw.line(surface, (0, 255, 0), robot.position, endpoint)
 
     def draw_gun(self, surface, robot):
         image, rect = self.orig_sprites[robot][1]
-        image, rect = rot_center(image, rect, robot.turret_bearing)
+        image, rect = rot_center(image, rect, robot.turret_rotation)
         rect.center = robot.position
         surface.blit(image, rect)
 
     def draw_base(self, surface, robot):
         image, rect = self.orig_sprites[robot][2]
-        image, rect = rot_center(image, rect, robot.bearing)
+        image, rect = rot_center(image, rect, robot.base_rotation)
         rect.center = robot.position
         surface.blit(image, rect)

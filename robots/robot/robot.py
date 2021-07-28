@@ -15,9 +15,9 @@ class Robot(ABC):
         # Attributes are set by engine.
         self.energy = 100
         self.position = None
-        self.bearing = None
-        self.turret_bearing = None
-        self.radar_bearing = None
+        self.rotation = None
+        self.turret_rotation= None
+        self.radar_rotation = None
         self.velocity = 0.0
         self.turret_heat = 0.0
 

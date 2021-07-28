@@ -45,9 +45,9 @@ class RobotData(object):
         self.robot.turret_rotation_velocity = self.turret_rotation_velocity
         self.robot.radar_rotation_velocity = self.radar_rotation_velocity
 
-        self.robot.bearing = self.base_rotation
-        self.robot.turret_bearing = self.turret_rotation
-        self.robot.radar_bearing = self.radar_rotation
+        self.robot.base_rotation = self.base_rotation
+        self.robot.turret_rotation = self.turret_rotation
+        self.robot.radar_rotation = self.radar_rotation
 
 
 @dataclass

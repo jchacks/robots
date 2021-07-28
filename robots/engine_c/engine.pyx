@@ -10,6 +10,7 @@ from libc.math cimport sin, cos, abs, pi, pow
 from libcpp.set cimport set
 from libcpp.vector cimport vector
 from libcpp.list cimport list as c_list
+from libc.time cimport time,time_t
 
 
 cdef bint test_circle_to_circle(const Vec2 c1, float r1, const Vec2 c2, float r2) :
@@ -44,7 +45,6 @@ cdef class PyRobot:
         self.base_color = base_color
         self.turret_color = turret_color if turret_color is not None else base_color
         self.radar_color = radar_color if radar_color is not None else base_color
-
 
     # Writeable props
     @property
@@ -93,8 +93,24 @@ cdef class PyRobot:
         return self.c_robot.base_rotation
 
     @property
+    def turret_rotation(self):
+        return self.c_robot.turret_rotation
+
+    @property
+    def radar_rotation(self):
+        return self.c_robot.radar_rotation
+
+    @property
     def energy(self):
         return self.c_robot.energy
+
+    @property
+    def energy_pctg(self):
+        return self.c_robot.energy/100
+    
+    @property
+    def heat_pctg(self):
+        return self.c_robot.heat/(1+3/5)
 
     def fire(self, float fire_power):
         self.c_robot.fire_power: float = fire_power
@@ -116,7 +132,9 @@ cdef class Engine:
     cdef Vec2 size
     cdef readonly list robots
     cdef c_list[Bullet] c_bullets
-    cdef float interval
+    cdef public float interval
+    cdef public int next_sim
+
 
     def __init__(self,list robots,tuple size=(600,400), rate=-1 ):
         if robots is None:
@@ -124,6 +142,10 @@ cdef class Engine:
         self.size:Vec2 = Vec2(size[0], size[1])
         self.robots = robots
         self.interval : float = 1/rate
+        self.next_sim : float = 0
+
+    def is_finished(self):
+        return False
 
     def set_rate(self,int rate):
         rate: float = rate

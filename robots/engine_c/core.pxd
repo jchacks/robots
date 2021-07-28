@@ -41,7 +41,7 @@ cdef extern from "core.h" nogil:
     cdef cppclass Robot:
         unsigned long uid
         int moving, base_turning, turret_turning, radar_turning
-        float energy, fire_power, velocity, heat, base_rotation, turret_rotation
+        float energy, fire_power, velocity, heat, base_rotation, turret_rotation, radar_rotation
         bint should_fire
         Vec2 position
         Robot()
