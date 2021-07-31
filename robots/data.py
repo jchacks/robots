@@ -13,7 +13,7 @@ class BulletData(object):
 
     def add_bullet(self, owner, power, rads):
         speed = 20 - (3 * power)
-        return np.stack([speed * np.sin(rads), speed * np.cos(rads)], axis=-1)
+        return np.stack([speed * np.cos(rads), speed * np.sin(rads)], axis=-1)
 
     @property
     def damage(self):

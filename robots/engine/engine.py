@@ -282,8 +282,7 @@ class Engine(object):
 
         for i, r in enumerate(robots):
             # Update robots actions
-            base_rotation_rads = r.base_rotation
-            direction = np.array([np.sin(r.base_rotation), np.cos(r.base_rotation)])
+            direction = np.array([np.cos(r.base_rotation), np.sin(r.base_rotation)])
             r.velocity = np.clip(
                 r.velocity + acceleration(r.robot.moving.value, r.velocity), -8.0, 8.0
             )
@@ -323,7 +322,7 @@ class Engine(object):
                 r.energy = np.maximum(0.0, r.energy - fire_power)
                 r.robot.should_fire = False
                 turret_direction = np.array(
-                    [np.sin(r.turret_rotation), np.cos(r.turret_rotation)]
+                    [np.cos(r.turret_rotation), np.sin(r.turret_rotation)]
                 )
                 bullet_position = r.position + (turret_direction * 30)
                 self.add_bullet(

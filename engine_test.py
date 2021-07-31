@@ -2,11 +2,9 @@ from robots.engine_c.engine import *
 from robots.app import App, Battle
 import random
 
-import time
-
 class RandomRobot(PyRobot):
     def run(self):
-        print("Running", self)
+        # print("Running", self)
         self.moving = 1
         self.base_turning = 1
         self.turret_turning = -1
@@ -19,7 +17,7 @@ eng.init_robots()
 
 app = App()
 app.child = Battle(robots, (600, 400), eng=eng)
-app.child.set_tick_rate(1)
+app.child.set_tick_rate(3)
 app.run()
 
 
@@ -35,5 +33,5 @@ app.run()
 #     eng.step()
 # print(eng.bullets)
 # duration = (time.perf_counter_ns() - start)/1e9
-# print(frames/(duration), duration)
+# print(frames/duration, duration)
 

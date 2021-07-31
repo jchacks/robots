@@ -34,7 +34,7 @@ def load_image(name):
 
 def rot_center(image, rect, rads):
     """rotate an image while keeping its center"""
-    rot_image = pygame.transform.rotate(image, rads * 180 / math.pi)
+    rot_image = pygame.transform.rotate(image, -rads * 180 / math.pi)
     rot_rect = rot_image.get_rect(center=rect.center)
     return rot_image, rot_rect
 

@@ -2,7 +2,7 @@ import numpy as np
 import os
 import pygame
 from abc import abstractmethod
-
+import math
 from robots.ui.utils import load_image, Colors, rot_center
 
 data_dir = os.path.join(os.path.dirname(__file__), "../../data/")
@@ -43,9 +43,9 @@ class BulletRenderer(Renderer):
     def render(self, surface):
         for item in self.items.copy():
             try:
-                if self.draw_trajectories:
-                    pygame.draw.line(surface, Colors.Y, item.position, item.position + item.velocity * 1000)
-                    pygame.draw.circle(surface, (255,0,0), item.position, 3, 0)
+                # if self.draw_trajectories:
+                #     pygame.draw.line(surface, Colors.Y, item.position, item.position + item.velocity * 1000)
+                pygame.draw.circle(surface, (255, 0, 0), item.position, 3, 0)
             except Exception as e:
                 print(f"Error {e}, for bullet {item}")
 
@@ -96,7 +96,13 @@ def draw_robot_debug(surface, robot):
     debug_overlay.set_colorkey((0, 0, 0))
     debug_overlay.set_alpha(128)
     pygame.draw.circle(debug_overlay, (0, 0, 255), middle, robot.radius)
-    pygame.draw.line(debug_overlay, (255, 0, 255), middle, (middle + (robot.direction * 10)).astype(int), 1)
+    pygame.draw.line(
+        debug_overlay,
+        (255, 0, 255),
+        middle,
+        (middle + (robot.direction * 10)).astype(int),
+        1,
+    )
     surface.blit(debug_overlay, (robot.rect.left, robot.rect.top))
 
 
@@ -135,23 +141,23 @@ class RobotRenderer(Renderer):
             self.draw_radar(surface, robot)
 
     def draw_radar(self, surface, robot):
-        rads = robot.radar_rotation
+        rads = robot.radar_rotation 
         image, rect = self.orig_sprites[robot][0]
-        image, rect = rot_center(image, rect, rads)
+        image, rect = rot_center(image, rect, rads - (math.pi / 2))
         rect.center = robot.position
         surface.blit(image, rect)
-        direction = np.array([np.sin(rads), np.cos(rads)])
+        direction = np.array([np.cos(rads), np.sin(rads)])
         endpoint = robot.position + (direction * 1200)
         pygame.draw.line(surface, (0, 255, 0), robot.position, endpoint)
 
     def draw_gun(self, surface, robot):
         image, rect = self.orig_sprites[robot][1]
-        image, rect = rot_center(image, rect, robot.turret_rotation)
+        image, rect = rot_center(image, rect, robot.turret_rotation - (math.pi / 2))
         rect.center = robot.position
         surface.blit(image, rect)
 
     def draw_base(self, surface, robot):
         image, rect = self.orig_sprites[robot][2]
-        image, rect = rot_center(image, rect, robot.base_rotation)
+        image, rect = rot_center(image, rect, robot.base_rotation - (math.pi / 2))
         rect.center = robot.position
         surface.blit(image, rect)

@@ -7,10 +7,13 @@ cimport robots.engine_c.core
 from robots.engine_c.core cimport Vec2, Bullet, Robot, ROBOT_RADIUS, rand_float
 
 from libc.math cimport sin, cos, abs, pi, pow
-from libcpp.set cimport set
+from libcpp.set cimport set as c_set
 from libcpp.vector cimport vector
 from libcpp.list cimport list as c_list
 from libc.time cimport time,time_t
+
+
+ctypedef Bullet* BulletPtr
 
 
 cdef bint test_circle_to_circle(const Vec2 c1, float r1, const Vec2 c2, float r2) :
@@ -22,11 +25,15 @@ cdef class PyBullet:
     Needed for rendering bullets.
     Maybe swap to a list of tuples...
     """
-    cdef Bullet* c_bullet
+    cdef BulletPtr c_bullet
 
     @property
     def position(self):
         return self.c_bullet.position.x, self.c_bullet.position.y
+
+    @property
+    def velocity(self):
+        return self.c_bullet.velocity.x, self.c_bullet.velocity.y
 
     @staticmethod
     cdef PyBullet from_c(Bullet* c_bullet):
@@ -35,7 +42,7 @@ cdef class PyBullet:
         return bullet
 
     def __repr__(self):
-        return f"Bullet,{<long>self.c_bullet}>({self.position})"
+        return f"Bullet<{<long>self.c_bullet}>({self.position})"
 
 
 cdef class PyRobot:
@@ -124,78 +131,72 @@ cdef class PyRobot:
             f",acceleration={self.acceleration},base_rotation={self.base_rotation})"
 
 
-cdef bint cirle_oob(Vec2 c, float r, Vec2 size):
-    return not ((r < c.x) & (c.x < size.x - r) & (r < c.y) & (c.y < size.x - r))
+cdef bint cirle_oob(const Vec2& c,const float r,const Vec2& size):
+    # print(c.x,c.y, size.x,size.y, (r < c.x) ,(c.x < size.x - r) ,(r < c.y) ,(c.y < size.x - r))
+    return not ((r < c.x) & (c.x < size.x - r) & (r < c.y) & (c.y < size.y - r))
 
 
 cdef class Engine:
     cdef Vec2 size
     cdef readonly list robots
-    cdef readonly list bullets
-    # cdef c_list[Bullet] c_bullets
-    cdef public float interval
-    cdef public int next_sim
+    cdef readonly set bullets
 
-
-    def __init__(self,list robots,tuple size=(600,400), rate=-1 ):
+    def __init__(self, list robots, tuple size=(600,400), rate=-1 ):
         if robots is None:
             raise ValueError()
         self.size:Vec2 = Vec2(size[0], size[1])
         self.robots = robots
-        self.interval : float = 1/rate
-        self.next_sim : float = 0
+
+    def __cinit__(self):
+        self.bullets = set()
 
     def is_finished(self):
         return False
-
-    def set_rate(self,int rate):
-        rate: float = rate
-        print(f"Set rate to {rate} sims/s.")
-        self.interval = 1 / rate
 
     cpdef void init_robots(self):
         for py_robot in self.robots:
             ptr_robot: &Robot = &((<PyRobot>py_robot).c_robot)
             ptr_robot.position = Vec2(rand_float(0,600), rand_float(0,400))
+            print(py_robot)
 
     cdef void collide_bullets(self):
-        it: c_list[Bullet].iterator = self.c_bullets.begin()
-        while it != self.c_bullets.end():
-            bullet: Bullet = deref(it) # does this copy?
-            print(PyBullet.from_c(&(deref(it))))
+        for py_bullet in self.bullets.copy():
+            p_bullet: BulletPtr = ((<PyBullet>py_bullet).c_bullet)
 
-            if cirle_oob(bullet.position, 3, self.size):
-                print(f"Bullet {PyBullet.from_c(&bullet)} collided with wall.")
-                it = self.c_bullets.erase(it)
-                break
+            if cirle_oob(p_bullet.position, 3, self.size):
+                print(f"Bullet {py_bullet} collided with wall.")
+                self.bullets.remove(py_bullet)
+                del p_bullet
 
             for py_robot in self.robots:
                 ptr_robot: &Robot = &((<PyRobot>py_robot).c_robot)
-                if bullet.owner.uid != ptr_robot.uid:
-                    if test_circle_to_circle(ptr_robot.position, ROBOT_RADIUS, bullet.position, 3):
-                        print(f"Bullet collided {py_robot}, {PyBullet.from_c(&bullet)}")
-                        power: float = bullet.power
+                if p_bullet.owner.uid != ptr_robot.uid:
+                    if test_circle_to_circle(ptr_robot.position, ROBOT_RADIUS, p_bullet.position, 3):
+                        print(f"Bullet collided {py_robot}, {py_bullet}")
+                        power: float = p_bullet.power
                         damage: float = 4 * power + ((power >= 1) * 2 * (power - 1))
                         ptr_robot.energy -= damage
-                        it = self.c_bullets.erase(it)
+                        self.bullets.remove(py_bullet)
+                        del p_bullet
                         break
-            
-            inc(it)
             
     def step(self):
         self.collide_bullets()
-        it: c_list[Bullet].iterator = self.c_bullets.begin()
-        while it != self.c_bullets.end():
-            deref(it).step()
-            inc(it)
+        for py_bullet in self.bullets:
+            p_bullet : BulletPtr = (<PyBullet>py_bullet).c_bullet
+            p_bullet.step()
 
         for py_robot in self.robots:
-            robot: &Robot = &(<PyRobot>py_robot).c_robot
-            robot.step()
+            p_robot: &Robot = &(<PyRobot>py_robot).c_robot
+            p_robot.step()
+            
+            if cirle_oob(p_robot.position, 20, self.size):
+                print(f"Robot {py_robot} collided with wall.")
+
             py_robot.run()
             # Need to do robot update here for the bullet to be added to bullets
-            if robot.should_fire and (robot.heat <= 0.0):
-                p_bullet: &Bullet = robot.fire()
-                # self.c_bullets.push_back()
-                # self.bullets.append(PyBullet.from_c(&bullet))
-                pass
+            if p_robot.should_fire and (p_robot.heat <= 0.0):
+                p_bullet: BulletPtr = p_robot.fire()
+                self.bullets.add(PyBullet.from_c(p_bullet))
+
+    

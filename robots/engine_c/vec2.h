@@ -20,7 +20,7 @@ struct Vec2
 
     Vec2 pow(float exponent);
     float sum();
-    
+
     void clip(Vec2 min, Vec2 max);
     void clip(float top, float left, float bottom, float right);
 
@@ -28,11 +28,15 @@ struct Vec2
     Vec2 operator-(const Vec2 &other) const;
     Vec2 operator*(const float &scalar) const;
     Vec2 &operator+=(const Vec2 &other);
+
+private:
+    void log(const char *msg)
+    {
+        std::cout << "Vec2[" << this << "] " << msg << std::endl;
+    }
 };
 
 std::ostream &operator<<(std::ostream &strm, const Vec2 &v);
-
-
 
 float clip(float clip, float min, float max);
 

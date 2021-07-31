@@ -7,7 +7,7 @@
 
 unsigned long NUMBER_ROBOTS = 0;
 
-const float BASE_ROTATION_VELOCITY_RADS = 5 * M_PI / 180;
+const float BASE_ROTATION_VELOCITY_RADS = 10 * M_PI / 180;
 const float BASE_ROTATION_VELOCITY_DEC_RADS = 0.75 * M_PI / 180;
 const float TURRET_ROTATION_VELOCITY_RADS = 5 * M_PI / 180;
 const float RADAR_ROTATION_VELOCITY_RADS = 5 * M_PI / 180;
@@ -18,6 +18,7 @@ const float ROBOT_RADIUS = 24;
 
 struct Bullet
 {
+public:
     struct Robot *owner;
     Vec2 position;
     Vec2 velocity;
@@ -27,16 +28,33 @@ struct Bullet
         : owner(NULL),
           position(Vec2(0.0, 0.0)),
           velocity(Vec2(0.0, 0.0)),
-          power(0){};
+          power(0)
+    {
+        log("default constructor");
+    };
     Bullet(Robot *owner, Vec2 position, Vec2 velocity, float power)
         : owner(owner),
           position(position),
           velocity(velocity),
-          power(power){};
+          power(power)
+    {
+        log("constructor");
+    };
+
+    ~Bullet()
+    {
+        log("destructor");
+    };
     void step();
 
     bool operator>(const Bullet &other) const;
     bool operator<(const Bullet &other) const;
+
+private:
+    void log(const char *msg)
+    {
+        std::cout << "Bullet[" << this << "] " << msg << std::endl;
+    }
 };
 
 struct Robot
@@ -73,11 +91,25 @@ public:
           turret_turning(0),
           radar_turning(0),
           should_fire(false),
-          fire_power(0){};
+          fire_power(0)
+    {
+        log("constructor");
+    };
+
+    ~Robot()
+    {
+        log("destructor");
+    };
 
     void step();
     float acceleration();
-    Bullet* fire();
+    Bullet *fire();
+
+private:
+    void log(const char *msg)
+    {
+        std::cout << "Robot[" << this << "] " << msg << std::endl;
+    }
 };
 
 #endif

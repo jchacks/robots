@@ -18,7 +18,7 @@ setup(
     # license='MIT',
     packages=["robots"],
     install_requires=["pygame", "numpy", "numba"],
-    ext_modules=cythonize("robots/engine_c/engine.pyx", language_level="3", annotate=True),
+    ext_modules=cythonize("robots/engine_c/engine.pyx", language_level="3", annotate=True, gdb_debug=True),
     include_package_data=True,
     zip_safe=False,
 )

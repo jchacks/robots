@@ -55,11 +55,11 @@ class Robot(ABC):
 
     @property
     def direction(self):
-        return np.sin(self.base_rotation), np.cos(self.base_rotation)
+        return np.cos(self.base_rotation), np.sin(self.base_rotation)
 
     @property
     def turret_direction(self):
-        return np.sin(self.turret_rotation), np.cos(self.turret_rotation)
+        return np.cos(self.turret_rotation), np.sin(self.turret_rotation)
 
     @property
     def heat_pctg(self):

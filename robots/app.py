@@ -23,14 +23,17 @@ class Battle(object):
         self.bw.set_battle(self.eng)
         self.num_rounds = num_rounds
         self.running = True
+        self.interval = 0.0
+        self.next_sim = 0.0
 
     def set_tick_rate(self, rate):
-        self.eng.set_rate(rate)
+        print(f"Set rate to {rate} steps/s")
+        self.interval = 1/rate
 
     def step(self):
         if self.running:
-            if not self.eng.is_finished() and time.time() >= self.eng.next_sim:
-                self.eng.next_sim = time.time() + self.eng.interval
+            if not self.eng.is_finished() and time.time() >= self.next_sim:
+                self.next_sim = time.time() + self.interval
                 self.eng.step()
             # If finished do something
             elif self.eng.is_finished():
