@@ -5,22 +5,20 @@
 #include <vec2.h>
 #include <math.h>
 
-unsigned long NUMBER_BULLETS = 0;
 unsigned long NUMBER_ROBOTS = 0;
 
-const float BASE_ROTATION_VELOCITY_RADS = 5/180 * M_PI;
-const float BASE_ROTATION_VELOCITY_DEC_RADS = 0.75/180 * M_PI;
-const float TURRET_ROTATION_VELOCITY_RADS = 5/180 * M_PI;
-const float RADAR_ROTATION_VELOCITY_RADS = 5/180 * M_PI;
+const float BASE_ROTATION_VELOCITY_RADS = 5 * M_PI / 180;
+const float BASE_ROTATION_VELOCITY_DEC_RADS = 0.75 * M_PI / 180;
+const float TURRET_ROTATION_VELOCITY_RADS = 5 * M_PI / 180;
+const float RADAR_ROTATION_VELOCITY_RADS = 5 * M_PI / 180;
 
 const float BULLET_MAX_POWER = 3.0;
 const float BULLET_MIN_POWER = 0.1;
 const float ROBOT_RADIUS = 24;
 
-
 struct Bullet
 {
-    struct Robot* owner;
+    struct Robot *owner;
     Vec2 position;
     Vec2 velocity;
     float power;
@@ -30,7 +28,7 @@ struct Bullet
           position(Vec2(0.0, 0.0)),
           velocity(Vec2(0.0, 0.0)),
           power(0){};
-    Bullet(Robot* owner, Vec2 position, Vec2 velocity, float power)
+    Bullet(Robot *owner, Vec2 position, Vec2 velocity, float power)
         : owner(owner),
           position(position),
           velocity(velocity),
@@ -75,12 +73,11 @@ public:
           turret_turning(0),
           radar_turning(0),
           should_fire(false),
-          fire_power(0)
-          {};
+          fire_power(0){};
 
     void step();
     float acceleration();
-    Bullet fire();
+    Bullet* fire();
 };
 
 #endif

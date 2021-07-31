@@ -47,7 +47,7 @@ cdef extern from "core.h" nogil:
         Robot()
         void step()
         float acceleration()
-        Bullet fire()
+        Bullet* fire()
     
     cdef float ROBOT_RADIUS
 

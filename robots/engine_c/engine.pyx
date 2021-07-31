@@ -35,7 +35,7 @@ cdef class PyBullet:
         return bullet
 
     def __repr__(self):
-        return f"Bullet<{<long>&(self.c_bullet[0])},{<long>self.c_bullet}>({self.position})"
+        return f"Bullet,{<long>self.c_bullet}>({self.position})"
 
 
 cdef class PyRobot:
@@ -131,7 +131,8 @@ cdef bint cirle_oob(Vec2 c, float r, Vec2 size):
 cdef class Engine:
     cdef Vec2 size
     cdef readonly list robots
-    cdef c_list[Bullet] c_bullets
+    cdef readonly list bullets
+    # cdef c_list[Bullet] c_bullets
     cdef public float interval
     cdef public int next_sim
 
@@ -161,7 +162,7 @@ cdef class Engine:
         it: c_list[Bullet].iterator = self.c_bullets.begin()
         while it != self.c_bullets.end():
             bullet: Bullet = deref(it) # does this copy?
-            print(<long>&bullet, PyBullet.from_c(&(deref(it))), PyBullet.from_c(&bullet))
+            print(PyBullet.from_c(&(deref(it))))
 
             if cirle_oob(bullet.position, 3, self.size):
                 print(f"Bullet {PyBullet.from_c(&bullet)} collided with wall.")
@@ -194,8 +195,7 @@ cdef class Engine:
             py_robot.run()
             # Need to do robot update here for the bullet to be added to bullets
             if robot.should_fire and (robot.heat <= 0.0):
-                self.c_bullets.push_back(robot.fire())
-
-    @property
-    def bullets(self):
-        return [PyBullet.from_c(&bullet) for bullet in self.c_bullets]
+                p_bullet: &Bullet = robot.fire()
+                # self.c_bullets.push_back()
+                # self.bullets.append(PyBullet.from_c(&bullet))
+                pass

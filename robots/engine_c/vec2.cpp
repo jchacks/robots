@@ -31,14 +31,14 @@ void Vec2::clip(Vec2 min, Vec2 max)
     // Inplace clip the Vec2
     x = std::min(std::max(x, min.x), max.x);
     y = std::min(std::max(y, min.y), max.y);
-}
+};
 
 void Vec2::clip(float top, float left, float bottom, float right)
 {
     // Inplace clip the Vec2
     x = std::min(std::max(x, left), right);
     y = std::min(std::max(y, bottom), top);
-}
+};
 
 
 Vec2 Vec2::operator+(const Vec2 &other) const

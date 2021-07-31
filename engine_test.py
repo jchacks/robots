@@ -6,7 +6,7 @@ import time
 
 class RandomRobot(PyRobot):
     def run(self):
-        # print("Running", self)
+        print("Running", self)
         self.moving = 1
         self.base_turning = 1
         self.turret_turning = -1
