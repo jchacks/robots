@@ -33,7 +33,7 @@ class Robot(ABC):
         self.radar_color = radar_color if radar_color is not None else base_color
 
         self.should_fire = False
-        self.fire_power = 3
+        self.fire_power = 3.0
         self.moving = Move.NONE
         self.base_turning = Turn.NONE
         self.turret_turning = Turn.NONE

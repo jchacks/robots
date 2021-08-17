@@ -4,9 +4,7 @@ import time
 from collections import defaultdict, deque
 from dataclasses import dataclass
 
-import numba as nb
 import numpy as np
-from numba.experimental import jitclass
 from robots.config import *
 from robots.engine.utils import test_circle_to_circles, test_circles
 from robots.robot.events import *
@@ -317,7 +315,7 @@ class Engine(object):
             if r.robot.should_fire and (
                 (r.turret_heat <= 0.0) or not self.GUN_HEAT_ENABLED
             ):
-                fire_power = r.robot.fire_power
+                fire_power = max(min(MAX_POWER, r.robot.fire_power), MIN_POWER)
                 r.turret_heat = 1 + fire_power / 5
                 r.energy = np.maximum(0.0, r.energy - fire_power)
                 r.robot.should_fire = False
@@ -329,7 +327,7 @@ class Engine(object):
                     r,
                     bullet_position,
                     turret_direction * (20 - (3 * fire_power)),
-                    max(min(MAX_POWER, fire_power), MIN_POWER),
+                    fire_power
                 )
 
             if self.ENERGY_DECAY_ENABLED:
