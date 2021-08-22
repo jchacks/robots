@@ -38,9 +38,9 @@ class BulletHitBulletEvent(Event):
 
 
 class BulletHitEvent(Event):
-    def __init__(self, bullet, robot):
-        self.damage = bullet.damage
-        self.robot = robot.name
+    def __init__(self, damage, robot):
+        self.damage = damage
+        self.robot = robot
 
 
 class BulletMissedEvent(Event):
@@ -67,8 +67,8 @@ class HitRobotEvent(Event):
 
 
 class HitWallEvent(Event):
-    pass
-
+    def __init__(self, damage):
+        self.damage = damage
 
 class KeyEvent(Event):
     pass

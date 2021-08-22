@@ -1,5 +1,17 @@
 #include <vec2.h>
 #include <math.h>
+#include <stdlib.h>
+#include <time.h> 
+
+
+void rand_seed() {
+    std::srand(time(NULL));
+}
+
+void rand_seed(unsigned int seed) {
+    std::srand(seed);
+}
+
 
 float rand_float(float low, float high)
 {
@@ -24,6 +36,10 @@ Vec2 Vec2::pow(float exponent)
 float Vec2::sum()
 {
     return x + y;
+};
+
+float Vec2::len() {
+    return sqrt(this->pow(2.0f).sum());
 };
 
 void Vec2::clip(Vec2 min, Vec2 max)
@@ -51,11 +67,20 @@ Vec2 Vec2::operator-(const Vec2 &other) const
     return Vec2(x - other.x, y - other.y);
 };
 
+Vec2 Vec2::operator-(const float &val) const
+{
+    return Vec2(x - val, y - val);
+};
+
 Vec2 Vec2::operator*(const float &scalar) const
 {
     return Vec2(x * scalar, y * scalar);
 };
 
+Vec2 Vec2::operator/(const float &scalar) const
+{
+    return Vec2(x / scalar, y / scalar);
+};
 
 Vec2 &Vec2::operator+=(const Vec2 &other)
 {

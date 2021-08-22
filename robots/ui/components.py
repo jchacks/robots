@@ -31,14 +31,22 @@ class Overlay(object):
             self.font_size = max(12, min(36, int(h * 36 / 500)))
             self.font = pygame.font.Font(None, self.font_size)
 
-        self.bars = [('energy_pctg', Colors.G, Colors.R), ('heat_pctg', Colors.R, Colors.B)]
+        self.bars = [
+            ("energy_pctg", Colors.G, Colors.R, 0.0, 1.0),
+            ("heat_pctg", Colors.R, Colors.B, 0.0, 1.0),
+        ]
+
+    def add_bar(self, attr, fill_color, bg_color, min_v=0.0, max_v=1.0):
+        self.bars.append((attr, fill_color, bg_color, min_v, max_v))
 
     def set_battle(self, battle):
         self._robots = battle.robots
 
     def on_resize(self, size):
         w, h = size
-        self.bar_dims = max(25, min(100, int(w * 100 / 400))), max(1, min(4, int(h * 4 / 400)))
+        self.bar_dims = max(25, min(100, int(w * 100 / 400))), max(
+            1, min(4, int(h * 4 / 400))
+        )
         self.font_size = max(12, min(36, int(h * 36 / 500)))
         self.font = pygame.font.Font(None, self.font_size)
 
@@ -57,9 +65,11 @@ class Overlay(object):
         screen.blit(element, position)
 
         # Draw bars
-        for attr, fill_color, bg_color in self.bars:
+        for attr, fill_color, bg_color, min_v, max_v in self.bars:
+            v = getattr(robot, attr)
+            v = (v - min_v) / (max_v - min_v)
             offset = position.bottom + 2
-            element = draw_fillbar(self.bar_dims, getattr(robot, attr), bg_color, fill_color)
+            element = draw_fillbar(self.bar_dims, v, bg_color, fill_color)
             position = element.get_rect(left=0, top=offset)
             screen.blit(element, position)
 
@@ -105,7 +115,9 @@ class Console(object):
             lines.append("> " + self.input)
             for i, line in enumerate(lines[::-1]):
                 text = self.font_object.render(line, True, (255, 255, 255))
-                textpos = text.get_rect(left=0, bottom=self.surface.get_height() - i * (self.font_size + 2))
+                textpos = text.get_rect(
+                    left=0, bottom=self.surface.get_height() - i * (self.font_size + 2)
+                )
                 self.surface.blit(text, textpos)
             screen.blit(self.surface, self.surface.get_bounding_rect())
 
@@ -115,10 +127,15 @@ class Console(object):
                 self.active = False
             # self.cursor_visible = True  # So the user sees where he writes
             elif event.key == pl.K_BACKSPACE:
-                self.input = self.input[: max(self.cursor_pos - 1, 0)] + self.input[self.cursor_pos:]
+                self.input = (
+                    self.input[: max(self.cursor_pos - 1, 0)]
+                    + self.input[self.cursor_pos :]
+                )
                 self.cursor_pos = max(self.cursor_pos - 1, 0)
             elif event.key == pl.K_DELETE:
-                self.input = self.input[: self.cursor_pos] + self.input[self.cursor_pos + 1:]
+                self.input = (
+                    self.input[: self.cursor_pos] + self.input[self.cursor_pos + 1 :]
+                )
             elif event.key == pl.K_RETURN:
                 command, self.input = self.input, ""
                 if len(command) > 0:
@@ -139,13 +156,19 @@ class Console(object):
                 self.cursor_pos = 0
 
             else:
-                self.input = self.input[: self.cursor_pos] + event.unicode + self.input[self.cursor_pos:]
+                self.input = (
+                    self.input[: self.cursor_pos]
+                    + event.unicode
+                    + self.input[self.cursor_pos :]
+                )
                 self.cursor_pos += len(event.unicode)
 
     def handle_command(self, command):
         command, *args = command
         if command in ["h", "help"]:
-            self.put_text("HELP:\n" + "\n\t".join("%s: %s" % (c, h) for c, h in self.help.items()))
+            self.put_text(
+                "HELP:\n" + "\n\t".join("%s: %s" % (c, h) for c, h in self.help.items())
+            )
         else:
             try:
                 res = self.commands[command](*args)
@@ -198,7 +221,9 @@ class Canvas(object):
         self.render()
         if self.scale_size and self.scale_size != self.size:
             resized = pygame.transform.smoothscale(self.canvas, self.scale_size)
-            resizedpos = resized.get_rect(centerx=screen.get_width() / 2, centery=screen.get_height() / 2)
+            resizedpos = resized.get_rect(
+                centerx=screen.get_width() / 2, centery=screen.get_height() / 2
+            )
             screen.blit(resized, resizedpos)
         else:
             screen.blit(self.canvas, (0, 0))
@@ -248,8 +273,15 @@ class BattleWindow(Canvas):
 
 
 class MultiBattleWindow(Canvas):
-    def __init__(self, screen, multibattle, *, background_color="black", rows=None, columns=None):
-        Canvas.__init__(self, screen=screen, size=screen.get_size(), background_color=background_color)
+    def __init__(
+        self, screen, multibattle, *, background_color="black", rows=None, columns=None
+    ):
+        Canvas.__init__(
+            self,
+            screen=screen,
+            size=screen.get_size(),
+            background_color=background_color,
+        )
         self.multibattle = multibattle
         self.battle_windows = None
         self.overlay = None
@@ -274,7 +306,9 @@ class MultiBattleWindow(Canvas):
 
         for i in range(min(c * r, len(self.multibattle.battles))):
             shape = (int((i * w) % (w * c)), int(i // c * h), int(w), int(h))
-            self.battle_windows.append(BattleWindow(self.screen.subsurface(shape), self.multibattle.battles[i]))
+            self.battle_windows.append(
+                BattleWindow(self.screen.subsurface(shape), self.multibattle.battles[i])
+            )
 
     def on_render(self, screen=None):
         for i, window in enumerate(self.battle_windows):

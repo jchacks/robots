@@ -1,11 +1,16 @@
 #ifndef BULLET_H
 #define BULLET_H
 
+#include <Python.h>
 #include <ostream>
 #include <vec2.h>
 #include <math.h>
+#include <list>
+#include <set>
 
 unsigned long NUMBER_ROBOTS = 0;
+
+const float PI_2f32 = 2.0f * M_PIf32;
 
 const float BASE_ROTATION_VELOCITY_RADS = 10 * M_PI / 180;
 const float BASE_ROTATION_VELOCITY_DEC_RADS = 0.75 * M_PI / 180;
@@ -16,10 +21,17 @@ const float BULLET_MAX_POWER = 3.0;
 const float BULLET_MIN_POWER = 0.1;
 const float ROBOT_RADIUS = 24;
 
-struct Bullet
+const bool DEBUG=0;
+
+void log_message(const char * msg) {
+    if(DEBUG == 1)
+        std::cout <<  msg << std::endl;
+};
+
+class Bullet
 {
 public:
-    struct Robot *owner;
+    class Robot *owner;
     Vec2 position;
     Vec2 velocity;
     float power;
@@ -53,16 +65,21 @@ public:
 private:
     void log(const char *msg)
     {
-        std::cout << "Bullet[" << this << "] " << msg << std::endl;
+        if(DEBUG == 1)
+            std::cout << "Bullet[" << this << "] " << msg << std::endl;
     }
 };
 
-struct Robot
+class Robot
 {
 public:
+    PyObject * scripted_robot = NULL;
+
+    static const float RADIUS;
+
     unsigned long uid;
     float energy;
-    float velocity;
+    float speed;
     Vec2 position;
     float base_rotation;
     float turret_rotation;
@@ -79,7 +96,7 @@ public:
     Robot()
         : uid(NUMBER_ROBOTS += 1),
           energy(100.0),
-          velocity(0.0),
+          speed(0.0),
           position(Vec2(0.0, 0.0)),
           base_rotation(0.0),
           turret_rotation(0.0),
@@ -102,14 +119,37 @@ public:
     };
 
     void step();
-    float acceleration();
+    float get_acceleration();
+    Vec2 get_velocity();
     Bullet *fire();
 
 private:
     void log(const char *msg)
     {
-        std::cout << "Robot[" << this << "] " << msg << std::endl;
+        if(DEBUG == 1)
+            std::cout << "Robot[" << this << "] " << msg << std::endl;
     }
 };
 
+class Engine
+{
+    Vec2 size;
+    std::list<Robot *> robots;
+    std::set<Bullet *> bullets;
+
+    Engine(){};
+    Engine(Vec2 size) : size(size){};
+
+    void add_robot(Robot *robot);
+    void add_bullet(Bullet *bullet);
+    void step();
+    void collide_bullets();
+    void run(); // Is this needed?
+private:
+    void log(const char *msg)
+    {
+        if(DEBUG == 1)
+            std::cout << "Engine[" << this << "] " << msg << std::endl;
+    }
+};
 #endif

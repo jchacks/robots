@@ -214,9 +214,11 @@ class Engine(object):
     def handle_wall_collisions(self, collided_mask):
         robots = np.array([r for r in self.data if r.alive])
         for r in robots[collided_mask]:
-            r.energy -= max(abs(r.velocity) * 0.5 - 1, 0)
+            dmg = max(abs(r.velocity) * 0.5 - 1, 0)
+            r.energy -= dmg
             r.velocity = 0.0
-            r.position = np.clip(r.position + r.velocity, *self.bounds)
+            r.position = np.clip(r.position, *self.bounds)
+            r.robot.on_hit_wall(HitWallEvent(dmg))
 
     def update_robots(self):
         robots = np.array([r for r in self.data if r.alive])
@@ -247,6 +249,26 @@ class Engine(object):
                 r1.robot.on_hit_robot(HitRobotEvent(r2.robot))
                 r2.robot.on_hit_robot(HitRobotEvent(r1.robot))
 
+        for i, r in enumerate(robots):
+            # Should fire and can fire
+            if r.robot.should_fire and (
+                (r.turret_heat <= 0.0) or not self.GUN_HEAT_ENABLED
+            ):
+                fire_power = max(min(MAX_POWER, r.robot.fire_power), MIN_POWER)
+                r.turret_heat = 1 + fire_power / 5
+                r.energy = np.maximum(0.0, r.energy - fire_power)
+                r.robot.should_fire = False
+                turret_direction = np.array(
+                    [np.cos(r.turret_rotation), np.sin(r.turret_rotation)]
+                )
+                bullet_position = r.position + (turret_direction * 30)
+                self.add_bullet(
+                    r,
+                    bullet_position,
+                    turret_direction * (20 - (3 * fire_power)),
+                    fire_power
+                )
+
         # COLLIDE SCANS HERE
         bullets = list(self.bullets)
         if self.BULLET_COLLISIONS_ENABLED and len(bullets) > 1:
@@ -273,6 +295,8 @@ class Engine(object):
                     damage = bullet_damage(bullet)
                     r.energy -= damage
                     bullet.robot_data.energy += energy_on_hit(bullet)
+                    bullet.robot_data.robot.on_bullet_hit(BulletHitEvent(bullet, r.robot))
+                    
                     self.bullets.remove(bullet)
                     events.append(HitByBulletEvent(damage))
                 if events:
@@ -310,25 +334,6 @@ class Engine(object):
                 + r.turret_rotation_velocity
             )
             r.radar_rotation = (r.radar_rotation + r.radar_rotation_velocity) % (2 * math.pi)
-
-            # Should fire and can fire
-            if r.robot.should_fire and (
-                (r.turret_heat <= 0.0) or not self.GUN_HEAT_ENABLED
-            ):
-                fire_power = max(min(MAX_POWER, r.robot.fire_power), MIN_POWER)
-                r.turret_heat = 1 + fire_power / 5
-                r.energy = np.maximum(0.0, r.energy - fire_power)
-                r.robot.should_fire = False
-                turret_direction = np.array(
-                    [np.cos(r.turret_rotation), np.sin(r.turret_rotation)]
-                )
-                bullet_position = r.position + (turret_direction * 30)
-                self.add_bullet(
-                    r,
-                    bullet_position,
-                    turret_direction * (20 - (3 * fire_power)),
-                    fire_power
-                )
 
             if self.ENERGY_DECAY_ENABLED:
                 r.energy = r.energy - self.ENERGY_DECAY_AMOUNT

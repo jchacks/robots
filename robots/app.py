@@ -13,7 +13,7 @@ os.environ["DISPLAY"] = ":0"
 
 class Battle(object):
     # This class isnt needed merge it into BattleWindow or into App or subclass App
-    def __init__(self, robots, size, num_rounds=-1, eng=None) -> None:
+    def __init__(self, robots, size, num_rounds=None, eng=None) -> None:
         if eng is None:
             self.eng = Engine(robots, size)
             self.eng.init()
@@ -28,6 +28,7 @@ class Battle(object):
 
     def set_tick_rate(self, rate):
         print(f"Set rate to {rate} steps/s")
+        rate = float(rate)
         self.interval = 1/rate
 
     def step(self):
@@ -37,10 +38,10 @@ class Battle(object):
                 self.eng.step()
             # If finished do something
             elif self.eng.is_finished():
-                if self.num_rounds > 0:
-                    self.num_rounds -= 1
+                if self.num_rounds is None:
                     self.eng.init()
-                elif self.num_rounds < 0:
+                elif self.num_rounds > 0:
+                    self.num_rounds -= 1
                     self.eng.init()
                 elif self.num_rounds == 0:
                     self.running = False

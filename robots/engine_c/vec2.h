@@ -5,6 +5,7 @@
 #include <iostream>
 
 void rand_seed();
+void rand_seed(unsigned int);
 float rand_float(float low, float high);
 
 struct Vec2
@@ -14,6 +15,7 @@ struct Vec2
 
     Vec2() : x(0), y(0){};
     Vec2(float x, float y) : x(x), y(y){};
+    Vec2(float v) : x(v), y(v){};
 
     static Vec2 random(float low, float high);
     static Vec2 from_rads(float rads);
@@ -21,12 +23,17 @@ struct Vec2
     Vec2 pow(float exponent);
     float sum();
 
+    float len();
+    Vec2 norm();
+
     void clip(Vec2 min, Vec2 max);
     void clip(float top, float left, float bottom, float right);
 
     Vec2 operator+(const Vec2 &other) const;
     Vec2 operator-(const Vec2 &other) const;
+    Vec2 operator-(const float &val) const;
     Vec2 operator*(const float &scalar) const;
+    Vec2 operator/(const float &other) const;
     Vec2 &operator+=(const Vec2 &other);
 
 private:

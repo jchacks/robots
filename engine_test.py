@@ -13,11 +13,12 @@ class RandomRobot(PyRobot):
 
 robots = [RandomRobot((255, 0, 0)), RandomRobot((0, 255, 0))]
 eng = Engine(robots=robots)
-eng.init_robots()
 
 app = App()
 app.child = Battle(robots, (600, 400), eng=eng)
-app.child.set_tick_rate(3)
+app.console.add_command("sim", app.child.set_tick_rate, help="Sets the Simulation rate.")
+app.child.set_tick_rate(10)
+
 app.run()
 
 
@@ -26,8 +27,8 @@ app.run()
 # for i in range(int(20)):
 #     eng.step()
 
-
-# frames = int(1e5)
+# import time
+# frames = int(1e6)
 # start = time.perf_counter_ns()
 # for i in range(frames):
 #     eng.step()
