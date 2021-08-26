@@ -12,7 +12,7 @@ unsigned long NUMBER_ROBOTS = 0;
 
 const float PI_2f32 = 2.0f * M_PIf32;
 
-const float BASE_ROTATION_VELOCITY_RADS = 10 * M_PI / 180;
+const float BASE_ROTATION_VELOCITY_RADS = 5 * M_PI / 180;
 const float BASE_ROTATION_VELOCITY_DEC_RADS = 0.75 * M_PI / 180;
 const float TURRET_ROTATION_VELOCITY_RADS = 5 * M_PI / 180;
 const float RADAR_ROTATION_VELOCITY_RADS = 5 * M_PI / 180;
@@ -91,7 +91,7 @@ public:
     int turret_turning;
     int radar_turning;
     bool should_fire;
-    int fire_power;
+    float fire_power;
 
     Robot()
         : uid(NUMBER_ROBOTS += 1),
@@ -108,7 +108,7 @@ public:
           turret_turning(0),
           radar_turning(0),
           should_fire(false),
-          fire_power(0)
+          fire_power(0.0)
     {
         log("constructor");
     };
@@ -136,15 +136,17 @@ class Engine
     Vec2 size;
     std::list<Robot *> robots;
     std::set<Bullet *> bullets;
+    void collide_bullets();
 
+public:
     Engine(){};
     Engine(Vec2 size) : size(size){};
 
     void add_robot(Robot *robot);
     void add_bullet(Bullet *bullet);
     void step();
-    void collide_bullets();
     void run(); // Is this needed?
+
 private:
     void log(const char *msg)
     {

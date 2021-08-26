@@ -4,8 +4,9 @@
 #include <list>
 #include <set>
 
-
-PyObject *stop_name = PyUnicode_InternFromString("stop");
+// https://stackoverflow.com/questions/55302321/calling-a-python-class-method-from-c-if-given-an-initialised-class-as-pyobjec
+// Not sure that this should be here and if this module is not called in 
+// PyObject *stop_name = PyUnicode_InternFromString("stop");
 
 
 bool test_cirle_oob(const Vec2 &c, const float r, const Vec2 &size)
@@ -93,7 +94,7 @@ const float Robot::RADIUS = 24;
 
 void Robot::step()
 {
-    PyObject_CallMethodObjArgs(scripted_robot, stop_name, NULL);
+    // PyObject_CallMethodObjArgs(scripted_robot, stop_name, NULL);
     speed = clip(speed + get_acceleration(), -8.0f, 8.0f);
     position = position + get_velocity();
     float base_rotation_velocity =

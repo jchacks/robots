@@ -104,7 +104,6 @@ class Timer(object):
             res = func(*args, **kwargs)
             duration = time.perf_counter_ns() - start
             cls.times[func.__name__].append(duration)
-            cls.print(func.__name__)
             return res
 
         return inner

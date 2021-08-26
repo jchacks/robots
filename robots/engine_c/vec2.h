@@ -4,8 +4,6 @@
 #include <ostream>
 #include <iostream>
 
-void rand_seed();
-void rand_seed(unsigned int);
 float rand_float(float low, float high);
 
 struct Vec2

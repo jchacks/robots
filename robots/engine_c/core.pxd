@@ -3,13 +3,15 @@
 cimport cython
 from cpython.ref cimport PyObject
 
-
+from libcpp.set cimport set
+from libcpp.vector cimport vector
+from libcpp.list cimport list
 from libc.math cimport sin, cos, abs, pi, pow
 from libcpp.set cimport set
 from libc.stdlib cimport malloc, free
 from uuid import uuid4
 
-cdef extern from "vec2.h" nogil:
+cdef extern from "vec2.h":
     cdef cppclass Vec2:
         float x,y
         Vec2() except +
@@ -29,15 +31,13 @@ cdef extern from "vec2.h" nogil:
         Vec2 operator/(float)
         # Vec2 &operator+=(Vec2)
     float rand_float(float, float)
-    float rand_seed()
-    float rand_seed(unsigned int)
     
 
 cdef extern from "vec2.cpp":
     pass
 
 
-cdef extern from "core.h" nogil:
+cdef extern from "core.h":
     cdef cppclass Bullet:
         Robot* owner
         Vec2 position, velocity
@@ -58,6 +58,17 @@ cdef extern from "core.h" nogil:
         Vec2 get_velocity()
         float get_acceleration()
         Bullet* fire()
+    
+    cdef cppclass Engine:
+        Vec2 size
+        list robots
+        set bullets
+        Engine()
+        Engine(Vec2)
+        void add_robot(Robot)
+        void add_bullet(Bullet)
+        void step()
+        void collide_bullets()
     
     cdef float ROBOT_RADIUS
     cdef float PI_2f32
