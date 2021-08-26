@@ -254,10 +254,11 @@ cdef class Engine:
         p_robot.position.clip(Vec2(28.0), self.c_size - 28)
 
     def step(self):
-        self.collide_bullets()
         for py_bullet in self.bullets:
             p_bullet : BulletPtr = (<PyBullet>py_bullet).c_bullet
             p_bullet.step()
+
+        self.collide_bullets()
 
         for r1 in self.robots:
             p_robot1: &Robot = &(<PyRobot>r1).c_robot 
@@ -297,6 +298,7 @@ cdef class Engine:
                     self.bullets.add(PyBullet.from_c(p_bullet))
 
                 p_robot.heat = max(0, p_robot.heat - 0.1)
+        self.steps += 1
 
 
 cdef class WrappedEngine:

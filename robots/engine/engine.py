@@ -338,7 +338,6 @@ class Engine(object):
                 r.energy = r.energy - self.ENERGY_DECAY_AMOUNT
 
         for r in self.data:
-            r.turret_heat = max(r.turret_heat - 0.1, 0)
             if r.energy <= 0 or self.is_finished():
                 r.alive = False
             else:
