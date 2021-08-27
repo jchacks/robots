@@ -31,6 +31,7 @@ cdef extern from "vec2.h":
         Vec2 operator/(float)
         # Vec2 &operator+=(Vec2)
     float rand_float(float, float)
+    float clip(float,float,float)
     
 
 cdef extern from "vec2.cpp":

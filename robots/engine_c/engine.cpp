@@ -954,7 +954,7 @@ struct __pyx_obj_6robots_8engine_c_6engine_Engine {
 };
 
 
-/* "robots/engine_c/engine.pyx":317
+/* "robots/engine_c/engine.pyx":318
  * 
  * 
  * cdef class WrappedEngine:             # <<<<<<<<<<<<<<
@@ -6668,12 +6668,8 @@ static void __pyx_f_6robots_8engine_c_6engine_6Engine_collide_bullets(struct __p
   int __pyx_t_8;
   Py_ssize_t __pyx_t_9;
   float __pyx_t_10;
-  long __pyx_t_11;
-  double __pyx_t_12;
-  double __pyx_t_13;
-  double __pyx_t_14;
-  PyObject *__pyx_t_15 = NULL;
-  PyObject *__pyx_t_16 = NULL;
+  PyObject *__pyx_t_11 = NULL;
+  PyObject *__pyx_t_12 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -6863,7 +6859,7 @@ static void __pyx_f_6robots_8engine_c_6engine_6Engine_collide_bullets(struct __p
  *                     if test_circle_to_circle(ptr_robot.position, ROBOT_RADIUS, p_bullet.position, 3):
  *                         power: float = p_bullet.power             # <<<<<<<<<<<<<<
  *                         damage: float = 4 * power + (<float>(power >= 1) * 2 * (power - 1))
- *                         ptr_robot.energy = max(ptr_robot.energy - damage,0)
+ *                         ptr_robot.energy -= damage
  */
           __pyx_t_10 = __pyx_v_p_bullet->power;
           __pyx_v_power = __pyx_t_10;
@@ -6872,46 +6868,32 @@ static void __pyx_f_6robots_8engine_c_6engine_6Engine_collide_bullets(struct __p
  *                     if test_circle_to_circle(ptr_robot.position, ROBOT_RADIUS, p_bullet.position, 3):
  *                         power: float = p_bullet.power
  *                         damage: float = 4 * power + (<float>(power >= 1) * 2 * (power - 1))             # <<<<<<<<<<<<<<
- *                         ptr_robot.energy = max(ptr_robot.energy - damage,0)
- *                         p_bullet.owner.energy = min(p_bullet.owner.energy  + 3 * power, 100.0)
+ *                         ptr_robot.energy -= damage
+ *                         p_bullet.owner.energy += 3 * power
  */
           __pyx_v_damage = ((4.0 * __pyx_v_power) + ((((float)(__pyx_v_power >= 1.0)) * 2.0) * (__pyx_v_power - 1.0)));
 
           /* "robots/engine_c/engine.pyx":255
  *                         power: float = p_bullet.power
  *                         damage: float = 4 * power + (<float>(power >= 1) * 2 * (power - 1))
- *                         ptr_robot.energy = max(ptr_robot.energy - damage,0)             # <<<<<<<<<<<<<<
- *                         p_bullet.owner.energy = min(p_bullet.owner.energy  + 3 * power, 100.0)
+ *                         ptr_robot.energy -= damage             # <<<<<<<<<<<<<<
+ *                         p_bullet.owner.energy += 3 * power
  *                         (<PyRobot>p_bullet.owner.scripted_robot).on_bullet_hit(py_robot)
  */
-          __pyx_t_11 = 0;
-          __pyx_t_12 = (__pyx_v_ptr_robot->energy - __pyx_v_damage);
-          if (((__pyx_t_11 > __pyx_t_12) != 0)) {
-            __pyx_t_13 = __pyx_t_11;
-          } else {
-            __pyx_t_13 = __pyx_t_12;
-          }
-          __pyx_v_ptr_robot->energy = __pyx_t_13;
+          __pyx_v_ptr_robot->energy = (__pyx_v_ptr_robot->energy - __pyx_v_damage);
 
           /* "robots/engine_c/engine.pyx":256
  *                         damage: float = 4 * power + (<float>(power >= 1) * 2 * (power - 1))
- *                         ptr_robot.energy = max(ptr_robot.energy - damage,0)
- *                         p_bullet.owner.energy = min(p_bullet.owner.energy  + 3 * power, 100.0)             # <<<<<<<<<<<<<<
+ *                         ptr_robot.energy -= damage
+ *                         p_bullet.owner.energy += 3 * power             # <<<<<<<<<<<<<<
  *                         (<PyRobot>p_bullet.owner.scripted_robot).on_bullet_hit(py_robot)
  *                         py_robot.on_hit_by_bullet()
  */
-          __pyx_t_13 = 100.0;
-          __pyx_t_12 = (__pyx_v_p_bullet->owner->energy + (3.0 * __pyx_v_power));
-          if (((__pyx_t_13 < __pyx_t_12) != 0)) {
-            __pyx_t_14 = __pyx_t_13;
-          } else {
-            __pyx_t_14 = __pyx_t_12;
-          }
-          __pyx_v_p_bullet->owner->energy = __pyx_t_14;
+          __pyx_v_p_bullet->owner->energy = (__pyx_v_p_bullet->owner->energy + (3.0 * __pyx_v_power));
 
           /* "robots/engine_c/engine.pyx":257
- *                         ptr_robot.energy = max(ptr_robot.energy - damage,0)
- *                         p_bullet.owner.energy = min(p_bullet.owner.energy  + 3 * power, 100.0)
+ *                         ptr_robot.energy -= damage
+ *                         p_bullet.owner.energy += 3 * power
  *                         (<PyRobot>p_bullet.owner.scripted_robot).on_bullet_hit(py_robot)             # <<<<<<<<<<<<<<
  *                         py_robot.on_hit_by_bullet()
  *                         self.bullets.remove(py_bullet)
@@ -6921,29 +6903,29 @@ static void __pyx_f_6robots_8engine_c_6engine_6Engine_collide_bullets(struct __p
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
           /* "robots/engine_c/engine.pyx":258
- *                         p_bullet.owner.energy = min(p_bullet.owner.energy  + 3 * power, 100.0)
+ *                         p_bullet.owner.energy += 3 * power
  *                         (<PyRobot>p_bullet.owner.scripted_robot).on_bullet_hit(py_robot)
  *                         py_robot.on_hit_by_bullet()             # <<<<<<<<<<<<<<
  *                         self.bullets.remove(py_bullet)
  *                         del p_bullet
  */
-          __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_v_py_robot, __pyx_n_s_on_hit_by_bullet); if (unlikely(!__pyx_t_15)) __PYX_ERR(1, 258, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_15);
-          __pyx_t_16 = NULL;
-          if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_15))) {
-            __pyx_t_16 = PyMethod_GET_SELF(__pyx_t_15);
-            if (likely(__pyx_t_16)) {
-              PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_15);
-              __Pyx_INCREF(__pyx_t_16);
+          __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_py_robot, __pyx_n_s_on_hit_by_bullet); if (unlikely(!__pyx_t_11)) __PYX_ERR(1, 258, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_11);
+          __pyx_t_12 = NULL;
+          if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_11))) {
+            __pyx_t_12 = PyMethod_GET_SELF(__pyx_t_11);
+            if (likely(__pyx_t_12)) {
+              PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_11);
+              __Pyx_INCREF(__pyx_t_12);
               __Pyx_INCREF(function);
-              __Pyx_DECREF_SET(__pyx_t_15, function);
+              __Pyx_DECREF_SET(__pyx_t_11, function);
             }
           }
-          __pyx_t_3 = (__pyx_t_16) ? __Pyx_PyObject_CallOneArg(__pyx_t_15, __pyx_t_16) : __Pyx_PyObject_CallNoArg(__pyx_t_15);
-          __Pyx_XDECREF(__pyx_t_16); __pyx_t_16 = 0;
+          __pyx_t_3 = (__pyx_t_12) ? __Pyx_PyObject_CallOneArg(__pyx_t_11, __pyx_t_12) : __Pyx_PyObject_CallNoArg(__pyx_t_11);
+          __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
           if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 258, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_3);
-          __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
+          __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
           /* "robots/engine_c/engine.pyx":259
@@ -7031,8 +7013,8 @@ static void __pyx_f_6robots_8engine_c_6engine_6Engine_collide_bullets(struct __p
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_15);
-  __Pyx_XDECREF(__pyx_t_16);
+  __Pyx_XDECREF(__pyx_t_11);
+  __Pyx_XDECREF(__pyx_t_12);
   __Pyx_WriteUnraisable("robots.engine_c.engine.Engine.collide_bullets", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_py_bullet);
@@ -7521,7 +7503,7 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_8step(struct __pyx_o
  * 
  *         for py_robot in self.robots:             # <<<<<<<<<<<<<<
  *             p_robot: &Robot = &(<PyRobot>py_robot).c_robot
- *             if p_robot.energy > 0:
+ *             p_robot.energy = clip(p_robot.energy, 0.0, 100.0)
  */
   if (unlikely(__pyx_v_self->robots == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
@@ -7543,14 +7525,23 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_8step(struct __pyx_o
  * 
  *         for py_robot in self.robots:
  *             p_robot: &Robot = &(<PyRobot>py_robot).c_robot             # <<<<<<<<<<<<<<
+ *             p_robot.energy = clip(p_robot.energy, 0.0, 100.0)
  *             if p_robot.energy > 0:
- *                 p_robot.step()
  */
     __pyx_v_p_robot = (&((struct __pyx_obj_6robots_8engine_c_6engine_PyRobot *)__pyx_v_py_robot)->c_robot);
 
     /* "robots/engine_c/engine.pyx":300
  *         for py_robot in self.robots:
  *             p_robot: &Robot = &(<PyRobot>py_robot).c_robot
+ *             p_robot.energy = clip(p_robot.energy, 0.0, 100.0)             # <<<<<<<<<<<<<<
+ *             if p_robot.energy > 0:
+ *                 p_robot.step()
+ */
+    __pyx_v_p_robot->energy = clip(__pyx_v_p_robot->energy, 0.0, 100.0);
+
+    /* "robots/engine_c/engine.pyx":301
+ *             p_robot: &Robot = &(<PyRobot>py_robot).c_robot
+ *             p_robot.energy = clip(p_robot.energy, 0.0, 100.0)
  *             if p_robot.energy > 0:             # <<<<<<<<<<<<<<
  *                 p_robot.step()
  * 
@@ -7558,8 +7549,8 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_8step(struct __pyx_o
     __pyx_t_9 = ((__pyx_v_p_robot->energy > 0.0) != 0);
     if (__pyx_t_9) {
 
-      /* "robots/engine_c/engine.pyx":301
- *             p_robot: &Robot = &(<PyRobot>py_robot).c_robot
+      /* "robots/engine_c/engine.pyx":302
+ *             p_robot.energy = clip(p_robot.energy, 0.0, 100.0)
  *             if p_robot.energy > 0:
  *                 p_robot.step()             # <<<<<<<<<<<<<<
  * 
@@ -7567,7 +7558,7 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_8step(struct __pyx_o
  */
       __pyx_v_p_robot->step();
 
-      /* "robots/engine_c/engine.pyx":303
+      /* "robots/engine_c/engine.pyx":304
  *                 p_robot.step()
  * 
  *                 if cirle_oob(p_robot.position, 20, self.c_size):             # <<<<<<<<<<<<<<
@@ -7577,25 +7568,25 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_8step(struct __pyx_o
       __pyx_t_9 = (__pyx_f_6robots_8engine_c_6engine_cirle_oob(__pyx_v_p_robot->position, 20.0, __pyx_v_self->c_size) != 0);
       if (__pyx_t_9) {
 
-        /* "robots/engine_c/engine.pyx":304
+        /* "robots/engine_c/engine.pyx":305
  * 
  *                 if cirle_oob(p_robot.position, 20, self.c_size):
  *                     self.handle_wall_collision(p_robot)             # <<<<<<<<<<<<<<
  *                     py_robot.on_hit_wall()
  * 
  */
-        __pyx_t_5 = ((struct __pyx_vtabstruct_6robots_8engine_c_6engine_Engine *)__pyx_v_self->__pyx_vtab)->handle_wall_collision(__pyx_v_self, __pyx_v_p_robot); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 304, __pyx_L1_error)
+        __pyx_t_5 = ((struct __pyx_vtabstruct_6robots_8engine_c_6engine_Engine *)__pyx_v_self->__pyx_vtab)->handle_wall_collision(__pyx_v_self, __pyx_v_p_robot); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 305, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-        /* "robots/engine_c/engine.pyx":305
+        /* "robots/engine_c/engine.pyx":306
  *                 if cirle_oob(p_robot.position, 20, self.c_size):
  *                     self.handle_wall_collision(p_robot)
  *                     py_robot.on_hit_wall()             # <<<<<<<<<<<<<<
  * 
  *                 py_robot.run()
  */
-        __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_py_robot, __pyx_n_s_on_hit_wall); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 305, __pyx_L1_error)
+        __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_py_robot, __pyx_n_s_on_hit_wall); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 306, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_8);
         __pyx_t_11 = NULL;
         if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_8))) {
@@ -7609,12 +7600,12 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_8step(struct __pyx_o
         }
         __pyx_t_5 = (__pyx_t_11) ? __Pyx_PyObject_CallOneArg(__pyx_t_8, __pyx_t_11) : __Pyx_PyObject_CallNoArg(__pyx_t_8);
         __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
-        if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 305, __pyx_L1_error)
+        if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 306, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-        /* "robots/engine_c/engine.pyx":303
+        /* "robots/engine_c/engine.pyx":304
  *                 p_robot.step()
  * 
  *                 if cirle_oob(p_robot.position, 20, self.c_size):             # <<<<<<<<<<<<<<
@@ -7623,14 +7614,14 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_8step(struct __pyx_o
  */
       }
 
-      /* "robots/engine_c/engine.pyx":307
+      /* "robots/engine_c/engine.pyx":308
  *                     py_robot.on_hit_wall()
  * 
  *                 py_robot.run()             # <<<<<<<<<<<<<<
  * 
  *                 if p_robot.should_fire and (p_robot.heat <= 0.0):
  */
-      __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_py_robot, __pyx_n_s_run); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 307, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_py_robot, __pyx_n_s_run); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 308, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
       __pyx_t_11 = NULL;
       if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_8))) {
@@ -7644,12 +7635,12 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_8step(struct __pyx_o
       }
       __pyx_t_5 = (__pyx_t_11) ? __Pyx_PyObject_CallOneArg(__pyx_t_8, __pyx_t_11) : __Pyx_PyObject_CallNoArg(__pyx_t_8);
       __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
-      if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 307, __pyx_L1_error)
+      if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 308, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-      /* "robots/engine_c/engine.pyx":309
+      /* "robots/engine_c/engine.pyx":310
  *                 py_robot.run()
  * 
  *                 if p_robot.should_fire and (p_robot.heat <= 0.0):             # <<<<<<<<<<<<<<
@@ -7667,7 +7658,7 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_8step(struct __pyx_o
       __pyx_L16_bool_binop_done:;
       if (__pyx_t_9) {
 
-        /* "robots/engine_c/engine.pyx":310
+        /* "robots/engine_c/engine.pyx":311
  * 
  *                 if p_robot.should_fire and (p_robot.heat <= 0.0):
  *                     p_bullet: BulletPtr = p_robot.fire()             # <<<<<<<<<<<<<<
@@ -7676,7 +7667,7 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_8step(struct __pyx_o
  */
         __pyx_v_p_bullet = __pyx_v_p_robot->fire();
 
-        /* "robots/engine_c/engine.pyx":311
+        /* "robots/engine_c/engine.pyx":312
  *                 if p_robot.should_fire and (p_robot.heat <= 0.0):
  *                     p_bullet: BulletPtr = p_robot.fire()
  *                     self.bullets.add(PyBullet.from_c(p_bullet))             # <<<<<<<<<<<<<<
@@ -7685,14 +7676,14 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_8step(struct __pyx_o
  */
         if (unlikely(__pyx_v_self->bullets == Py_None)) {
           PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "add");
-          __PYX_ERR(1, 311, __pyx_L1_error)
+          __PYX_ERR(1, 312, __pyx_L1_error)
         }
-        __pyx_t_5 = ((PyObject *)__pyx_f_6robots_8engine_c_6engine_8PyBullet_from_c(__pyx_v_p_bullet)); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 311, __pyx_L1_error)
+        __pyx_t_5 = ((PyObject *)__pyx_f_6robots_8engine_c_6engine_8PyBullet_from_c(__pyx_v_p_bullet)); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 312, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_14 = PySet_Add(__pyx_v_self->bullets, __pyx_t_5); if (unlikely(__pyx_t_14 == ((int)-1))) __PYX_ERR(1, 311, __pyx_L1_error)
+        __pyx_t_14 = PySet_Add(__pyx_v_self->bullets, __pyx_t_5); if (unlikely(__pyx_t_14 == ((int)-1))) __PYX_ERR(1, 312, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-        /* "robots/engine_c/engine.pyx":309
+        /* "robots/engine_c/engine.pyx":310
  *                 py_robot.run()
  * 
  *                 if p_robot.should_fire and (p_robot.heat <= 0.0):             # <<<<<<<<<<<<<<
@@ -7701,7 +7692,7 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_8step(struct __pyx_o
  */
       }
 
-      /* "robots/engine_c/engine.pyx":313
+      /* "robots/engine_c/engine.pyx":314
  *                     self.bullets.add(PyBullet.from_c(p_bullet))
  * 
  *                 p_robot.heat = max(0, p_robot.heat - 0.1)             # <<<<<<<<<<<<<<
@@ -7717,9 +7708,9 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_8step(struct __pyx_o
       }
       __pyx_v_p_robot->heat = __pyx_t_17;
 
-      /* "robots/engine_c/engine.pyx":300
- *         for py_robot in self.robots:
+      /* "robots/engine_c/engine.pyx":301
  *             p_robot: &Robot = &(<PyRobot>py_robot).c_robot
+ *             p_robot.energy = clip(p_robot.energy, 0.0, 100.0)
  *             if p_robot.energy > 0:             # <<<<<<<<<<<<<<
  *                 p_robot.step()
  * 
@@ -7731,12 +7722,12 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_8step(struct __pyx_o
  * 
  *         for py_robot in self.robots:             # <<<<<<<<<<<<<<
  *             p_robot: &Robot = &(<PyRobot>py_robot).c_robot
- *             if p_robot.energy > 0:
+ *             p_robot.energy = clip(p_robot.energy, 0.0, 100.0)
  */
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "robots/engine_c/engine.pyx":314
+  /* "robots/engine_c/engine.pyx":315
  * 
  *                 p_robot.heat = max(0, p_robot.heat - 0.1)
  *         self.steps += 1             # <<<<<<<<<<<<<<
@@ -8008,7 +7999,7 @@ static PyObject *__pyx_pf_6robots_8engine_c_6engine_6Engine_12__setstate_cython_
   return __pyx_r;
 }
 
-/* "robots/engine_c/engine.pyx":320
+/* "robots/engine_c/engine.pyx":321
  *     cdef CEngine c_engine
  * 
  *     def __cinit__(self, tuple size=(600,400)):             # <<<<<<<<<<<<<<
@@ -8048,7 +8039,7 @@ static int __pyx_pw_6robots_8engine_c_6engine_13WrappedEngine_1__cinit__(PyObjec
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(1, 320, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(1, 321, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -8062,13 +8053,13 @@ static int __pyx_pw_6robots_8engine_c_6engine_13WrappedEngine_1__cinit__(PyObjec
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 320, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 321, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("robots.engine_c.engine.WrappedEngine.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_size), (&PyTuple_Type), 1, "size", 1))) __PYX_ERR(1, 320, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_size), (&PyTuple_Type), 1, "size", 1))) __PYX_ERR(1, 321, __pyx_L1_error)
   __pyx_r = __pyx_pf_6robots_8engine_c_6engine_13WrappedEngine___cinit__(((struct __pyx_obj_6robots_8engine_c_6engine_WrappedEngine *)__pyx_v_self), __pyx_v_size);
 
   /* function exit code */
@@ -8092,7 +8083,7 @@ static int __pyx_pf_6robots_8engine_c_6engine_13WrappedEngine___cinit__(struct _
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "robots/engine_c/engine.pyx":321
+  /* "robots/engine_c/engine.pyx":322
  * 
  *     def __cinit__(self, tuple size=(600,400)):
  *         self.c_engine = CEngine(Vec2(size[0], size[1]))             # <<<<<<<<<<<<<<
@@ -8100,29 +8091,29 @@ static int __pyx_pf_6robots_8engine_c_6engine_13WrappedEngine___cinit__(struct _
  */
   if (unlikely(__pyx_v_size == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(1, 321, __pyx_L1_error)
+    __PYX_ERR(1, 322, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_GetItemInt_Tuple(__pyx_v_size, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 321, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt_Tuple(__pyx_v_size, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 322, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_2 == (float)-1) && PyErr_Occurred())) __PYX_ERR(1, 321, __pyx_L1_error)
+  __pyx_t_2 = __pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_2 == (float)-1) && PyErr_Occurred())) __PYX_ERR(1, 322, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (unlikely(__pyx_v_size == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(1, 321, __pyx_L1_error)
+    __PYX_ERR(1, 322, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_GetItemInt_Tuple(__pyx_v_size, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 321, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt_Tuple(__pyx_v_size, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 322, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_3 == (float)-1) && PyErr_Occurred())) __PYX_ERR(1, 321, __pyx_L1_error)
+  __pyx_t_3 = __pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_3 == (float)-1) && PyErr_Occurred())) __PYX_ERR(1, 322, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   try {
     __pyx_t_4 = Vec2(__pyx_t_2, __pyx_t_3);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 321, __pyx_L1_error)
+    __PYX_ERR(1, 322, __pyx_L1_error)
   }
   __pyx_v_self->c_engine = Engine(__pyx_t_4);
 
-  /* "robots/engine_c/engine.pyx":320
+  /* "robots/engine_c/engine.pyx":321
  *     cdef CEngine c_engine
  * 
  *     def __cinit__(self, tuple size=(600,400)):             # <<<<<<<<<<<<<<
@@ -9226,15 +9217,15 @@ static int __Pyx_modinit_type_init_code(void) {
   if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Engine, (PyObject *)&__pyx_type_6robots_8engine_c_6engine_Engine) < 0) __PYX_ERR(1, 202, __pyx_L1_error)
   if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6robots_8engine_c_6engine_Engine) < 0) __PYX_ERR(1, 202, __pyx_L1_error)
   __pyx_ptype_6robots_8engine_c_6engine_Engine = &__pyx_type_6robots_8engine_c_6engine_Engine;
-  if (PyType_Ready(&__pyx_type_6robots_8engine_c_6engine_WrappedEngine) < 0) __PYX_ERR(1, 317, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_6robots_8engine_c_6engine_WrappedEngine) < 0) __PYX_ERR(1, 318, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_6robots_8engine_c_6engine_WrappedEngine.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_6robots_8engine_c_6engine_WrappedEngine.tp_dictoffset && __pyx_type_6robots_8engine_c_6engine_WrappedEngine.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_6robots_8engine_c_6engine_WrappedEngine.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_WrappedEngine, (PyObject *)&__pyx_type_6robots_8engine_c_6engine_WrappedEngine) < 0) __PYX_ERR(1, 317, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6robots_8engine_c_6engine_WrappedEngine) < 0) __PYX_ERR(1, 317, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_WrappedEngine, (PyObject *)&__pyx_type_6robots_8engine_c_6engine_WrappedEngine) < 0) __PYX_ERR(1, 318, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_6robots_8engine_c_6engine_WrappedEngine) < 0) __PYX_ERR(1, 318, __pyx_L1_error)
   __pyx_ptype_6robots_8engine_c_6engine_WrappedEngine = &__pyx_type_6robots_8engine_c_6engine_WrappedEngine;
   __Pyx_RefNannyFinishContext();
   return 0;

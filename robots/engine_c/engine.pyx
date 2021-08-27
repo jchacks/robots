@@ -4,7 +4,7 @@ cimport cython
 from cython.operator cimport dereference as deref, preincrement as inc
 
 cimport robots.engine_c.core
-from robots.engine_c.core cimport Vec2, Bullet, Robot, ROBOT_RADIUS, rand_float, Engine as CEngine
+from robots.engine_c.core cimport Vec2, Bullet, Robot, ROBOT_RADIUS, rand_float, Engine as CEngine, clip
 
 from libc.math cimport sin, cos, abs, pi, pow, pi
 from libcpp.set cimport set as c_set
@@ -252,8 +252,8 @@ cdef class Engine:
                     if test_circle_to_circle(ptr_robot.position, ROBOT_RADIUS, p_bullet.position, 3):
                         power: float = p_bullet.power
                         damage: float = 4 * power + (<float>(power >= 1) * 2 * (power - 1))
-                        ptr_robot.energy = max(ptr_robot.energy - damage,0)
-                        p_bullet.owner.energy = min(p_bullet.owner.energy  + 3 * power, 100.0)
+                        ptr_robot.energy -= damage
+                        p_bullet.owner.energy += 3 * power
                         (<PyRobot>p_bullet.owner.scripted_robot).on_bullet_hit(py_robot)
                         py_robot.on_hit_by_bullet()
                         self.bullets.remove(py_bullet)
@@ -297,6 +297,7 @@ cdef class Engine:
 
         for py_robot in self.robots:
             p_robot: &Robot = &(<PyRobot>py_robot).c_robot
+            p_robot.energy = clip(p_robot.energy, 0.0, 100.0)
             if p_robot.energy > 0:
                 p_robot.step()
                 
