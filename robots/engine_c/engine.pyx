@@ -13,6 +13,7 @@ from libcpp.list cimport list as c_list
 from libc.time cimport time,time_t
 from cpython.ref cimport PyObject
 import random
+import numpy as np
 
 ctypedef Bullet* BulletPtr
 ctypedef Robot* RobotPtr
@@ -124,7 +125,7 @@ cdef class PyRobot:
     # Readonly props
     @property
     def position(self):
-        return self.c_robot.position.x, self.c_robot.position.y
+        return np.array([self.c_robot.position.x, self.c_robot.position.y], np.float32)
 
     @property
     def speed(self):
@@ -141,6 +142,14 @@ cdef class PyRobot:
     @property
     def turret_rotation(self):
         return self.c_robot.turret_rotation
+
+    @property
+    def turret_direction(self):
+        return np.array(
+            [cos(self.c_robot.turret_rotation), 
+            sin(self.c_robot.turret_rotation)], 
+            np.float32
+        )
 
     @property
     def radar_rotation(self):
@@ -169,6 +178,9 @@ cdef class PyRobot:
     cpdef run(self):
         pass
     
+    cpdef on_hit_wall(self):
+        pass
+
     cpdef on_hit_robot(self, robot):
         pass
 
@@ -240,8 +252,8 @@ cdef class Engine:
                     if test_circle_to_circle(ptr_robot.position, ROBOT_RADIUS, p_bullet.position, 3):
                         power: float = p_bullet.power
                         damage: float = 4 * power + (<float>(power >= 1) * 2 * (power - 1))
-                        ptr_robot.energy -= damage
-                        p_bullet.owner.energy += 3 * power
+                        ptr_robot.energy = max(ptr_robot.energy - damage,0)
+                        p_bullet.owner.energy = min(p_bullet.owner.energy  + 3 * power, 100.0)
                         (<PyRobot>p_bullet.owner.scripted_robot).on_bullet_hit(py_robot)
                         py_robot.on_hit_by_bullet()
                         self.bullets.remove(py_bullet)
@@ -290,6 +302,7 @@ cdef class Engine:
                 
                 if cirle_oob(p_robot.position, 20, self.c_size):
                     self.handle_wall_collision(p_robot)
+                    py_robot.on_hit_wall()
 
                 py_robot.run()
 
