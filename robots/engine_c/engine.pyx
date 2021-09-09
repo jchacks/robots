@@ -29,6 +29,9 @@ cdef class PyBullet:
     """
     cdef BulletPtr c_bullet
 
+    def __dealloc__(self):
+        del self.c_bullet
+
     @property
     def position(self):
         return self.c_bullet.position.x, self.c_bullet.position.y
@@ -243,7 +246,7 @@ cdef class Engine:
 
             if cirle_oob(p_bullet.position, 3, self.c_size):
                 self.bullets.remove(py_bullet)
-                del p_bullet
+                # No need to `del p_bullet` here as its handled in PyBullet
                 continue
 
             for py_robot in self.robots:
@@ -257,7 +260,7 @@ cdef class Engine:
                         (<PyRobot>p_bullet.owner.scripted_robot).on_bullet_hit(py_robot)
                         py_robot.on_hit_by_bullet()
                         self.bullets.remove(py_bullet)
-                        del p_bullet
+                        # No need to `del p_bullet` here as its handled in PyBullet
                         break
     
     cdef handle_wall_collision(self, p_robot: RobotPtr):
