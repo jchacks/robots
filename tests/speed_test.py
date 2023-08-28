@@ -1,6 +1,7 @@
 from RoboArena import *
 from robots.app import App, Battle
 import random
+import time
 
 
 class RandomRobot(PyRobot):
@@ -25,10 +26,23 @@ robots = [RandomRobot((255, 0, 0)), RandomRobot((0, 255, 0))]
 eng = Engine(robots=robots)
 eng.init()
 
-app = App()
-app.child = Battle((600, 400), eng=eng)
-app.console.add_command(
-    "sim", app.child.set_tick_rate, help="Sets the Simulation rate."
-)
-app.child.set_tick_rate(1)
-app.run()
+with_app = False
+if not with_app:
+    steps = int(1e8)
+    s = time.perf_counter_ns()
+    for i in range(steps):
+        eng.step()
+    f = time.perf_counter_ns()
+
+else:
+    steps = int(1e5)
+    app = App()
+    app.child = Battle((600, 400), eng=eng)
+    s = time.perf_counter_ns()
+    for i in range(steps):
+        app.step()
+    f = time.perf_counter_ns()
+
+t = f - s
+ts = t * 1e-9
+print(f"{steps}steps {t}ns {ts}s {ts/steps}s/f {steps/ts}f/s")

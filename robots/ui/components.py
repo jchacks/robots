@@ -243,7 +243,7 @@ class BattleWindow(Canvas):
         self.overlay.set_battle(battle)
         for robot in battle.robots:
             self.robot_r.track(robot)
-        self.bullet_r.items = self.battle.bullets
+        self.bullet_r.battle = self.battle
         self.on_resize(self.size)
 
     def render(self):

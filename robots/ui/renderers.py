@@ -41,11 +41,9 @@ class BulletRenderer(Renderer):
         self.draw_trajectories = draw_trajectories
 
     def render(self, surface):
-        for item in self.items.copy():
+        for item in self.battle.get_bullets():
             try:
-                # if self.draw_trajectories:
-                #     pygame.draw.line(surface, Colors.Y, item.position, item.position + item.velocity * 1000)
-                pygame.draw.circle(surface, (255, 0, 0), item.position, 3, 0)
+                pygame.draw.circle(surface, (255, 0, 0), item, 3, 0)
             except Exception as e:
                 print(f"Error {e}, for bullet {item}")
 
